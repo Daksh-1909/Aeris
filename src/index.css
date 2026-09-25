@@ -91,3 +91,7 @@ html.custom-cursor-enabled,html.custom-cursor-enabled *{cursor:none!important}.c
 .sky-section>.gallery-empty,.nature-section>.gallery-empty{margin:0 auto;max-width:1440px;padding:20px 11.1% 55px}
 .clouds-section>.gallery-empty{padding:32px 11.1%}
 .photo-grid[aria-busy="true"]{min-height:1px}
+
+/* Phase 35: final alignment and atmosphere refinements. */
+.hero__image-fallback{inset:105px 6.2% auto auto}
+@media(max-width:760px){.hero__copy{left:50%;right:auto;width:min(92%,1200px);translate:-50% -50%}.hero__image-fallback{right:8%}}

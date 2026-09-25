@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BufferAttribute, BufferGeometry, PerspectiveCamera, Points, PointsMaterial, Scene, WebGLRenderer } from 'three';
+import { BufferAttribute, BufferGeometry, CanvasTexture, PerspectiveCamera, Points, PointsMaterial, Scene, WebGLRenderer } from 'three';
 
 /** Small, low-resolution Three.js atmosphere. The hero works normally if WebGL is unavailable. */
 export default function AtmosphereCanvas() {
@@ -28,7 +28,20 @@ export default function AtmosphereCanvas() {
     }
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(positions, 3));
-    const material = new PointsMaterial({ color: '#f5f3ef', size: 1.6, sizeAttenuation: true, transparent: true, opacity: 0.2, depthWrite: false });
+    const spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = 64;
+    spriteCanvas.height = 64;
+    const spriteContext = spriteCanvas.getContext('2d');
+    if (spriteContext) {
+      const glow = spriteContext.createRadialGradient(32, 32, 1, 32, 32, 32);
+      glow.addColorStop(0, 'rgba(255,255,255,0.9)');
+      glow.addColorStop(0.35, 'rgba(255,255,255,0.4)');
+      glow.addColorStop(1, 'rgba(255,255,255,0)');
+      spriteContext.fillStyle = glow;
+      spriteContext.fillRect(0, 0, 64, 64);
+    }
+    const particleTexture = new CanvasTexture(spriteCanvas);
+    const material = new PointsMaterial({ map: particleTexture, color: '#f5f3ef', size: 0.22, sizeAttenuation: true, transparent: true, opacity: 0.24, depthWrite: false, alphaTest: 0.03 });
     const particles = new Points(geometry, material);
     scene.add(particles);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
@@ -91,6 +104,7 @@ export default function AtmosphereCanvas() {
       observer.disconnect();
       geometry.dispose();
       material.dispose();
+      particleTexture.dispose();
       renderer.dispose();
     };
   }, []);
