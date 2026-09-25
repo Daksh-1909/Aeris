@@ -95,3 +95,4 @@ html.custom-cursor-enabled,html.custom-cursor-enabled *{cursor:none!important}.c
 /* Phase 35: final alignment and atmosphere refinements. */
 .hero__image-fallback{inset:105px 6.2% auto auto}
 @media(max-width:760px){.hero__copy{left:50%;right:auto;width:min(92%,1200px);translate:-50% -50%}.hero__image-fallback{right:8%}}
+@media(max-width:760px){.hero h1{font-size:clamp(42px,11vw,84px);letter-spacing:-.075em}.mobile-menu{width:44px;height:44px;padding:8px;display:grid;place-items:center}.hero__image-fallback{left:auto;right:8%;width:max-content;white-space:nowrap;text-align:right}}
