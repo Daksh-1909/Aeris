@@ -6,3 +6,7 @@ export async function getPhotographs(category: GalleryCategory = 'All'): Promise
   const items = category === 'All' ? photographs : photographs.filter((item) => item.category === category);
   return Promise.resolve(items);
 }
+
+export async function getPhotographById(id: string): Promise<Photograph | undefined> {
+  return Promise.resolve(photographs.find((item) => item.id === id));
+}

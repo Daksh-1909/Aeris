@@ -54,7 +54,7 @@ export function startScrollExperience() {
   };
 }
 
-export function useScrollReveals(root: HTMLElement) {
+export function startScrollReveals(root: HTMLElement) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return () => undefined;
 

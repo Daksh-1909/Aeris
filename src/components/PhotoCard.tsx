@@ -1,11 +1,6 @@
-import { ArrowUpRight } from 'lucide-react';
 import type { Photograph } from '../types/gallery';
-import { imageUrl } from '../data/gallery';
+import { GalleryImage } from './GalleryImage';
 
-export function PhotoCard({ photo, onOpen }: { photo: Photograph; onOpen: (photo: Photograph) => void }) {
-  return <button className={`photo-card photo-card--${photo.aspect}`} data-cursor="view" onClick={() => onOpen(photo)} aria-label={`View ${photo.title}`}>
-    <img src={imageUrl(photo.image, 1000)} alt={photo.title} loading="lazy" />
-    <span className="photo-card__shade" />
-    <span className="photo-card__meta"><span><small>{photo.location} · {photo.year}</small><strong>{photo.title}</strong></span><ArrowUpRight size={18} /></span>
-  </button>;
+export function PhotoCard({ photo, photos, onOpen }: { photo: Photograph; photos: Photograph[]; onOpen: (photo: Photograph, photos: Photograph[]) => void }) {
+  return <GalleryImage photo={photo} photos={photos} onOpen={onOpen} className={`photo-card photo-card--${photo.aspect}`} imageWidth={1000} parallax />;
 }

@@ -32,7 +32,7 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
       <div onClick={closeMenu}><Brand /></div>
       <nav className="desktop-nav" aria-label="Main navigation">
         <a href="#top" data-cursor="magnetic">Home</a>
-        {categoryLinks.map((link) => <a key={link.label} data-cursor="magnetic" href="#collection" className={category === link.category && link.category !== 'All' ? 'is-current' : ''} onClick={() => selectCategory(link.category)}>{link.label}</a>)}
+        {categoryLinks.map((link) => <a key={link.label} data-cursor="magnetic" href={link.category === 'Sky' ? '#sky' : link.category === 'Clouds' ? '#clouds' : link.category === 'Nature' ? '#nature' : '#collection'} className={category === link.category && link.category !== 'All' ? 'is-current' : ''} onClick={() => selectCategory(link.category)}>{link.label}</a>)}
         <a href="#about" data-cursor="magnetic">About</a>
       </nav>
       <a className="header-contact" data-cursor="arrow" href="mailto:hello@aeris.studio">Contact <ArrowUpRight size={15} /></a>
@@ -40,7 +40,7 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
     </div>
     <nav className="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation" inert={!menuOpen}>
       <a href="#top" onClick={closeMenu}>Home</a>
-      {categoryLinks.map((link) => <a key={link.label} href="#collection" onClick={() => selectCategory(link.category)}>{link.label}</a>)}
+      {categoryLinks.map((link) => <a key={link.label} href={link.category === 'Sky' ? '#sky' : link.category === 'Clouds' ? '#clouds' : link.category === 'Nature' ? '#nature' : '#collection'} onClick={() => selectCategory(link.category)}>{link.label}</a>)}
       <a href="#about" onClick={closeMenu}>About</a>
       <a href="mailto:hello@aeris.studio" onClick={closeMenu}>Contact <ArrowUpRight size={15} /></a>
     </nav>
