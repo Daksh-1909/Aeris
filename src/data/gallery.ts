@@ -17,3 +17,11 @@ export function imageUrl(id: string, width = 1200) {
   if (id.startsWith('/') || /^https?:\/\//i.test(id)) return id;
   return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 }
+
+/** Generate responsive candidates; Unsplash auto=format negotiates AVIF/WebP from browser support. */
+export function imageSrcSet(id: string, widths: number[]) {
+  if (id.startsWith('/') || /^https?:\/\//i.test(id)) return undefined;
+  return [...new Set(widths)].sort((a, b) => a - b)
+    .map((width) => `${imageUrl(id, width)} ${width}w`)
+    .join(', ');
+}

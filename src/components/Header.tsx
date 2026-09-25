@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { Brand } from './Brand';
 import type { GalleryCategory } from '../types/gallery';
@@ -13,6 +13,7 @@ const categoryLinks: { label: string; category: GalleryCategory }[] = [
 export function Header({ category, onNavigate }: { category: GalleryCategory; onNavigate: (category: GalleryCategory) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 24);
@@ -20,6 +21,18 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
   const selectCategory = (next: GalleryCategory) => {
@@ -29,14 +42,14 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
 
   return <header className={`site-header${scrolled ? ' site-header--scrolled' : ''}${menuOpen ? ' site-header--open' : ''}`}>
     <div className="site-header__bar">
-      <div onClick={closeMenu}><Brand /></div>
+      <Brand />
       <nav className="desktop-nav" aria-label="Main navigation">
         <a href="#top" data-cursor="magnetic">Home</a>
         {categoryLinks.map((link) => <a key={link.label} data-cursor="magnetic" href={link.category === 'Sky' ? '#sky' : link.category === 'Clouds' ? '#clouds' : link.category === 'Nature' ? '#nature' : '#collection'} className={category === link.category && link.category !== 'All' ? 'is-current' : ''} onClick={() => selectCategory(link.category)}>{link.label}</a>)}
         <a href="#about" data-cursor="magnetic">About</a>
       </nav>
       <a className="header-contact" data-cursor="arrow" href="mailto:hello@aeris.studio">Contact <ArrowUpRight size={15} /></a>
-      <button className="mobile-menu" data-cursor="arrow" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
+      <button ref={menuButtonRef} className="mobile-menu" data-cursor="arrow" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
     </div>
     <nav className="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation" inert={!menuOpen}>
       <a href="#top" onClick={closeMenu}>Home</a>

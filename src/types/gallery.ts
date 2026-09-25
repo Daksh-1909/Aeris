@@ -13,3 +13,5 @@ export interface Photograph {
   year: string;
   aspect: 'wide' | 'tall' | 'square';
 }
+
+export type OpenPhotograph = (photo: Photograph, photos: Photograph[]) => void;

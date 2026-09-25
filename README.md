@@ -6,11 +6,13 @@ A premium photography journal for sky, light, clouds and nature, built with Reac
 
 ```text
 src/
-  components/       Shared interface components (header, photo card, lightbox)
-  data/             Local editorial gallery records
+  animations/       Reusable GSAP and scroll utilities
+  components/       Shared interface and image components
+  data/             Editorial gallery records and image URL helpers
+  hooks/            Shared gallery loading state
   sections/         Page-level content sections
-  services/         Data access boundary; replace with API implementation later
-  types/            Shared TypeScript models
+  services/         Gallery data access boundary
+  types/            Shared TypeScript models and handlers
   App.tsx           Page composition and top-level UI state
   index.css         Global styles and responsive visual system
 ```
@@ -27,5 +29,10 @@ npm run dev
 ```
 
 Production build: `npm run build`
+Quality check (lint and production build): `npm run check`
+
+Use [QA_CHECKLIST.md](./QA_CHECKLIST.md) for desktop, mobile, keyboard, animation, and image checks.
+
+TypeScript is configured in strict mode; `npm run build` runs the type check before bundling.
 
 Photography is currently loaded from Unsplash URLs. Replace these with owned, optimized assets before launch.

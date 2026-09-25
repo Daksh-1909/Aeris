@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ImageReveal } from '../components/ImageReveal';
+import { imageSrcSet, imageUrl } from '../data/gallery';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,7 +38,7 @@ export function Introduction() {
         <h2 id="intro-title"><span className="intro-line">Every cloud carries</span><span className="intro-line">a different story.</span><span className="intro-line intro-line--italic">Every light exists</span><span className="intro-line intro-line--italic">only once.</span></h2>
         <p className="intro__statement">AERIS is a collection of moments<br />found above us and around us.</p>
       </div>
-      <figure className="intro__image-frame"><ImageReveal className="intro__image" image="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=85" alt="Open sky falling into a quiet landscape" parallax /><figcaption>Light moves. The moment remains.</figcaption></figure>
+      <figure className="intro__image-frame"><ImageReveal className="intro__image" image={imageUrl('photo-1500530855697-b586d89ba3ee', 1200)} srcSet={imageSrcSet('photo-1500530855697-b586d89ba3ee', [320, 640, 960, 1200])} sizes="(max-width: 760px) 78vw, 36vw" alt="Open sky falling into a quiet landscape" parallax /><figcaption>Light moves. The moment remains.</figcaption></figure>
     </div>
   </section>;
 }

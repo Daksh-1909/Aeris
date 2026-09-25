@@ -1,18 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getPhotographs } from '../services/galleryService';
-import type { Photograph } from '../types/gallery';
+import { useGalleryPhotos } from '../hooks/useGalleryPhotos';
+import type { OpenPhotograph } from '../types/gallery';
 import { GalleryImage } from '../components/GalleryImage';
+import { GalleryStatus } from '../components/GalleryStatus';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function CloudsSection({ onOpen }: { onOpen: (photo: Photograph, photos: Photograph[]) => void }) {
-  const [photos, setPhotos] = useState<Photograph[]>([]);
+export function CloudsSection({ onOpen }: { onOpen: OpenPhotograph }) {
+  const { photos, isLoading, hasError } = useGalleryPhotos('Clouds');
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { void getPhotographs('Clouds').then(setPhotos); }, []);
   const [feature, ...studies] = photos;
 
   useEffect(() => {
@@ -74,5 +73,6 @@ export function CloudsSection({ onOpen }: { onOpen: (photo: Photograph, photos: 
         <div className="cloud-studies__track" ref={trackRef}>{studies.map((photo, index) => <GalleryImage key={photo.id} photo={photo} photos={photos} onOpen={onOpen} className={`cloud-study cloud-study--${photo.aspect}`} imageWidth={1000} index={String(index + 2).padStart(2, '0')} parallax />)}</div>
       </div>
     </div>}
+    {!isLoading && photos.length === 0 && <GalleryStatus hasError={hasError} />}
   </section>;
 }

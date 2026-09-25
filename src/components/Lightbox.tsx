@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import type { Photograph } from '../types/gallery';
-import { imageUrl } from '../data/gallery';
+import { imageSrcSet, imageUrl } from '../data/gallery';
+import { ImageTransition } from './ImageTransition';
 
 interface LightboxProps {
   photos: Photograph[];
@@ -13,14 +14,26 @@ interface LightboxProps {
 export function Lightbox({ photos, active, onClose, onChange }: LightboxProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [isImageChanging, setIsImageChanging] = useState(false);
+  const [failedImageId, setFailedImageId] = useState<string | null>(null);
+  const [transitionPair, setTransitionPair] = useState<{ from: string; to: string } | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const changeStartTimerRef = useRef<number | null>(null);
   const changeEndTimerRef = useRef<number | null>(null);
+  const shaderFallbackTimerRef = useRef<number | null>(null);
   const closingRef = useRef(false);
   const changingRef = useRef(false);
   const activeRef = useRef(active);
   useEffect(() => { activeRef.current = active; }, [active]);
+
+  const finishTransition = useCallback(() => {
+    if (shaderFallbackTimerRef.current !== null) window.clearTimeout(shaderFallbackTimerRef.current);
+    shaderFallbackTimerRef.current = null;
+    setTransitionPair(null);
+    changingRef.current = false;
+    setIsImageChanging(false);
+  }, []);
 
   const changePhoto = useCallback((photo: Photograph) => {
     if (closingRef.current || changingRef.current) return;
@@ -28,16 +41,21 @@ export function Lightbox({ photos, active, onClose, onChange }: LightboxProps) {
       onChange(photo);
       return;
     }
+    const fromPhoto = activeRef.current;
+    const useWebGL = window.matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches
+      && (navigator.hardwareConcurrency || 4) > 2;
     changingRef.current = true;
     setIsImageChanging(true);
     changeStartTimerRef.current = window.setTimeout(() => {
       onChange(photo);
-      changeEndTimerRef.current = window.setTimeout(() => {
-        changingRef.current = false;
-        setIsImageChanging(false);
-      }, 280);
+      if (useWebGL) {
+        setTransitionPair({ from: imageUrl(fromPhoto.image, 2200), to: imageUrl(photo.image, 2200) });
+        shaderFallbackTimerRef.current = window.setTimeout(finishTransition, 1800);
+      } else {
+        changeEndTimerRef.current = window.setTimeout(finishTransition, 280);
+      }
     }, 110);
-  }, [onChange]);
+  }, [finishTransition, onChange]);
 
   const requestClose = useCallback(() => {
     if (closingRef.current) return;
@@ -45,6 +63,9 @@ export function Lightbox({ photos, active, onClose, onChange }: LightboxProps) {
     setIsClosing(true);
     if (changeStartTimerRef.current !== null) window.clearTimeout(changeStartTimerRef.current);
     if (changeEndTimerRef.current !== null) window.clearTimeout(changeEndTimerRef.current);
+    if (shaderFallbackTimerRef.current !== null) window.clearTimeout(shaderFallbackTimerRef.current);
+    shaderFallbackTimerRef.current = null;
+    setTransitionPair(null);
     changingRef.current = false;
     setIsImageChanging(false);
     const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 320;
@@ -70,13 +91,15 @@ export function Lightbox({ photos, active, onClose, onChange }: LightboxProps) {
         event.preventDefault();
         changePhoto(photos[(activeIndex - 1 + photos.length) % photos.length]);
       } else if (event.key === 'Tab') {
-        const buttons = document.querySelectorAll<HTMLButtonElement>('.lightbox button:not([disabled])');
-        const first = buttons[0];
-        const last = buttons[buttons.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
+        const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])');
+        if (!focusable?.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const focusIsInside = dialogRef.current?.contains(document.activeElement);
+        if (event.shiftKey && (!focusIsInside || document.activeElement === first)) {
           event.preventDefault();
           last?.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
+        } else if (!event.shiftKey && (!focusIsInside || document.activeElement === last)) {
           event.preventDefault();
           first?.focus();
         }
@@ -89,6 +112,7 @@ export function Lightbox({ photos, active, onClose, onChange }: LightboxProps) {
       if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
       if (changeStartTimerRef.current !== null) window.clearTimeout(changeStartTimerRef.current);
       if (changeEndTimerRef.current !== null) window.clearTimeout(changeEndTimerRef.current);
+      if (shaderFallbackTimerRef.current !== null) window.clearTimeout(shaderFallbackTimerRef.current);
       document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus();
     };
@@ -98,18 +122,20 @@ export function Lightbox({ photos, active, onClose, onChange }: LightboxProps) {
   const previous = () => changePhoto(photos[(index - 1 + photos.length) % photos.length]);
   const next = () => changePhoto(photos[(index + 1) % photos.length]);
 
-  return <div className={`lightbox${isClosing ? ' lightbox--closing' : ''}${isImageChanging ? ' lightbox--image-transition' : ''}`} role="dialog" aria-modal="true" aria-label={`${active.category} photograph: ${active.title}`} onClick={requestClose}>
+  return <div ref={dialogRef} className={`lightbox${isClosing ? ' lightbox--closing' : ''}${isImageChanging ? ' lightbox--image-transition' : ''}${transitionPair ? ' lightbox--webgl-transition' : ''}`} role="dialog" aria-modal="true" aria-label={`${active.category} photograph: ${active.title}`} onClick={requestClose}>
     <button ref={closeButtonRef} className="lightbox__close" onClick={requestClose} aria-label="Close image viewer"><X /></button>
-    <button className="lightbox__arrow lightbox__arrow--left" disabled={isClosing} onClick={(event) => { event.stopPropagation(); previous(); }} aria-label="Previous photograph"><ArrowLeft /></button>
+    <button className="lightbox__arrow lightbox__arrow--left" disabled={isClosing || isImageChanging} onClick={(event) => { event.stopPropagation(); previous(); }} aria-label="Previous photograph"><ArrowLeft /></button>
     <figure onClick={(event) => event.stopPropagation()}>
-      <img key={active.id} src={imageUrl(active.image, 2200)} alt={active.description ?? active.title} />
-      <figcaption>
+      <img key={active.id} className={failedImageId === active.id ? 'is-unavailable' : undefined} src={imageUrl(active.image, 1600)} srcSet={imageSrcSet(active.image, [640, 960, 1280, 1600, 2200])} sizes="(max-width: 760px) 100vw, 78vw" width="2200" height="1467" alt={active.description ?? active.title} loading="eager" decoding="async" onError={() => setFailedImageId(active.id)} />
+      {failedImageId === active.id && <span className="lightbox__image-fallback" aria-hidden="true">Photograph unavailable</span>}
+      {transitionPair && <ImageTransition from={transitionPair.from} to={transitionPair.to} onComplete={finishTransition} onFallback={finishTransition} />}
+      <figcaption aria-live="polite" aria-atomic="true">
         <span>{active.category} / {String(index + 1).padStart(2, '0')} / {active.metadata ?? active.location}</span>
         <strong>{active.title}</strong>
         {active.description && <p>{active.description}</p>}
         <small>{active.location} · {active.year}</small>
       </figcaption>
     </figure>
-    <button className="lightbox__arrow lightbox__arrow--right" disabled={isClosing} onClick={(event) => { event.stopPropagation(); next(); }} aria-label="Next photograph"><ArrowRight /></button>
+    <button className="lightbox__arrow lightbox__arrow--right" disabled={isClosing || isImageChanging} onClick={(event) => { event.stopPropagation(); next(); }} aria-label="Next photograph"><ArrowRight /></button>
   </div>;
 }

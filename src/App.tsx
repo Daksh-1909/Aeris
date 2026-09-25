@@ -11,6 +11,7 @@ import { CloudsSection } from './sections/CloudsSection';
 import { NatureSection } from './sections/NatureSection';
 import { Collection } from './sections/Collection';
 import { Manifesto } from './sections/Manifesto';
+import { ClosingExperience } from './sections/ClosingExperience';
 import { Footer } from './sections/Footer';
 import type { Photograph } from './types/gallery';
 import type { GalleryCategory } from './types/gallery';
@@ -23,6 +24,7 @@ export default function App() {
   const pageRef = useRef<HTMLDivElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const closeLightbox = useCallback(() => setSelection(null), []);
+  const openLightbox = useCallback((photo: Photograph, photos: Photograph[]) => setSelection({ photo, photos }), []);
   const changeLightboxPhoto = useCallback((photo: Photograph) => setSelection((current) => current ? { ...current, photo } : null), []);
 
   useEffect(() => {
@@ -80,5 +82,23 @@ export default function App() {
     return () => context.revert();
   }, []);
 
-  return <div ref={pageRef} className={isLoading ? '' : 'page--ready'}><CustomCursor /><Header category={category} onNavigate={(next) => setCategory(next)} /><main><Hero copyRef={heroCopyRef} /><Introduction /><SkySection onOpen={(photo, photos) => setSelection({ photo, photos })} /><CloudsSection onOpen={(photo, photos) => setSelection({ photo, photos })} /><NatureSection onOpen={(photo, photos) => setSelection({ photo, photos })} /><Collection category={category} onCategoryChange={setCategory} onOpen={(photo, photos) => setSelection({ photo, photos })} /><Manifesto /></main><Footer />{selection && <Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} />}{isLoading && <LoadingScreen />}</div>;
+  return (
+    <div ref={pageRef} className={isLoading ? '' : 'page--ready'}>
+      <CustomCursor />
+      <Header category={category} onNavigate={setCategory} />
+      <main>
+        <Hero copyRef={heroCopyRef} />
+        <Introduction />
+        <SkySection onOpen={openLightbox} />
+        <CloudsSection onOpen={openLightbox} />
+        <NatureSection onOpen={openLightbox} />
+        <Collection category={category} onCategoryChange={setCategory} onOpen={openLightbox} />
+        <Manifesto />
+        <ClosingExperience />
+      </main>
+      <Footer />
+      {selection && <Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} />}
+      {isLoading && <LoadingScreen />}
+    </div>
+  );
 }

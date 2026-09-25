@@ -47,18 +47,47 @@ export default function AtmosphereCanvas() {
 
     let animationFrame = 0;
     let lastFrame = 0;
-    const animate = (time: number) => {
-      animationFrame = window.requestAnimationFrame(animate);
-      if (time - lastFrame < 1000 / 30 || document.visibilityState === 'hidden') return;
-      lastFrame = time;
-      particles.rotation.y = Math.sin(time * 0.00008) * 0.09;
-      particles.rotation.x = Math.cos(time * 0.00006) * 0.025;
-      renderer.render(scene, camera);
+    let pageVisible = document.visibilityState !== 'hidden';
+    let heroVisible = !('IntersectionObserver' in window);
+    const startAnimation = () => {
+      if (pageVisible && heroVisible && !animationFrame) animationFrame = window.requestAnimationFrame(animate);
     };
-    animationFrame = window.requestAnimationFrame(animate);
+    const stopAnimation = () => {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    };
+    const animate = (time: number) => {
+      animationFrame = 0;
+      if (!pageVisible || !heroVisible) return;
+      if (time - lastFrame >= 1000 / 30) {
+        lastFrame = time;
+        particles.rotation.y = Math.sin(time * 0.00008) * 0.09;
+        particles.rotation.x = Math.cos(time * 0.00006) * 0.025;
+        renderer.render(scene, camera);
+      }
+      startAnimation();
+    };
+    const onVisibilityChange = () => {
+      pageVisible = document.visibilityState !== 'hidden';
+      lastFrame = 0;
+      if (pageVisible) startAnimation();
+      else stopAnimation();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    const intersectionObserver = 'IntersectionObserver' in window
+      ? new IntersectionObserver(([entry]) => {
+        heroVisible = entry.isIntersecting;
+        if (heroVisible) startAnimation();
+        else stopAnimation();
+      })
+      : null;
+    intersectionObserver?.observe(canvas);
+    startAnimation();
 
     return () => {
-      window.cancelAnimationFrame(animationFrame);
+      stopAnimation();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      intersectionObserver?.disconnect();
       observer.disconnect();
       geometry.dispose();
       material.dispose();

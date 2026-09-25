@@ -9,7 +9,7 @@ export function CustomCursor() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const finePointer = window.matchMedia('(min-width: 761px) and (hover: hover) and (pointer: fine)');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (!finePointer.matches || reduceMotion.matches || !cursorRef.current) return;
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -8,6 +8,8 @@ export type RevealDirection = 'up' | 'down' | 'left' | 'right';
 
 interface ImageRevealProps {
   image: string;
+  srcSet?: string;
+  sizes?: string;
   alt: string;
   direction?: RevealDirection;
   duration?: number;
@@ -25,7 +27,8 @@ const closedMasks: Record<RevealDirection, string> = {
 };
 
 /** Scroll triggered mask reveal with a restrained scale and optional image drift. */
-export function ImageReveal({ image, alt, direction = 'up', duration = 0.9, delay = 0, parallax = false, reveal = true, className = '' }: ImageRevealProps) {
+export function ImageReveal({ image, srcSet, sizes, alt, direction = 'up', duration = 0.9, delay = 0, parallax = false, reveal = true, className = '' }: ImageRevealProps) {
+  const [imageFailed, setImageFailed] = useState(false);
   const frameRef = useRef<HTMLSpanElement>(null);
   const visualRef = useRef<HTMLSpanElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -36,6 +39,7 @@ export function ImageReveal({ image, alt, direction = 'up', duration = 0.9, dela
     const imageElement = imageRef.current;
     if (!frame || !visual || !imageElement || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    let responsiveMotion: ReturnType<typeof gsap.matchMedia> | null = null;
     const context = gsap.context(() => {
       if (reveal) {
         const timeline = gsap.timeline({
@@ -47,19 +51,26 @@ export function ImageReveal({ image, alt, direction = 'up', duration = 0.9, dela
       }
 
       if (parallax) {
-        gsap.fromTo(visual, { yPercent: 4 }, {
-          yPercent: -4,
-          ease: 'none',
-          scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: 1 },
+        responsiveMotion = gsap.matchMedia(frame);
+        responsiveMotion.add('(min-width: 761px)', () => {
+          gsap.fromTo(visual, { yPercent: 4 }, {
+            yPercent: -4,
+            ease: 'none',
+            scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: 1 },
+          });
         });
       }
     }, frame);
-    return () => context.revert();
+    return () => {
+      responsiveMotion?.revert();
+      context.revert();
+    };
   }, [delay, direction, duration, parallax, reveal]);
 
   return <span ref={frameRef} className={`image-reveal ${className}`}>
     <span ref={visualRef} className={`image-reveal__visual${parallax ? ' image-reveal__visual--parallax' : ''}`}>
-      <img ref={imageRef} src={image} alt={alt} loading="lazy" />
+      <img ref={imageRef} className={imageFailed ? 'image-reveal__image--failed' : undefined} src={image} srcSet={srcSet} sizes={sizes} width="1600" height="1200" alt={alt} loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
+      {imageFailed && <span className="image-reveal__fallback" aria-hidden="true">Image unavailable</span>}
     </span>
   </span>;
 }
