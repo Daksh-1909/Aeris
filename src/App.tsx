@@ -16,16 +16,24 @@ import { Footer } from './sections/Footer';
 import type { Photograph } from './types/gallery';
 import type { GalleryCategory } from './types/gallery';
 import { startScrollExperience, startScrollReveals } from './animations/scroll';
+import { isFavorite, recordView, toggleFavorite } from './services/memberStore';
 
 export default function App() {
   const [selection, setSelection] = useState<{ photo: Photograph; photos: Photograph[] } | null>(null);
   const [category, setCategory] = useState<GalleryCategory>('All');
+  const [memberRevision, setMemberRevision] = useState(0);
   const [isLoading, setIsLoading] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const pageRef = useRef<HTMLDivElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const closeLightbox = useCallback(() => setSelection(null), []);
-  const openLightbox = useCallback((photo: Photograph, photos: Photograph[]) => setSelection({ photo, photos }), []);
+  const openLightbox = useCallback((photo: Photograph, photos: Photograph[]) => { recordView(photo); setSelection({ photo, photos }); }, []);
   const changeLightboxPhoto = useCallback((photo: Photograph) => setSelection((current) => current ? { ...current, photo } : null), []);
+
+  useEffect(() => {
+    const onMemberChange = () => setMemberRevision((value) => value + 1);
+    window.addEventListener('aeris:member-change', onMemberChange);
+    return () => window.removeEventListener('aeris:member-change', onMemberChange);
+  }, []);
 
   useEffect(() => {
     const stopScroll = startScrollExperience();
@@ -83,7 +91,7 @@ export default function App() {
   }, []);
 
   return (
-    <div ref={pageRef} className={isLoading ? '' : 'page--ready'}>
+    <div ref={pageRef} data-member-revision={memberRevision} className={isLoading ? '' : 'page--ready'}>
       <CustomCursor />
       <Header category={category} onNavigate={setCategory} />
       <main>
@@ -97,7 +105,7 @@ export default function App() {
         <ClosingExperience />
       </main>
       <Footer />
-      {selection && <Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} />}
+      {selection && <Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} favorite={isFavorite(selection.photo.id)} onToggleFavorite={(photo) => { toggleFavorite(photo.id); setMemberRevision((value) => value + 1); }} />}
       {isLoading && <LoadingScreen />}
     </div>
   );

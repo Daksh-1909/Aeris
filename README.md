@@ -19,7 +19,26 @@ src/
 
 ## Frontend and backend boundary
 
-The current project is a frontend-only Vite app; no server or API exists yet. Gallery content is accessed through `src/services/galleryService.ts`, which currently returns local records from `src/data/gallery.ts`. This keeps UI components independent from the storage choice and provides a clear place to connect a backend when its requirements are known.
+The gallery is served by the Vite frontend. Member features currently use a local browser adapter in `src/services/memberStore.ts`; there is no remote API, database, email sender, or cross-device account service configured. Passwords are stored as PBKDF2 hashes in browser storage for this local demo, never as plaintext. Use a managed auth provider such as Supabase Auth and a server-side database before accepting real users or private data.
+
+## Member experience routes
+
+- `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`
+- `/dashboard`, `/favorites`, `/collections`, `/search`, `/notifications`
+- `/profile/:username`, `/contact`
+
+Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage. Reset tokens are shown on screen for local testing; verification is a demo action. Contact inquiries are not delivered. The browser storage is not a secure substitute for server-side authorization.
+
+## Source organization
+
+```text
+src/
+  components/       Shared interface, route experience, and error boundary
+  services/         Gallery access and browser-local member data adapter
+  data/             Editorial photo records
+  sections/         Home page editorial sections
+  types/            Shared gallery types
+```
 
 ## Development
 

@@ -15,3 +15,9 @@
 ## Environment notes
 
 The browser/device checks require a browser with responsive emulation and developer tools. If those are unavailable, record which checks were skipped; a successful build alone does not verify visual behavior or browser console output.
+
+## Member feature scope
+
+- Member routes and account state currently run as a browser-local demo. Do not use real credentials or sensitive data; email delivery, server-side sessions, database access controls, and production account recovery require a configured backend provider.
+- Check local create/sign-in/sign-out, password reset token, dashboard, favorites, collection CRUD, search, profile, notification, and contact demo routes.
+- Reset tokens are intentionally displayed only for local testing; contact form submissions are not delivered.
