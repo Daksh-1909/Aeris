@@ -11,6 +11,8 @@ function read<T>(key: string, fallback: T): T { try { const value = localStorage
 async function derivePassword(password: string, salt: string) { const bytes = new TextEncoder().encode(password); const key = await crypto.subtle.importKey('raw', bytes, 'PBKDF2', false, ['deriveBits']); const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: Uint8Array.from(atob(salt), (c) => c.charCodeAt(0)), iterations: 120000, hash: 'SHA-256' }, key, 256); return btoa(String.fromCharCode(...new Uint8Array(bits))); }
 function profiles(): Record<string, MemberProfile> { return read(PROFILE_KEY, {}); }
 export function findLocalProfiles(query: string): MemberProfile[] { const needle = query.trim().toLowerCase(); return needle ? Object.values(profiles()).filter((profile) => `${profile.name} ${profile.username}`.toLowerCase().includes(needle)) : []; }
+export function findLocalProfileByUsername(username: string): MemberProfile | null { return Object.values(profiles()).find((profile) => profile.username === username) ?? null; }
+export function localFollowerCount(username: string): number { return Object.values(profiles()).filter((profile) => profile.following.includes(username)).length; }
 function allData(): Record<string, MemberData> { return read(DATA_KEY, {}); }
 function saveData(email: string, data: MemberData) { const all = allData(); all[email] = data; localStorage.setItem(DATA_KEY, JSON.stringify(all)); window.dispatchEvent(new Event('aeris:member-change')); }
 export function currentProfile(): MemberProfile | null { const email = localStorage.getItem(SESSION_KEY); return email ? profiles()[email] ?? null : null; }

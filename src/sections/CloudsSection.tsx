@@ -1,65 +1,15 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useGalleryPhotos } from '../hooks/useGalleryPhotos';
 import type { OpenPhotograph } from '../types/gallery';
 import { GalleryImage } from '../components/GalleryImage';
 import { GalleryStatus } from '../components/GalleryStatus';
 
-gsap.registerPlugin(ScrollTrigger);
-
 export function CloudsSection({ onOpen }: { onOpen: OpenPhotograph }) {
   const { photos, isLoading, hasError } = useGalleryPhotos('Clouds');
   const viewportRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const [feature, ...studies] = photos;
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    const track = trackRef.current;
-    if (!viewport || !track || photos.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const media = gsap.matchMedia();
-    media.add('(min-width: 761px)', () => {
-      if (track.scrollWidth <= viewport.clientWidth) return;
-      viewport.classList.add('is-scroll-controlled');
-
-      const horizontal = gsap.to(track, {
-        x: () => -(track.scrollWidth - viewport.clientWidth),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: viewport,
-          start: 'top top',
-          end: () => `+=${track.scrollWidth - viewport.clientWidth}`,
-          scrub: 1,
-          pin: true,
-          pinSpacing: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      Array.from(track.children).forEach((panel) => {
-        gsap.fromTo(panel, { scale: 0.9, opacity: 0.58 }, {
-          scale: 1,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: { trigger: panel, containerAnimation: horizontal, start: 'left 82%', end: 'center center', scrub: true },
-        });
-        gsap.to(panel, {
-          scale: 0.9,
-          opacity: 0.58,
-          ease: 'none',
-          scrollTrigger: { trigger: panel, containerAnimation: horizontal, start: 'center center', end: 'right 18%', scrub: true },
-        });
-      });
-      ScrollTrigger.refresh();
-
-      return () => viewport.classList.remove('is-scroll-controlled');
-    });
-
-    return () => media.revert();
-  }, [photos]);
+  const scrollStudies = (direction: -1 | 1) => viewportRef.current?.scrollBy({ left: direction * viewportRef.current.clientWidth * .78, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 
   return <section className="clouds-section" id="clouds" aria-labelledby="clouds-title">
     {feature && <div className="clouds-section__hero">
@@ -68,9 +18,9 @@ export function CloudsSection({ onOpen }: { onOpen: OpenPhotograph }) {
       <span className="clouds-section__edge-note">Weather, light, and everything in between</span>
     </div>}
     {studies.length > 0 && <div className="cloud-studies">
-      <div className="cloud-studies__heading"><p className="eyebrow">The cloud studies</p><span>{String(photos.length).padStart(2, '0')} collected moments</span></div>
-      <div className="cloud-studies__viewport" ref={viewportRef} role="region" aria-label="Cloud photographs">
-        <div className="cloud-studies__track" ref={trackRef}>{studies.map((photo, index) => <GalleryImage key={photo.id} photo={photo} photos={photos} onOpen={onOpen} className={`cloud-study cloud-study--${photo.aspect}`} imageWidth={1000} index={String(index + 2).padStart(2, '0')} parallax />)}</div>
+      <div className="cloud-studies__heading"><p className="eyebrow">The cloud studies</p><div className="cloud-studies__controls"><span>{String(photos.length).padStart(2, '0')} collected moments</span><button type="button" onClick={() => scrollStudies(-1)} aria-label="Previous cloud photographs"><ArrowLeft size={16}/></button><button type="button" onClick={() => scrollStudies(1)} aria-label="Next cloud photographs"><ArrowRight size={16}/></button></div></div>
+      <div className="cloud-studies__viewport" ref={viewportRef} role="region" aria-label="Cloud photographs" tabIndex={0}>
+        <div className="cloud-studies__track">{studies.map((photo, index) => <GalleryImage key={photo.id} photo={photo} photos={photos} onOpen={onOpen} className={`cloud-study cloud-study--${photo.aspect}`} imageWidth={1000} index={String(index + 2).padStart(2, '0')} parallax />)}</div>
       </div>
     </div>}
     {!isLoading && photos.length === 0 && <GalleryStatus hasError={hasError} />}

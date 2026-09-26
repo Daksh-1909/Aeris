@@ -21,3 +21,11 @@ The browser/device checks require a browser with responsive emulation and develo
 - Member routes and account state currently run as a browser-local demo. Do not use real credentials or sensitive data; email delivery, server-side sessions, database access controls, and production account recovery require a configured backend provider.
 - Check local create/sign-in/sign-out, password reset token, dashboard, favorites, collection CRUD, search, profile, notification, and contact demo routes.
 - Reset tokens are intentionally displayed only for local testing; contact form submissions are not delivered.
+
+## Phase 46 local smoke pass (2026-09-26)
+
+- `npm run check` passed: ESLint, strict TypeScript, and production build.
+- Headless Chrome loaded the home, auth, dashboard, favorites, collections, search, profile, contact, and notifications routes. Registration and collection creation worked; gallery favorite toggle and lightbox zoom/Escape worked.
+- Responsive document overflow was not detected at 320, 375, 768, 1024, 1440, and 1920 CSS pixels. No uncaught browser exceptions or console errors were observed in this pass.
+- Lighthouse scores and a WCAG audit were not run. Remote photo delivery, email delivery, and multi-user behavior need a real production backend and deployment environment.
+- Follow-up visual fix: replaced the desktop cloud gallery's pinned GSAP track with a native horizontal scroller and explicit previous/next controls. Verified multiple cards remain positioned in the viewport instead of leaving a single left-aligned image and a blank right side.
