@@ -19,7 +19,7 @@ src/
 
 ## Frontend and backend boundary
 
-The gallery is served by the Vite frontend. Member features currently use a local browser adapter in `src/services/memberStore.ts`; there is no remote API, database, email sender, or cross-device account service configured. Passwords are stored as PBKDF2 hashes in browser storage for this local demo, never as plaintext. Use a managed auth provider such as Supabase Auth and a server-side database before accepting real users or private data.
+The gallery is served by the Vite frontend. Member features use a local browser adapter when Supabase is not configured. Set the Supabase URL and publishable key to enable Supabase Auth plus remote profile, favorite, history, collection, and notification storage. The SQL schema and setup steps are in [BACKEND_SETUP.md](./BACKEND_SETUP.md). Do not use local demo accounts for real users or sensitive data.
 
 ## Member experience routes
 

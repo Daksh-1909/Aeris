@@ -112,6 +112,9 @@ begin
   if char_length(preferred_username) < 3 then
     preferred_username := 'aeris_' || left(replace(new.id::text, '-', ''), 12);
   end if;
+  if exists (select 1 from public.profiles p where p.username = left(preferred_username, 30)) then
+    preferred_username := left(preferred_username, 17) || '_' || left(replace(new.id::text, '-', ''), 12);
+  end if;
   insert into public.profiles (id, username, display_name)
   values (new.id, left(preferred_username, 30), left(display_name, 80));
   insert into public.notifications (recipient_id, kind, payload)
@@ -129,8 +132,15 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  should_notify boolean;
 begin
-  if new.is_public and (tg_op = 'INSERT' or (tg_op = 'UPDATE' and not old.is_public)) then
+  if tg_op = 'INSERT' then
+    should_notify := new.is_public;
+  else
+    should_notify := new.is_public and not old.is_public;
+  end if;
+  if should_notify then
     insert into public.notifications (recipient_id, actor_id, kind, payload)
     select f.follower_id, new.user_id, 'new_collection', jsonb_build_object('collection_id', new.id, 'title', new.title)
     from public.follows f
