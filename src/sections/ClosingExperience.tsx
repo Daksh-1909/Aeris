@@ -6,7 +6,7 @@ const closingPhoto = photographs.find((photo) => photo.id === '03') ?? photograp
 
 export function ClosingExperience() {
   const [imageFailed, setImageFailed] = useState(false);
-  return <section className="closing-experience" aria-labelledby="closing-title" data-reveal>
+  return <section className="closing-experience" id="closing" aria-labelledby="closing-title" data-reveal>
     <img
       className="closing-experience__image"
       src={imageUrl(closingPhoto.image, 2200)}

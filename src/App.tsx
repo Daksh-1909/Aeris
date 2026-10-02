@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Header } from './components/Header';
 import { LoadingScreen } from './components/LoadingScreen';
 import { CustomCursor } from './components/CustomCursor';
@@ -14,9 +15,10 @@ import { Collection } from './sections/Collection';
 import { Manifesto } from './sections/Manifesto';
 import { ClosingExperience } from './sections/ClosingExperience';
 import { Footer } from './sections/Footer';
+import { ChapterRail } from './components/ChapterRail';
 import type { Photograph } from './types/gallery';
 import type { GalleryCategory } from './types/gallery';
-import { startScrollExperience, startScrollReveals } from './animations/scroll';
+import { setScrollEffectsReduced, startScrollExperience, startScrollReveals } from './animations/scroll';
 import { isFavorite, recordView, toggleFavorite } from './services/memberStore';
 
 const Lightbox = lazy(() => import('./components/Lightbox').then((module) => ({ default: module.Lightbox })));
@@ -42,6 +44,36 @@ export default function App() {
     const stopScroll = startScrollExperience();
     const stopReveals = pageRef.current ? startScrollReveals(pageRef.current) : () => undefined;
     return () => { stopReveals(); stopScroll(); };
+  }, []);
+
+  useEffect(() => {
+    let userPrefersReducedEffects = false;
+    try { userPrefersReducedEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
+    setScrollEffectsReduced(userPrefersReducedEffects || selection !== null);
+  }, [selection]);
+
+  useEffect(() => {
+    const chapters = [
+      ['.hero', 'dawn'], ['.what-is-aeris', 'day'], ['.clouds-section', 'golden'],
+      ['.nature-section', 'dusk'], ['.closing-experience', 'night'],
+    ] as const;
+    const triggers = chapters.flatMap(([selector, theme]) => {
+      const element = pageRef.current?.querySelector<HTMLElement>(selector);
+      if (!element) return [];
+      const trigger = ScrollTrigger.create({
+        trigger: element, start: 'top 55%', end: 'bottom 45%',
+        onToggle: (self) => {
+          if (!self.isActive) return;
+          document.body.dataset.chapter = theme;
+          document.querySelectorAll<HTMLElement>('[data-chapter-link]').forEach((link) => {
+            if (link.dataset.chapterLink === theme) link.setAttribute('aria-current', 'step');
+            else link.removeAttribute('aria-current');
+          });
+        },
+      });
+      return [trigger];
+    });
+    return () => triggers.forEach((trigger) => trigger.kill());
   }, []);
 
   useEffect(() => {
@@ -97,6 +129,7 @@ export default function App() {
     <div ref={pageRef} data-member-revision={memberRevision} className={isLoading ? '' : 'page--ready'}>
       <a className="skip-link" href="#main-content">Skip to main content</a>
       <CustomCursor />
+      <ChapterRail />
       <Header category={category} onNavigate={setCategory} />
       <main id="main-content" tabIndex={-1}>
         <Hero copyRef={heroCopyRef} />

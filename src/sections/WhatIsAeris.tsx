@@ -1,5 +1,5 @@
 export function WhatIsAeris() {
-  return <section className="what-is-aeris section-wrap" aria-labelledby="what-is-aeris-title">
+  return <section className="what-is-aeris section-wrap" id="what-is-aeris" aria-labelledby="what-is-aeris-title">
     <p className="eyebrow">AERIS / THE IDEA</p>
     <h2 id="what-is-aeris-title">A sky journal for looking up—and going out.</h2>
     <div className="what-is-aeris__jobs">

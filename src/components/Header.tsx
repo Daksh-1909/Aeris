@@ -3,6 +3,7 @@ import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { Brand } from './Brand';
 import { AppearanceControl } from './AppearanceControl';
 import { SkyClock } from '../features/sky-clock/SkyClock';
+import { setScrollEffectsReduced } from '../animations/scroll';
 import type { GalleryCategory } from '../types/gallery';
 
 const categoryLinks: { label: string; category: GalleryCategory }[] = [
@@ -56,6 +57,12 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
       document.body.style.overflow = bodyOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    let reduceEffects = menuOpen;
+    try { reduceEffects ||= localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
+    setScrollEffectsReduced(reduceEffects);
   }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);

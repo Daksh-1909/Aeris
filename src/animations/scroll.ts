@@ -3,6 +3,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger);
+let activeLenis: Lenis | null = null;
+
+export function setScrollEffectsReduced(reduced: boolean) {
+  if (reduced) activeLenis?.stop();
+  else if (activeLenis) activeLenis.start();
+  else startScrollExperience();
+}
 
 export interface RevealOptions {
   y?: number;
@@ -32,13 +39,16 @@ export function revealOnScroll(target: gsap.TweenTarget, options: RevealOptions 
 /** Start Lenis and keep its scroll position in sync with GSAP ScrollTrigger. */
 export function startScrollExperience() {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (reduceMotion.matches) return () => undefined;
+  let reduceEffects = false;
+  try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
+  if (reduceMotion.matches || reduceEffects) return () => undefined;
 
   const lenis = new Lenis({
     duration: 1.05,
     smoothWheel: true,
     anchors: { offset: -80 },
   });
+  activeLenis = lenis;
   const tick = (time: number) => lenis.raf(time * 1000);
   const update = () => ScrollTrigger.update();
 
@@ -50,6 +60,7 @@ export function startScrollExperience() {
     lenis.off('scroll', update);
     gsap.ticker.remove(tick);
     lenis.destroy();
+    if (activeLenis === lenis) activeLenis = null;
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   };
 }

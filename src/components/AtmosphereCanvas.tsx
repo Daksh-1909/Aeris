@@ -61,9 +61,10 @@ export default function AtmosphereCanvas() {
     let animationFrame = 0;
     let lastFrame = 0;
     let pageVisible = document.visibilityState !== 'hidden';
+    let effectsEnabled = document.documentElement.dataset.reduceEffects !== 'true';
     let heroVisible = !('IntersectionObserver' in window);
     const startAnimation = () => {
-      if (pageVisible && heroVisible && !animationFrame) animationFrame = window.requestAnimationFrame(animate);
+      if (effectsEnabled && pageVisible && heroVisible && !animationFrame) animationFrame = window.requestAnimationFrame(animate);
     };
     const stopAnimation = () => {
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
@@ -86,7 +87,13 @@ export default function AtmosphereCanvas() {
       if (pageVisible) startAnimation();
       else stopAnimation();
     };
+    const onEffectsChange = (event: Event) => {
+      effectsEnabled = !(event as CustomEvent<boolean>).detail;
+      if (effectsEnabled) startAnimation();
+      else stopAnimation();
+    };
     document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('aeris:reduce-effects-change', onEffectsChange);
     const intersectionObserver = 'IntersectionObserver' in window
       ? new IntersectionObserver(([entry]) => {
         heroVisible = entry.isIntersecting;
@@ -100,6 +107,7 @@ export default function AtmosphereCanvas() {
     return () => {
       stopAnimation();
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('aeris:reduce-effects-change', onEffectsChange);
       intersectionObserver?.disconnect();
       observer.disconnect();
       geometry.dispose();

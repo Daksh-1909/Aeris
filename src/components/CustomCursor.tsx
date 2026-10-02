@@ -1,21 +1,38 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { createCursorTrail } from './cursorTrail';
 
 type CursorMode = 'default' | 'link' | 'view' | 'drag' | 'hidden' | 'disabled';
 
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const trailRef = useRef<HTMLCanvasElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<CursorMode>('default');
   const [visible, setVisible] = useState(false);
+  const [reduceEffects, setReduceEffects] = useState(() => document.documentElement.dataset.reduceEffects === 'true');
   const isVisibleRef = useRef(false);
+
+  useEffect(() => {
+    const onEffectsChange = (event: Event) => setReduceEffects((event as CustomEvent<boolean>).detail);
+    window.addEventListener('aeris:reduce-effects-change', onEffectsChange);
+    return () => window.removeEventListener('aeris:reduce-effects-change', onEffectsChange);
+  }, []);
 
   useEffect(() => {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const dot = dotRef.current;
     const ring = ringRef.current;
-    if (!finePointer.matches || reduceMotion.matches || !dot || !ring) return;
+    const canvas = trailRef.current;
+    const spotlight = spotlightRef.current;
+    if (!finePointer.matches || reduceMotion.matches || reduceEffects || !dot || !ring || !canvas || !spotlight) return;
+
+    const trail = createCursorTrail(canvas, () => {
+      const styles = getComputedStyle(document.body);
+      return [styles.getPropertyValue('--cursor-a').trim() || '#9FD6EC', styles.getPropertyValue('--cursor-b').trim() || '#7FD1C4'];
+    });
 
     let hoveredElement: HTMLElement | null = null;
     let previousMode: CursorMode = 'default';
@@ -24,9 +41,14 @@ export function CustomCursor() {
     const dotY = gsap.quickTo(dot, 'y', { duration: .08, ease: 'power3.out' });
     const ringX = gsap.quickTo(ring, 'x', { duration: .45, ease: 'power3.out' });
     const ringY = gsap.quickTo(ring, 'y', { duration: .45, ease: 'power3.out' });
+    const spotlightX = gsap.quickTo(spotlight, 'x', { duration: .18, ease: 'power2.out' });
+    const spotlightY = gsap.quickTo(spotlight, 'y', { duration: .18, ease: 'power2.out' });
 
     document.documentElement.classList.add('custom-cursor-enabled');
     const onPointerMove = (event: PointerEvent) => {
+      trail.emit(event.clientX, event.clientY);
+      spotlightX(event.clientX - 280);
+      spotlightY(event.clientY - 280);
       dotX(event.clientX);
       dotY(event.clientY);
       ringX(event.clientX);
@@ -80,7 +102,7 @@ export function CustomCursor() {
     const onPointerDown = () => ring.classList.add('is-down');
     const onPointerUp = () => ring.classList.remove('is-down');
     const onVisibilityChange = () => {
-      if (document.hidden) onPointerLeave();
+      if (document.hidden) { onPointerLeave(); trail.pause(); } else trail.resume();
     };
 
     document.addEventListener('pointermove', onPointerMove, { passive: true });
@@ -99,12 +121,18 @@ export function CustomCursor() {
       hoveredElement?.style.removeProperty('--mag-x');
       hoveredElement?.style.removeProperty('--mag-y');
       gsap.killTweensOf([dot, ring]);
-      gsap.set([dot, ring], { clearProps: 'transform' });
+      gsap.set([dot, ring, spotlight], { clearProps: 'transform' });
       document.documentElement.classList.remove('custom-cursor-enabled');
+      isVisibleRef.current = false;
+      setVisible(false);
+      setMode('default');
+      trail.destroy();
     };
-  }, []);
+  }, [reduceEffects]);
 
   return <>
+    <canvas ref={trailRef} className="cursor-trail" aria-hidden="true" />
+    <div ref={spotlightRef} className={`cursor-spotlight${visible ? ' is-visible' : ''}`} aria-hidden="true" />
     <div ref={ringRef} className={`cursor-ring${visible ? ' is-visible' : ''}${mode === 'hidden' ? ' is-hidden' : ''}`} data-state={mode} aria-hidden="true">
       <span>{mode === 'view' ? 'VIEW' : mode === 'drag' ? '↔ DRAG' : mode === 'disabled' ? '×' : ''}</span>
     </div>
