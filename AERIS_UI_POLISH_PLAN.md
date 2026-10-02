@@ -8,7 +8,7 @@
 - Phase 2: Dusk/Daylight/Auto appearance control, pre-paint theme selection, palette/type/spacing/motion tokens, Tailwind token mapping, and common palette migration are implemented. Some specialized legacy color literals remain; finish the contrast/theme pass in a responsive browser.
 - Phase 3: mobile menu focus trap and scroll lock, hero CTA pair and shorter branded intro, grouped footer navigation, and route transition styling are implemented. Route/page visual and assistive-technology checks remain.
 - Phase 4: adaptive dot/halo cursor with delegated target states, editable-control native cursor restoration and no pointer-move React state updates implemented; interactive pointer/profiler verification remains.
-- Phase 5: `100dvh` and safe-area rules, font preconnect, hero preload, SVG favicon and Apple touch icon added. Browser matrix, Lighthouse, and main-chunk optimization remain (607.87 kB minified main chunk warning).
+- Phase 5: `100dvh` and safe-area rules, font preconnect, hero preload, SVG favicon and Apple touch icon added. Supabase was moved behind its own async chunk; the main chunk is now 393.29 kB minified, with no chunk-size warning. Lighthouse and browser matrix remain.
 - Phase 6: README, QA checklist, and audit report updated. Manual route/device/accessibility and production backend checks remain outstanding.
 
 > **How to use:** Put this file in the repo root. Tell Codex:

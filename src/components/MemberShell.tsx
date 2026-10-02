@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { isSupabaseConfigured } from '../services/supabaseClient';
+import { isSupabaseConfigured } from '../services/supabaseConfig';
 
 const MemberExperience = lazy(() => import('./MemberExperience').then((module) => ({ default: module.MemberExperience })));
 

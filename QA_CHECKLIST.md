@@ -61,7 +61,7 @@ The browser/device checks require a browser with responsive emulation and develo
 
 - `npm.cmd run check` passed: ESLint, strict TypeScript, and Vite production build.
 - Source search found no `images.unsplash.com` hot-links in `src/`; 11 demo photographs are present as three local WebP widths each.
-- Manual browser/device checks, Lighthouse, screen-reader review, and live Supabase/RLS verification remain outstanding. The current production build reports a chunk-size advisory for the 607.87 kB main JavaScript chunk.
+- Manual browser/device checks, Lighthouse, screen-reader review, and live Supabase/RLS verification remain outstanding. The main entry is 393.29 kB minified; Supabase and the optional atmosphere effect build as separate chunks.
 
 ## UI polish plan pass (2026-10-02)
 
@@ -70,10 +70,10 @@ The browser/device checks require a browser with responsive emulation and develo
 - [ ] Switch Dusk, Daylight, and Auto; verify the first paint, text contrast, forms, image captions and controls throughout home and member routes.
 - [ ] Keyboard-test the skip link, route heading focus, desktop cursor fallback, mobile menu focus trap/Escape/scroll lock, lightbox, and forms. Repeat with reduced motion.
 - [ ] Confirm the SVG favicon and 180×180 Apple touch icon render clearly at their target sizes.
-- [ ] `npm.cmd run check` passes. The current build still warns that the main bundle is 607.87 kB minified; improve splitting and rerun Lighthouse before calling Phase 5 complete.
+- [ ] `npm.cmd run check` passes with no chunk-size advisory. The 393.29 kB main entry and separate Supabase/atmosphere chunks still need a Lighthouse run to measure real loading impact.
 - [ ] Lighthouse, screen-reader audit, cross-browser run and live Supabase/RLS verification remain outstanding.
 
-## Phase 46 local smoke pass (2026-09-26)
+## Phase 4–6 local smoke pass (2026-09-26)
 
 - `npm run check` passed: ESLint, strict TypeScript, and production build.
 - Headless Chrome loaded the home, auth, dashboard, favorites, collections, search, profile, contact, and notifications routes. Registration and collection creation worked; gallery favorite toggle and lightbox zoom/Escape worked.
