@@ -37,5 +37,5 @@ export function SkyClock() {
   const state = override === 'auto' ? stateAt(now) : override;
   const hour = now.getHours();
   const indicator = override === 'auto' && ((hour >= 5 && hour < 8) || (hour >= 16 && hour < 19)) ? 'Golden hour now' : state === 'night' ? 'Night sky' : state === 'dawn' ? 'First light' : state === 'dusk' ? 'Blue hour' : 'Daylight';
-  return <div className="sky-clock-control"><a href="/planner" aria-label={indicator + ', open the Shoot Planner'}>{indicator}</a><label><span className="visually-hidden">Sky theme</span><select aria-label="Sky theme" value={override} onChange={(event) => setOverride(event.target.value as Override)}><option value="auto">Auto</option><option value="day">Day</option><option value="night">Night</option></select></label></div>;
+  return <div className="sky-clock-control"><a href="/planner" aria-label={indicator + ', open the Shoot Planner'}>{indicator}</a><label><span className="visually-hidden">Sky theme</span><select aria-label="Sky Clock theme" title="Sky Clock theme" value={override} onChange={(event) => setOverride(event.target.value as Override)}><option value="auto">Auto</option><option value="day">Day</option><option value="night">Night</option></select></label></div>;
 }

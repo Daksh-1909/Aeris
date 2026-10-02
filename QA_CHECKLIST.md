@@ -61,7 +61,17 @@ The browser/device checks require a browser with responsive emulation and develo
 
 - `npm.cmd run check` passed: ESLint, strict TypeScript, and Vite production build.
 - Source search found no `images.unsplash.com` hot-links in `src/`; 11 demo photographs are present as three local WebP widths each.
-- Manual browser/device checks, Lighthouse, screen-reader review, and live Supabase/RLS verification remain outstanding. The production build reports a chunk-size advisory for the 603.54 kB main JavaScript chunk.
+- Manual browser/device checks, Lighthouse, screen-reader review, and live Supabase/RLS verification remain outstanding. The current production build reports a chunk-size advisory for the 607.87 kB main JavaScript chunk.
+
+## UI polish plan pass (2026-10-02)
+
+- [ ] Visit all auth/member routes, `/atlas`, `/planner`, `/photo/:id`, `/welcome`, `/admin/inquiries`, and an unknown route; record console/network failures and confirm each page has a useful heading.
+- [ ] Use a real responsive browser at 360, 390, 768, 1024, 1280, 1536, and 1920 CSS px. The available headless Chrome session clamps small window requests to a wider CSS viewport, so it cannot check phone widths accurately.
+- [ ] Switch Dusk, Daylight, and Auto; verify the first paint, text contrast, forms, image captions and controls throughout home and member routes.
+- [ ] Keyboard-test the skip link, route heading focus, desktop cursor fallback, mobile menu focus trap/Escape/scroll lock, lightbox, and forms. Repeat with reduced motion.
+- [ ] Confirm the SVG favicon and 180×180 Apple touch icon render clearly at their target sizes.
+- [ ] `npm.cmd run check` passes. The current build still warns that the main bundle is 607.87 kB minified; improve splitting and rerun Lighthouse before calling Phase 5 complete.
+- [ ] Lighthouse, screen-reader audit, cross-browser run and live Supabase/RLS verification remain outstanding.
 
 ## Phase 46 local smoke pass (2026-09-26)
 

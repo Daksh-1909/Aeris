@@ -61,3 +61,5 @@ Use [QA_CHECKLIST.md](./QA_CHECKLIST.md) for desktop, mobile, keyboard, animatio
 TypeScript is configured in strict mode; `npm run build` runs the type check before bundling.
 
 Gallery photography is served from local responsive WebP files in `public/images/`, with 480, 960, and 1600 pixel variants and `srcset` selection. These are self-hosted Unsplash demo copies, not AERIS-owned photographs; replace them with studio-owned or separately licensed photographs and verified photographer credits before launch.
+
+The site starts in Dusk, Daylight, or Auto (follows the operating-system appearance setting); choose the color theme in the home header. The separate Sky Clock control continues to set its time-of-day treatment. Fine-pointer desktop users get the decorative cloud-light cursor; it stays off for touch and reduced-motion preferences. The AERIS cloud-at-dawn favicon is `public/favicon.svg`, with a matching `public/apple-touch-icon.png` for iOS home-screen links.

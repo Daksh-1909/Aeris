@@ -55,7 +55,7 @@ export default function App() {
     const heading = heroCopyRef.current?.querySelector('h1');
     const slogan = heroCopyRef.current?.querySelector('.hero__slogan');
     const note = heroCopyRef.current?.querySelector('.hero__note');
-    const explore = heroCopyRef.current?.querySelector('.hero__explore');
+    const explore = heroCopyRef.current?.querySelector('.hero__actions');
     if (!image || !nav || !heading || !slogan || !note || !explore) return;
 
     const timeline = gsap.timeline({ onComplete: () => setIsLoading(false) });
@@ -63,13 +63,13 @@ export default function App() {
       .set(image, { scale: 1.08, transformOrigin: '50% 50%' })
       .set(nav, { autoAlpha: 0, y: -8 })
       .set([heading, slogan, note, explore], { autoAlpha: 0, y: 22 })
-      .to(image, { scale: 1, duration: 1.15, ease: 'power2.out' }, 0)
-      .to('.loading-screen', { autoAlpha: 0, yPercent: -8, duration: 0.48, ease: 'power2.inOut' }, 0.42)
-      .to(nav, { autoAlpha: 1, y: 0, duration: 0.28, ease: 'power2.out' }, 0.98)
-      .to(heading, { autoAlpha: 1, y: 0, duration: 0.42, ease: 'power2.out' }, 1.04)
-      .to(slogan, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 1.36)
-      .to(note, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 1.43)
-      .to(explore, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 1.52);
+      .to(image, { scale: 1, duration: 0.78, ease: 'power2.out' }, 0)
+      .to('.loading-screen', { autoAlpha: 0, yPercent: -5, duration: 0.28, ease: 'power2.inOut' }, 0.34)
+      .to(nav, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 0.48)
+      .to(heading, { autoAlpha: 1, y: 0, duration: 0.24, ease: 'power2.out' }, 0.50)
+      .to(slogan, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 0.62)
+      .to(note, { autoAlpha: 1, y: 0, duration: 0.15, ease: 'power2.out' }, 0.66)
+      .to(explore, { autoAlpha: 1, y: 0, duration: 0.15, ease: 'power2.out' }, 0.69);
     return () => { timeline.kill(); };
   }, []);
 
@@ -95,9 +95,10 @@ export default function App() {
 
   return (
     <div ref={pageRef} data-member-revision={memberRevision} className={isLoading ? '' : 'page--ready'}>
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <CustomCursor />
       <Header category={category} onNavigate={setCategory} />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <Hero copyRef={heroCopyRef} />
         <DailySky onOpen={openLightbox} />
         <Introduction />
