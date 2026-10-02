@@ -1,4 +1,5 @@
 export type GalleryCategory = 'All' | 'Sky' | 'Cloud' | 'Nature' | 'Featured';
+export type CloudType = 'cumulus' | 'stratus' | 'cirrus' | 'cumulonimbus' | 'altocumulus' | 'stratocumulus' | 'nimbostratus' | 'lenticular' | 'mammatus' | 'clear';
 
 export interface Photograph {
   id: string;
@@ -12,6 +13,8 @@ export interface Photograph {
   metadata?: string;
   year: string;
   aspect: 'wide' | 'tall' | 'square';
+  cloudType: CloudType;
+  credit: string;
 }
 
 export type OpenPhotograph = (photo: Photograph, photos: Photograph[]) => void;

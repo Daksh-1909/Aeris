@@ -19,7 +19,7 @@ src/
 
 ## Frontend and backend boundary
 
-The gallery is served by the Vite frontend. Member features use a local browser adapter when Supabase is not configured. Set the Supabase URL and publishable key to enable Supabase Auth plus remote profile, favorite, history, collection, and notification storage. The SQL schema and setup steps are in [BACKEND_SETUP.md](./BACKEND_SETUP.md). Do not use local demo accounts for real users or sensitive data.
+The gallery is served by the Vite frontend. When Supabase is not configured, member features run in clearly labeled Demo Mode and stay in this browser. Demo Mode uses derived password hashes, but it is not a secure account system; recovery, verification, and inquiry delivery are unavailable. Set the Supabase URL and publishable key to enable Supabase Auth plus remote member storage. The database, inquiry Edge Function and setup steps are in [BACKEND_SETUP.md](./BACKEND_SETUP.md). Do not use local demo accounts for real users or sensitive data.
 
 ## Member experience routes
 
@@ -27,7 +27,7 @@ The gallery is served by the Vite frontend. Member features use a local browser 
 - `/dashboard`, `/favorites`, `/collections`, `/search`, `/notifications`
 - `/profile/:username`, `/contact`
 
-Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage. Reset tokens are shown on screen for local testing; verification is a demo action. Contact inquiries are not delivered. The browser storage is not a secure substitute for server-side authorization.
+Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage in Demo Mode. Contact submissions show an honest “message not sent” status in Demo Mode. Configure the trusted inquiry backend before collecting real requests.
 
 ## Source organization
 
@@ -54,4 +54,4 @@ Use [QA_CHECKLIST.md](./QA_CHECKLIST.md) for desktop, mobile, keyboard, animatio
 
 TypeScript is configured in strict mode; `npm run build` runs the type check before bundling.
 
-Photography is currently loaded from Unsplash URLs. Replace these with owned, optimized assets before launch.
+Gallery photography currently uses remote Unsplash image URLs. The repository does not contain owned replacements yet; supply licensed/owned source images before migrating the responsive gallery to local AVIF/WebP assets.

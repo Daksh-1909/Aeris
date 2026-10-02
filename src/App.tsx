@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import './App.css';
 import gsap from 'gsap';
 import { Header } from './components/Header';
 import { Lightbox } from './components/Lightbox';
@@ -93,7 +94,6 @@ export default function App() {
 
   return (
     <div ref={pageRef} data-member-revision={memberRevision} className={isLoading ? '' : 'page--ready'}>
-      {!import.meta.env.VITE_SUPABASE_URL && <aside className="demo-mode-banner" role="status">Demo mode — member data stays in this browser only; email and contact messages are not sent.</aside>}
       <CustomCursor />
       <Header category={category} onNavigate={setCategory} />
       <main>

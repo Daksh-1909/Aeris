@@ -1,5 +1,10 @@
 # AERIS — Improvement Plan (for VS Code + Codex)
 
+## Progress ledger
+
+- Phase 1: demo auth/contact honesty, inquiry migration and Edge Function, core concept copy, metadata, friendly 404 and docs are implemented; `npm.cmd run check` passes. Owned responsive photo files are still needed before removing existing Unsplash URLs.
+- Later phases: not started.
+
 > **How to use this file:** Place it in the repo root. Tell Codex:
 > *"Read `AERIS_IMPROVEMENT_PLAN.md` fully. Work phase by phase. Finish and verify one phase before starting the next. After every phase run `npm run check` and fix all errors."*
 

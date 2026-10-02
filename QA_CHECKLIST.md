@@ -19,8 +19,9 @@ The browser/device checks require a browser with responsive emulation and develo
 ## Member feature scope
 
 - Member routes and account state currently run as a browser-local demo. Do not use real credentials or sensitive data; email delivery, server-side sessions, database access controls, and production account recovery require a configured backend provider.
-- Check local create/sign-in/sign-out, password reset token, dashboard, favorites, collection CRUD, search, profile, notification, and contact demo routes.
-- Reset tokens are intentionally displayed only for local testing; contact form submissions are not delivered.
+- Check local create/sign-in/sign-out, dashboard, favorites, collection CRUD, search, profile, notification, and contact demo routes.
+- Confirm Demo Mode is visibly labeled, recovery/verification do not claim to send email, and contact submission says “Demo mode — message not sent.”
+- With Supabase configured, deploy both migrations and `submit-inquiry`; verify a submission is stored, email notification status is honest, and a normal authenticated user cannot query inquiries.
 
 ## Phase 46 local smoke pass (2026-09-26)
 

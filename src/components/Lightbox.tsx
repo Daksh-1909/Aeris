@@ -29,7 +29,16 @@ export function Lightbox({ photos, active, onClose, onChange, favorite=false, on
   const closingRef=useRef(false);
   const changingRef=useRef(false);
   const activeRef=useRef(active);
+  const touchStartRef=useRef<{ x: number; y: number }|null>(null);
   useEffect(() => { activeRef.current=active; }, [active]);
+  useEffect(() => {
+    if (photos.length < 2) return;
+    const index = photos.findIndex((photo) => photo.id === active.id);
+    [photos[(index + 1) % photos.length], photos[(index - 1 + photos.length) % photos.length]].forEach((photo) => {
+      const image = new Image();
+      image.src = imageUrl(photo.image, 1600);
+    });
+  }, [active.id, photos]);
 
   const finishTransition=useCallback(() => {
     if (shaderFallbackTimerRef.current!==null) window.clearTimeout(shaderFallbackTimerRef.current);
@@ -132,7 +141,7 @@ export function Lightbox({ photos, active, onClose, onChange, favorite=false, on
   return <div ref={dialogRef} className={`lightbox${isClosing? ' lightbox--closing':''}${isImageChanging? ' lightbox--image-transition':''}${transitionPair? ' lightbox--webgl-transition':''}`} role="dialog" aria-modal="true" aria-label={`${active.category} photograph: ${active.title}`} onClick={requestClose}>
     <button ref={closeButtonRef} className="lightbox__close" onClick={requestClose} aria-label="Close image viewer"><X /></button>
     <button className="lightbox__arrow lightbox__arrow--left" disabled={isClosing||isImageChanging} onClick={(event) => { event.stopPropagation(); previous(); }} aria-label="Previous photograph"><ArrowLeft /></button>
-    <figure onClick={(event) => event.stopPropagation()}>
+    <figure onClick={(event) => event.stopPropagation()} onTouchStart={(event) => { const touch=event.touches[0]; if(touch) touchStartRef.current={x:touch.clientX,y:touch.clientY}; }} onTouchEnd={(event) => { const start=touchStartRef.current; const touch=event.changedTouches[0]; touchStartRef.current=null; if(!start||!touch) return; const dx=touch.clientX-start.x; const dy=touch.clientY-start.y; if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){ if(dx<0) next(); else previous(); } }}>
       <img key={active.id} className={failedImageId===active.id? 'is-unavailable':undefined} style={{ transform: `scale(${zoom})` }} src={imageUrl(active.image, 1600)} srcSet={imageSrcSet(active.image, [640, 960, 1280, 1600, 2200])} sizes="(max-width: 760px) 100vw, 78vw" width="2200" height="1467" alt={active.description??active.title} loading="eager" decoding="async" onError={() => setFailedImageId(active.id)} />
       {failedImageId===active.id&&<span className="lightbox__image-fallback" aria-hidden="true">Photograph unavailable</span>}
       {transitionPair&&<ImageTransition from={transitionPair.from} to={transitionPair.to} onComplete={finishTransition} onFallback={finishTransition} />}
