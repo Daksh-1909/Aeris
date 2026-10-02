@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Temporary AERIS visual audit</title>
+<pre id="result">Waiting for app…</pre>
+<iframe id="app" style="position:fixed;inset:0;width:100vw;height:100vh;border:0"></iframe>
+<script>
+const path = new URLSearchParams(location.search).get('path') || '/';
+const frame = document.getElementById('app');
+frame.src = path;
+frame.addEventListener('load', () => setTimeout(() => {
+  const doc = frame.contentDocument;
+  const win = frame.contentWindow;
+  const overflowing = [...doc.querySelectorAll('body *')].map((el) => ({
+    tag: el.tagName.toLowerCase(),
+    className: typeof el.className === 'string' ? el.className : '',
+    right: Math.round(el.getBoundingClientRect().right),
+    left: Math.round(el.getBoundingClientRect().left),
+  })).filter((item) => item.right > win.innerWidth + 1 || item.left < -1).slice(0, 20);
+  document.getElementById('result').textContent = JSON.stringify({
+    path, width: win.innerWidth, documentWidth: doc.documentElement.scrollWidth,
+    bodyWidth: doc.body.scrollWidth, title: doc.title,
+    heading: doc.querySelector('h1')?.textContent,
+    heroCopy: (() => { const el = doc.querySelector('.hero__slogan'); if (!el) return null; const r = el.getBoundingClientRect(); const s = win.getComputedStyle(el); return { left:r.left,right:r.right,width:r.width,scrollWidth:el.scrollWidth,whiteSpace:s.whiteSpace,maxWidth:s.maxWidth,display:s.display,parentWidth:el.parentElement.getBoundingClientRect().width }; })(),
+    brokenImages: [...doc.images].filter((img) => img.complete && !img.naturalWidth).map((img) => img.currentSrc),
+    overflowing,
+  }, null, 2);
+}, 2500), { once: true });
+</script>

@@ -8,11 +8,16 @@ export default {
     extend: {
       colors: {
         aeris: {
-          deepBlack: '#050505',
-          warmWhite: '#F5F3EF',
-          pureWhite: '#FFFFFF',
-          mutedGray: '#8A8A83',
-          sand: '#D8D3C8',
+          'sky-950': 'var(--sky-950)',
+          'sky-900': 'var(--sky-900)',
+          'sky-800': 'var(--sky-800)',
+          'sky-600': 'var(--sky-600)',
+          'mist-400': 'var(--mist-400)',
+          'cloud-50': 'var(--cloud-50)',
+          'azure-300': 'var(--azure-300)',
+          'sage-300': 'var(--sage-300)',
+          'gold-300': 'var(--gold-300)',
+          'rose-300': 'var(--rose-300)',
         }
       },
       fontFamily: {

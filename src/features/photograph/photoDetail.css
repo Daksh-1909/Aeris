@@ -1,18 +1,18 @@
-.photo-detail{width:min(1180px,90vw);margin:0 auto;padding:52px 0 90px}
-.photo-detail__back{display:inline-flex;align-items:center;min-height:44px;margin-bottom:22px;color:#e6dfc8}
+﻿.photo-detail{width:min(1180px,90vw);margin:0 auto;padding:52px 0 90px}
+.photo-detail__back{display:inline-flex;align-items:center;min-height:44px;margin-bottom:22px;color:var(--gold-300)}
 .photo-detail__layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:5vw;align-items:center}
 .photo-detail__layout figure{margin:0}
-.photo-detail__layout figure img{width:100%;height:auto;max-height:78vh;object-fit:contain;background:#171c19}
-.photo-detail__layout figcaption{font-size:10px;color:#aaa79f;margin-top:9px}
+.photo-detail__layout figure img{width:100%;height:auto;max-height:78vh;object-fit:contain;background:var(--sky-900)}
+.photo-detail__layout figcaption{font-size:10px;color:var(--mist-400);margin-top:9px}
 .photo-detail__info h2{font:300 clamp(42px,6vw,76px)/.95 'Cormorant Garamond',serif;margin:0 0 17px}
-.photo-detail__info>p:not(.eyebrow){color:#c8c5bd;line-height:1.7}
+.photo-detail__info>p:not(.eyebrow){color:var(--mist-400);line-height:1.7}
 .photo-detail__info dl{margin:30px 0}
-.photo-detail__info dl div{display:grid;grid-template-columns:105px 1fr;gap:12px;padding:12px 0;border-top:1px solid #454945}
-.photo-detail__info dt{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#aaa79f}
+.photo-detail__info dl div{display:grid;grid-template-columns:105px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--sky-600)}
+.photo-detail__info dt{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-400)}
 .photo-detail__info dd{margin:0;font-size:12px;line-height:1.5}
-.photo-detail__info dd a{color:#e6dfc8;text-decoration:underline;text-underline-offset:3px}
+.photo-detail__info dd a{color:var(--gold-300);text-decoration:underline;text-underline-offset:3px}
 .photo-detail__actions{display:flex;flex-wrap:wrap;gap:10px}
-.photo-detail__actions button{min-height:48px;padding:12px 16px;border:1px solid #e6dfc8;background:transparent;color:#eeeae2;cursor:pointer}
-.photo-detail__actions button:first-child{background:#e6dfc8;color:#22241f}
-.photo-detail :focus-visible{outline:2px solid #f4e5c7;outline-offset:4px}
+.photo-detail__actions button{min-height:48px;padding:12px 16px;border:1px solid var(--gold-300);background:transparent;color:var(--cloud-50);cursor:pointer}
+.photo-detail__actions button:first-child{background:var(--gold-300);color:var(--sky-800)}
+.photo-detail :focus-visible{outline:2px solid var(--gold-300);outline-offset:4px}
 @media(max-width:760px){.photo-detail__layout{grid-template-columns:1fr}.photo-detail__layout figure img{max-height:none}.photo-detail__info dl div{grid-template-columns:90px 1fr}}

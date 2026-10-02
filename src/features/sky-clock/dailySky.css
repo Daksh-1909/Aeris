@@ -1,21 +1,21 @@
-.daily-sky{padding:95px 7vw 105px;background:#151a18;color:#f5f3ef;display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,1.3fr);gap:36px 6vw}
+﻿.daily-sky{padding:95px 7vw 105px;background:var(--sky-900);color:var(--cloud-50);display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,1.3fr);gap:36px 6vw}
 .daily-sky__intro{align-self:end}
 .daily-sky__intro h2{font:300 clamp(55px,8vw,100px)/.9 'Cormorant Garamond',serif;margin:0 0 20px}
-.daily-sky__intro>p:not(.eyebrow){max-width:28ch;color:#c8c5bd;line-height:1.6}
-.daily-sky__intro time{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#aaa79f}
-.daily-sky__feature{position:relative;min-height:430px;padding:0;overflow:hidden;border:0;background:#2d3530;color:#fff;text-align:left;cursor:pointer}
+.daily-sky__intro>p:not(.eyebrow){max-width:28ch;color:var(--mist-400);line-height:1.6}
+.daily-sky__intro time{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-400)}
+.daily-sky__feature{position:relative;min-height:430px;padding:0;overflow:hidden;border:0;background:#2d3530;color:var(--cloud-50);text-align:left;cursor:pointer}
 .daily-sky__feature::after{content:\"\";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.72))}
 .daily-sky__feature img{position:absolute;inset:0;object-fit:cover;transition:transform .8s}
 .daily-sky__feature:hover img{transform:scale(1.025)}
 .daily-sky__caption{position:absolute;z-index:1;inset:auto 24px 24px;display:grid;gap:8px}
-.daily-sky__caption small{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#eeeae2}
+.daily-sky__caption small{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--cloud-50)}
 .daily-sky__caption strong{font:400 38px 'Cormorant Garamond',serif}
-.daily-sky__caption>span{max-width:54ch;font-size:12px;line-height:1.6;color:#eeeae2}
-.daily-sky__archive{grid-column:1/-1;display:grid;grid-template-columns:.7fr 1.3fr;gap:6vw;align-items:start;border-top:1px solid #454945;padding-top:18px}
+.daily-sky__caption>span{max-width:54ch;font-size:12px;line-height:1.6;color:var(--cloud-50)}
+.daily-sky__archive{grid-column:1/-1;display:grid;grid-template-columns:.7fr 1.3fr;gap:6vw;align-items:start;border-top:1px solid var(--sky-600);padding-top:18px}
 .daily-sky__archive h3{margin:0;font:400 25px 'Cormorant Garamond',serif}
 .daily-sky__archive>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.daily-sky__archive button{display:grid;gap:8px;min-height:72px;padding:12px;text-align:left;border:1px solid #454945;background:transparent;color:#f5f3ef;cursor:pointer}
-.daily-sky__archive time{font-size:9px;letter-spacing:.1em;color:#c8c5bd}
+.daily-sky__archive button{display:grid;gap:8px;min-height:72px;padding:12px;text-align:left;border:1px solid var(--sky-600);background:transparent;color:var(--cloud-50);cursor:pointer}
+.daily-sky__archive time{font-size:9px;letter-spacing:.1em;color:var(--mist-400)}
 .daily-sky__archive button span{font:400 17px 'Cormorant Garamond',serif}
-.daily-sky__archive button:focus-visible,.daily-sky__feature:focus-visible{outline:2px solid #f4e5c7;outline-offset:4px}
+.daily-sky__archive button:focus-visible,.daily-sky__feature:focus-visible{outline:2px solid var(--gold-300);outline-offset:4px}
 @media(max-width:760px){.daily-sky{grid-template-columns:1fr;padding:70px 8% 75px;gap:28px}.daily-sky__feature{min-height:360px}.daily-sky__archive{grid-template-columns:1fr;gap:16px}.daily-sky__archive>div{grid-template-columns:repeat(2,minmax(0,1fr))}}

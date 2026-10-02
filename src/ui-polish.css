@@ -1,4 +1,90 @@
-/* Small, isolated baseline fixes; shared design tokens are introduced in Phase 2. */
+/* AERIS design tokens: dusk is the default and daylight is an explicit theme. */
+:root {
+  color-scheme: dark;
+  --sky-950: #0B1A24;
+  --sky-900: #10283A;
+  --sky-800: #14323F;
+  --sky-600: #3D5566;
+  --mist-400: #9FB8C4;
+  --cloud-50: #EAF4F7;
+  --azure-300: #9FD6EC;
+  --sage-300: #7FD1C4;
+  --gold-300: #F2B880;
+  --rose-300: #E8A0A0;
+  --day-bg: #F4F8F6;
+  --day-surface: #FFFFFF;
+  --day-text: #14323F;
+  --day-muted: #5A6F7A;
+  --day-accent: #1F4E5F;
+  --grad-dusk: linear-gradient(180deg, #0B1A24 0%, #10283A 55%, #14323F 100%);
+  --grad-dawn: linear-gradient(180deg, #10283A 0%, #3D5566 60%, #F2B880 130%);
+  --grad-mist: radial-gradient(60% 50% at 50% 0%, rgb(159 214 236 / .18), transparent 70%);
+  --scrim: linear-gradient(180deg, rgb(11 26 36 / 0) 0%, rgb(11 26 36 / .78) 100%);
+  --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-body: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-hero: clamp(2.75rem, 7vw + 1rem, 6.5rem);
+  --text-h2: clamp(1.875rem, 3vw + 1rem, 3.25rem);
+  --text-h3: clamp(1.25rem, 1vw + 1rem, 1.625rem);
+  --text-body: clamp(1rem, .2vw + .95rem, 1.125rem);
+  --space-1: .5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --space-12: 6rem;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 10px 30px -12px rgb(0 0 0 / .45);
+  --shadow-glow: 0 0 0 1px rgb(159 214 236 / .18), 0 18px 50px -20px rgb(127 209 196 / .35);
+  --ease-sky: cubic-bezier(.22, 1, .36, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 700ms;
+  --page-bg: var(--sky-950);
+  --page-surface: var(--sky-900);
+  --page-raised: var(--sky-800);
+  --page-text: var(--cloud-50);
+  --page-muted: var(--mist-400);
+  --page-accent: var(--sage-300);
+  --page-highlight: var(--gold-300);
+  --page-border: var(--sky-600);
+  --ink: var(--sky-950);
+  --paper: var(--cloud-50);
+  --muted: var(--mist-400);
+  --line: rgb(234 244 247 / .2);
+}
+
+html[data-theme='daylight'] {
+  color-scheme: light;
+  --page-bg: var(--day-bg);
+  --page-surface: var(--day-surface);
+  --page-raised: #EAF1EF;
+  --page-text: var(--day-text);
+  --page-muted: var(--day-muted);
+  --page-accent: var(--day-accent);
+  --page-highlight: #8A5A24;
+  --page-border: #A7BBC0;
+  --ink: var(--day-bg);
+  --paper: var(--day-text);
+  --muted: var(--day-muted);
+  --line: rgb(20 50 63 / .2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
+}
+
+html { background: var(--page-bg); color: var(--page-text); }
+body { background-color: var(--page-bg); color: var(--page-text); }
+::selection { background: var(--sage-300); color: var(--sky-950); }
+:focus-visible { outline-color: var(--azure-300); }
+.site-header--scrolled { background: color-mix(in srgb, var(--sky-950) 78%, transparent); }
+.sky-clock-control select { background: var(--page-bg); border-color: var(--page-border); color: var(--page-text); }
+
+/* Small, isolated baseline fixes. */
 .app-error {
   min-height: 100vh;
   min-height: 100dvh;
@@ -27,11 +113,14 @@
   align-items: center;
   justify-content: center;
   padding: 10px 18px;
-  border: 1px solid #aaa79f;
+  border: 1px solid var(--page-muted);
   background: transparent;
   color: inherit;
   cursor: pointer;
 }
+.app-error__actions button { background: var(--sage-300); color: var(--sky-950); border-color: var(--sage-300); }
+.app-error__actions button:hover { background: var(--azure-300); }
+.app-error__actions a:hover { border-color: var(--gold-300); color: var(--gold-300); }
 
 .member-shell-loading {
   min-height: 100vh;
@@ -49,8 +138,62 @@
 .auth-stage { min-height: calc(100vh - 76px); min-height: calc(100dvh - 76px); padding-bottom: calc(7vh + env(safe-area-inset-bottom)); }
 .mobile-nav { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
 .cloud-atlas { min-height: calc(100vh - 76px); min-height: calc(100dvh - 76px); }
+.hero__slogan { width: 100%; max-width: 30ch; min-width: 0; flex: 0 1 auto; white-space: normal; text-align: center; text-wrap: balance; overflow-wrap: anywhere; }
+.cloud-studies__viewport { width: 100%; max-width: 100%; }
+@media (max-width: 760px) {
+  .cloud-studies__track { width: 100%; max-width: 100%; min-width: 0; margin-right: 0; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .app-error__actions button,
   .app-error__actions a { scroll-behavior: auto; transition: none; }
+}
+
+.appearance-control select {
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1px solid var(--page-border);
+  border-radius: var(--radius-sm);
+  background: var(--page-bg);
+  color: var(--page-text);
+  font: 10px var(--font-body);
+}
+.appearance-control select:focus-visible { outline: 2px solid var(--azure-300); outline-offset: 3px; }
+@media (max-width: 760px) { .appearance-control select { min-height: 44px; } }
+
+html[data-theme='daylight'] .member-shell { background: var(--day-bg); color: var(--day-text); }
+html[data-theme='daylight'] .member-shell .member-primary { background: var(--day-accent); color: var(--day-surface); }
+html[data-theme='daylight'] .member-shell .member-primary:hover { background: var(--sky-800); }
+html[data-theme='daylight'] .site-header--scrolled { background: rgb(244 248 246 / .82); }
+html[data-theme='daylight'] .hero__copy { text-shadow: 0 1px 14px rgb(11 26 36 / .75); }
+
+button,
+input,
+select,
+textarea { font-family: var(--font-body); }
+button { transition: background-color var(--dur-fast) var(--ease-sky), color var(--dur-fast) var(--ease-sky), border-color var(--dur-fast) var(--ease-sky), transform var(--dur-fast) var(--ease-sky); }
+button:not(:disabled):active { transform: scale(.98); }
+button:disabled { opacity: .55; cursor: not-allowed; }
+input,
+select,
+textarea { accent-color: var(--sage-300); }
+.member-shell input:not([type='checkbox']),
+.member-shell select,
+.member-shell textarea,
+.cloud-quiz select { min-height: 48px; border-radius: var(--radius-sm); }
+.member-primary { min-height: 48px; border-radius: var(--radius-sm); background: var(--sage-300); color: var(--sky-950); }
+.member-primary:hover { background: var(--azure-300); box-shadow: var(--shadow-glow); }
+.member-content a,
+.photo-detail a,
+.cloud-atlas a { text-decoration-thickness: .08em; text-underline-offset: .22em; }
+.cloud-atlas__type,
+.member-panel,
+.daily-sky__archive button { border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }
+.cloud-atlas__type:hover,
+.member-panel:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.hero__veil { background-image: var(--scrim); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
