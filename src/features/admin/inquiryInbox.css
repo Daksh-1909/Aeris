@@ -1,0 +1,17 @@
+.inquiry-inbox{width:min(1050px,90vw);margin:0 auto;padding:55px 0 90px}
+.inquiry-inbox>h2{font:300 clamp(46px,7vw,78px)/.95 'Cormorant Garamond',serif;margin:18px 0 32px}
+.inquiry-inbox__filter,.inquiry-inbox article>label{display:flex;align-items:center;gap:12px;font-size:11px;color:#c8c5bd}
+.inquiry-inbox select{min-height:44px;padding:9px 12px;background:#171c19;color:#eeeae2;border:1px solid #555a55}
+.inquiry-inbox__list{margin-top:25px}
+.inquiry-inbox__list article,.inquiry-inbox__empty{padding:23px;margin:15px 0;border:1px solid #454945;background:#171c19}
+.inquiry-inbox__head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.inquiry-inbox__head span,.inquiry-inbox__head time{font-size:10px;color:#c8c5bd;text-transform:uppercase;letter-spacing:.08em}
+.inquiry-inbox__head h3{font:400 28px 'Cormorant Garamond',serif;margin:8px 0}
+.inquiry-inbox__head a{color:#e6dfc8;font-size:12px}
+.inquiry-inbox__list article>p{font-size:12px;line-height:1.7;color:#dedbd3}
+.inquiry-inbox__message{white-space:pre-wrap}
+.inquiry-inbox article>label{margin-top:18px}
+.inquiry-inbox__error{padding:14px;border:1px solid #ab7771;color:#f2c6bf}
+.inquiry-inbox__error button{min-height:44px;padding:10px 14px}
+.inquiry-inbox :focus-visible{outline:2px solid #f4e5c7;outline-offset:4px}
+@media(max-width:600px){.inquiry-inbox__head{flex-direction:column}.inquiry-inbox__list article{padding:16px}}

@@ -19,7 +19,7 @@ Deploy `supabase/functions/submit-inquiry` with `supabase functions deploy submi
 supabase secrets set RESEND_API_KEY=... INQUIRY_NOTIFY_EMAIL=studio@example.com INQUIRY_FROM_EMAIL="AERIS <inquiries@example.com>" SITE_ORIGIN=https://your-domain.example
 ```
 
-Use a sender domain verified with Resend. The function validates and bounds input, rejects the honeypot, limits each email to three submissions per hour, stores the request, and sends a notification. If email is not configured, the inquiry is stored and the UI says so. The service-role key stays inside the Supabase Edge Function runtime. Only users with `profiles.role = 'admin'` can read/update inquiry rows; browser clients cannot change roles. Assign the first admin role from the trusted Supabase SQL editor.
+Use a sender domain verified with Resend. The function validates and bounds input, rejects the honeypot, limits each email to three submissions per hour, stores contact and photo requests, and sends a notification. If email is not configured, the inquiry is stored and the UI says so. The service-role key stays inside the Supabase Edge Function runtime. Only users with `profiles.role = 'admin'` can read/update inquiry rows; browser clients cannot change roles. Assign the first admin role from the trusted Supabase SQL editor, for example `update public.profiles set role = 'admin' where id = 'YOUR_AUTH_USER_UUID';`. The same second migration creates `shoot_spots` with owner-only RLS for the Planner.
 
 ## 3. Verify the connection
 

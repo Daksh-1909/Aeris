@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 import gsap from 'gsap';
 import { Header } from './components/Header';
-import { Lightbox } from './components/Lightbox';
 import { LoadingScreen } from './components/LoadingScreen';
 import { CustomCursor } from './components/CustomCursor';
 import { Hero } from './sections/Hero';
 import { Introduction } from './sections/Introduction';
 import { WhatIsAeris } from './sections/WhatIsAeris';
+import { DailySky } from './features/sky-clock/DailySky';
 import { SkySection } from './sections/SkySection';
 import { CloudsSection } from './sections/CloudsSection';
 import { NatureSection } from './sections/NatureSection';
@@ -19,6 +19,8 @@ import type { Photograph } from './types/gallery';
 import type { GalleryCategory } from './types/gallery';
 import { startScrollExperience, startScrollReveals } from './animations/scroll';
 import { isFavorite, recordView, toggleFavorite } from './services/memberStore';
+
+const Lightbox = lazy(() => import('./components/Lightbox').then((module) => ({ default: module.Lightbox })));
 
 export default function App() {
   const [selection, setSelection] = useState<{ photo: Photograph; photos: Photograph[] } | null>(null);
@@ -98,6 +100,7 @@ export default function App() {
       <Header category={category} onNavigate={setCategory} />
       <main>
         <Hero copyRef={heroCopyRef} />
+        <DailySky onOpen={openLightbox} />
         <Introduction />
         <WhatIsAeris />
         <SkySection onOpen={openLightbox} />
@@ -108,7 +111,7 @@ export default function App() {
         <ClosingExperience />
       </main>
       <Footer />
-      {selection && <Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} favorite={isFavorite(selection.photo.id)} onToggleFavorite={(photo) => { toggleFavorite(photo.id); setMemberRevision((value) => value + 1); }} />}
+      {selection && <Suspense fallback={<p role="status" className="lightbox-loading">Opening photograph…</p>}><Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} favorite={isFavorite(selection.photo.id)} onToggleFavorite={(photo) => { toggleFavorite(photo.id); setMemberRevision((value) => value + 1); }} /></Suspense>}
       {isLoading && <LoadingScreen />}
     </div>
   );

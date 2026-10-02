@@ -19,13 +19,15 @@ Deno.serve(async (request: Request) => {
     const inquiryType = clean(body.type, 30);
     const photoId = clean(body.photoId, 80) || null;
     const photoTitle = clean(body.photoTitle, 200) || null;
+    const purpose = ['personal', 'commercial', 'editorial', 'other'].includes(body.purpose) ? body.purpose : 'personal';
+    const usage = clean(body.usage, 300);
     if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || message.length < 10) return reply({ error: 'Please provide a valid name, email, and message of at least 10 characters.' }, 400);
     if (!['contact', 'print', 'license', 'commission', 'collaboration'].includes(inquiryType)) return reply({ error: 'Choose a valid inquiry type.' }, 400);
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { count } = await supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('email', email).gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
     if ((count ?? 0) >= 3) return reply({ error: 'Please wait before sending another inquiry.' }, 429);
-    const { error } = await supabase.from('inquiries').insert({ name, email, inquiry_type: inquiryType, message, photo_id: photoId, photo_title: photoTitle });
+    const { error } = await supabase.from('inquiries').insert({ name, email, inquiry_type: inquiryType, message, photo_id: photoId, photo_title: photoTitle, purpose, usage });
     if (error) throw error;
 
     const resendKey = Deno.env.get('RESEND_API_KEY');
@@ -34,7 +36,7 @@ Deno.serve(async (request: Request) => {
       const delivery = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: Deno.env.get('INQUIRY_FROM_EMAIL') ?? 'AERIS <onboarding@resend.dev>', to: [notifyEmail], reply_to: email, subject: `AERIS inquiry: ${inquiryType}`, text: `${name} (${email})\n${photoTitle ? `${photoTitle} (${photoId})\n` : ''}\n${message}` }),
+        body: JSON.stringify({ from: Deno.env.get('INQUIRY_FROM_EMAIL') ?? 'AERIS <onboarding@resend.dev>', to: [notifyEmail], reply_to: email, subject: `AERIS inquiry: ${inquiryType}`, text: `${name} (${email})\n${photoTitle ? `${photoTitle} (${photoId})\n` : ''}Purpose: ${purpose}\nUsage: ${usage}\n\n${message}` }),
       });
       if (!delivery.ok) return reply({ ok: true, notificationSent: false });
     } else return reply({ ok: true, notificationSent: false });

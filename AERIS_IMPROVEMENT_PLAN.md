@@ -2,10 +2,13 @@
 
 ## Progress ledger
 
-- Phase 1: demo auth/contact honesty, inquiry migration and Edge Function, core concept copy, metadata, friendly 404 and docs are implemented; `npm.cmd run check` passes. Owned responsive photo files are still needed before removing existing Unsplash URLs.
-- Phase 2: navigation links, active member route styling, URL-backed debounced search, lightbox swipe/preload, protected loading and retry states implemented; `npm.cmd run check` passes. Focused browser and assistive technology review remains.
+- Phase 1: demo auth/contact honesty, inquiry migration and Edge Function, core concept copy, metadata, friendly 404, docs, and local responsive WebP copies are implemented; `npm.cmd run check` passes. Runtime Unsplash hot-links are removed. The local demo photos are not AERIS-owned and need replacement with owned/licensed originals and verified credits before launch.
+- Phase 2: shared navigation, active route styling, 250 ms URL-backed search and cloud/time/season/mood/location filters with removable chips, photo swipe/preload/focus trap, reduced-motion paths, 44 px mobile controls, loading/empty/error states and a skippable three-step onboarding implemented; `npm.cmd run check` passes. Focused browser and assistive technology review remains.
 - Phase 3 / Feature A: offline Cloud Atlas, per-photo cloud tags, field notes and four-question identifier implemented; `npm.cmd run check` passes.
-- Phase 4 onward: in progress.
+- Phase 4 / Feature B: location search/geolocation, local SunCalc sun and moon times, timezone display, timeline, saved spots with RLS/local fallback, and in-app reminders implemented. `npm.cmd run check` passes. Mumbai sunrise/sunset for 2 Oct 2026 matched the trusted table within one minute.
+- Phase 5 / Feature C: time-based sky accent, persistent Auto/Day/Night override, early theme initialization and date-deterministic Daily Sky with seven-day archive implemented.
+- Phase 6 / Feature D: deep-linked photo detail pages, photo-specific print/licensing requests, server-side inquiry storage/email pipeline, admin inbox and RLS-bound role authorization implemented. `npm.cmd run check` passes. Live Supabase deployment and RLS verification still require the owner’s Supabase project.
+- Final QA remains: replace demo Unsplash copies with owned/licensed originals and verified credits, mobile visual/accessibility checks, Lighthouse, and live backend verification.
 
 > **How to use this file:** Place it in the repo root. Tell Codex:
 > *"Read `AERIS_IMPROVEMENT_PLAN.md` fully. Work phase by phase. Finish and verify one phase before starting the next. After every phase run `npm run check` and fix all errors."*

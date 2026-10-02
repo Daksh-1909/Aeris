@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { Brand } from './Brand';
+import { SkyClock } from '../features/sky-clock/SkyClock';
 import type { GalleryCategory } from '../types/gallery';
 
 const categoryLinks: { label: string; category: GalleryCategory }[] = [
@@ -49,6 +50,7 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
         <a href="/atlas">Cloud Atlas</a><a href="/planner">Planner</a><a href="/collections">Collections</a>
         <a href="#about" data-cursor="magnetic">About</a>
       </nav>
+      <SkyClock />
       <a className="header-contact" data-cursor="arrow" href="/login">Profile / Sign in <ArrowUpRight size={15} /></a>
       <button ref={menuButtonRef} className="mobile-menu" data-cursor="arrow" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
     </div>

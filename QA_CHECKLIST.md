@@ -30,6 +30,32 @@ The browser/device checks require a browser with responsive emulation and develo
 - Complete each field in the cloud identifier; confirm the suggestion links to a guide with at least one tagged gallery photograph.
 - Open a gallery lightbox and follow its cloud type tag into the Atlas.
 
+## Shoot Planner
+
+- Search for Mumbai, select a result, and check the displayed timezone and local sunrise/sunset. For 2 Oct 2026, compare sunrise and sunset to a trusted table.
+- Deny geolocation and confirm city search still works.
+- With a signed-in account, save a spot, reload, toggle a reminder and remove it. Confirm signed-out users can see times but are asked to sign in to save.
+- Test a high-latitude date/location and confirm missing sun or moon rise/set events show a readable empty value instead of crashing.
+
+## Sky Clock and Daily Sky
+
+- Reload at dawn/day/evening/night and confirm the matching accent appears without a theme flash; use Auto, Day and Night overrides and reload to confirm persistence.
+- Enable reduced motion and confirm sky transitions stop. Check both light and dark system appearance.
+- Reload on the same local date and confirm Daily Sky keeps the same featured photograph; inspect the seven previous-date entries and open each.
+
+## Photo requests and admin inbox
+
+- Open a lightbox, use its detail link, and confirm `/photo/:id` shows image, location, time/light, cloud tag, credit and camera-data status.
+- Submit print and licensing requests with a test Supabase environment; confirm the right photo ID/title, purpose and size/usage arrive in the database and inbox.
+- Test invalid email, blank message and honeypot; confirm no inquiry is created.
+- Sign in with a normal account and verify direct `inquiries` reads/updates are denied by RLS. Sign in with an admin and filter/update statuses.
+- Share a detail URL and inspect its title, description and Open Graph image after client render.
+
+## Search and onboarding
+
+- Search by text and combine cloud type, time of day, season, mood/color and location filters. Remove individual chips, refresh, and use browser back/forward to confirm URL state.
+- Register a new account and finish each onboarding step; repeat with every skip path. Confirm the optional home city appears as the Planner's initial search.
+
 ## Phase 46 local smoke pass (2026-09-26)
 
 - `npm run check` passed: ESLint, strict TypeScript, and production build.

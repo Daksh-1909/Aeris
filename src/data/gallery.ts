@@ -15,12 +15,14 @@ export const photographs: Photograph[] = [
 
 export function imageUrl(id: string, width = 1200) {
   if (id.startsWith('/') || /^https?:\/\//i.test(id)) return id;
-  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
+  const responsiveWidth = width <= 480 ? 480 : width <= 960 ? 960 : 1600;
+  return `/images/${id}-${responsiveWidth}.webp`;
 }
 
-/** Generate responsive candidates; Unsplash auto=format negotiates AVIF/WebP from browser support. */
+/** Return local WebP candidates for self-hosted records, or remote candidates for explicit URLs. */
 export function imageSrcSet(id: string, widths: number[]) {
   if (id.startsWith('/') || /^https?:\/\//i.test(id)) return undefined;
+  if (id.startsWith('photo-')) return [480, 960, 1600].map((width) => `/images/${id}-${width}.webp ${width}w`).join(', ');
   return [...new Set(widths)].sort((a, b) => a - b)
     .map((width) => `${imageUrl(id, width)} ${width}w`)
     .join(', ');

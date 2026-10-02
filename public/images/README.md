@@ -1,30 +1,13 @@
-# Gallery image folders
+# Gallery image assets
 
-Store the photographs for the four homepage collections here. Vite serves files in `public/` from the site root, so these are their browser paths:
+The current demo gallery is self-hosted in this directory at three responsive widths:
 
-- `public/images/sky/` → `/images/sky/filename.webp`
-- `public/images/cloud/` → `/images/cloud/filename.webp`
-- `public/images/nature/` → `/images/nature/filename.webp`
-- `public/images/featured/` → `/images/featured/filename.webp`
+- `<photo-id>-480.webp`
+- `<photo-id>-960.webp`
+- `<photo-id>-1600.webp`
 
-Use descriptive, lowercase filenames, for example `lofoten-blue-hour.webp` or `dolomites-low-cloud.webp`.
+`src/data/gallery.ts` maps each Unsplash photo ID to these local files, and gallery images select a candidate with `srcset` and `sizes`. The hero requests the largest local size with high fetch priority. This removes runtime hot-links to Unsplash.
 
-Then add an entry in `src/data/gallery.ts` with `image` set to the browser path and `category` set to `Sky`, `Cloud`, `Nature`, or `Featured`. The collection service filters these records and the existing cards and lightbox will load the local file. Keep a matching photograph entry for each image you want displayed; placing a file in this folder alone does not add it to the collection.
+These files are downloaded, resized WebP copies of Unsplash photographs. They are not AERIS-owned photographs, and the photographer could not be identified from the existing records. Keep the `credit` field accurate; replace the demo imagery and add verified creator credits before presenting the gallery as original studio work.
 
-Example:
-
-```ts
-{
-  id: '07',
-  title: 'Blue hour over Lofoten',
-  location: 'Lofoten, Norway',
-  category: 'Sky',
-  image: '/images/sky/lofoten-blue-hour.webp',
-  description: 'First light opening over the coast.',
-  metadata: 'First light',
-  year: '2026',
-  aspect: 'wide',
-}
-```
-
-The four collection folders are `sky`, `nature`, `cloud`, and `featured`. Prefer compressed WebP or AVIF images at appropriate display dimensions. The current demo entries still use Unsplash URLs until local photographs are added.
+For new original assets, use descriptive filenames and update the corresponding `Photograph.image` value in `src/data/gallery.ts` to the file path (for example `/images/sky/lofoten-blue-hour.webp`). Keep responsive dimensions, meaningful alt text, and the proper creator/license details.

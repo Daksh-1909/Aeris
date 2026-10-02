@@ -152,6 +152,7 @@ export function Lightbox({ photos, active, onClose, onChange, favorite=false, on
         <small>{active.location} · {active.year}</small>
         <small>Credit: {active.credit}</small>
         <a href={`/atlas/${active.cloudType}`} className="lightbox__cloud-tag">{active.cloudType} · Explore in Cloud Atlas →</a>
+        <a href={`/photo/${active.id}`} className="lightbox__cloud-tag">Open photograph details · Print and licensing →</a>
       </figcaption>
     </figure>
     <button className="lightbox__arrow lightbox__arrow--right" disabled={isClosing||isImageChanging} onClick={(event) => { event.stopPropagation(); next(); }} aria-label="Next photograph"><ArrowRight /></button>

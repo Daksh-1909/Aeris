@@ -26,8 +26,12 @@ The gallery is served by the Vite frontend. When Supabase is not configured, mem
 - `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`
 - `/dashboard`, `/favorites`, `/collections`, `/search`, `/notifications`
 - `/profile/:username`, `/contact`
+- `/welcome` (first-signup setup; skippable)
+- `/photo/:id` (shareable detail and print/licensing inquiry)
+- `/admin/inquiries` (Supabase admin role required; enforced by RLS)
 - `/atlas`, `/atlas/:type` (offline cloud field guide and identifier)
-- `/planner` (planned next feature)
+- `/planner` (local sun/moon times, city search, geolocation, saved shoot spots)
+- Sky Clock theme controls and a deterministic Daily Sky feature appear on the home page.
 
 Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage in Demo Mode. Contact submissions show an honest “message not sent” status in Demo Mode. Configure the trusted inquiry backend before collecting real requests.
 
@@ -56,4 +60,4 @@ Use [QA_CHECKLIST.md](./QA_CHECKLIST.md) for desktop, mobile, keyboard, animatio
 
 TypeScript is configured in strict mode; `npm run build` runs the type check before bundling.
 
-Gallery photography currently uses remote Unsplash image URLs. The repository does not contain owned replacements yet; supply licensed/owned source images before migrating the responsive gallery to local AVIF/WebP assets.
+Gallery photography is served from local responsive WebP files in `public/images/`, with 480, 960, and 1600 pixel variants and `srcset` selection. These are self-hosted Unsplash demo copies, not AERIS-owned photographs; replace them with studio-owned or separately licensed photographs and verified photographer credits before launch.

@@ -4,7 +4,7 @@ import type { MemberData, MemberProfile } from './memberStore';
 
 const cachedProfileKey='aeris:supabase-profile-cache';
 
-function mapProfile(user: User, row?: { username?: string; display_name?: string; is_public?: boolean; theme?: 'dark'|'light'; notifications_enabled?: boolean; created_at?: string; avatar_path?: string|null; }): MemberProfile {
+function mapProfile(user: User, row?: { username?: string; display_name?: string; is_public?: boolean; theme?: 'dark'|'light'; notifications_enabled?: boolean; created_at?: string; avatar_path?: string|null; role?: 'member'|'admin'; interests?: string[]; home_location?: string; onboarding_complete?: boolean; starter_collection_followed?: boolean; }): MemberProfile {
   const displayName=row?.display_name||user.user_metadata.name||user.email?.split('@')[0]||'AERIS member';
   return {
     email: user.email??'',
@@ -16,6 +16,11 @@ function mapProfile(user: User, row?: { username?: string; display_name?: string
     notifications: row?.notifications_enabled??true,
     theme: row?.theme??'dark',
     privacy: row?.is_public? 'public':'private',
+    role: row?.role ?? 'member',
+    interests: row?.interests ?? [],
+    homeLocation: row?.home_location ?? '',
+    onboardingComplete: row?.onboarding_complete ?? false,
+    starterCollectionFollowed: row?.starter_collection_followed ?? false,
   };
 }
 
@@ -28,7 +33,7 @@ export async function loadSupabaseProfile(): Promise<MemberProfile|null> {
     return null;
   }
   const user=sessionData.session.user;
-  const { data: profile }=await supabase.from('profiles').select('username,display_name,is_public,theme,notifications_enabled,created_at,avatar_path').eq('id', user.id).maybeSingle();
+  const { data: profile }=await supabase.from('profiles').select('username,display_name,is_public,theme,notifications_enabled,created_at,avatar_path,role,interests,home_location,onboarding_complete,starter_collection_followed').eq('id', user.id).maybeSingle();
   const mapped=mapProfile(user, profile??undefined);
   localStorage.setItem(cachedProfileKey, JSON.stringify(mapped));
   localStorage.setItem('aeris:session', mapped.email);
@@ -51,7 +56,7 @@ export async function signInWithSupabase(email: string, password: string): Promi
   if (!supabase) throw new Error('Supabase is not configured.');
   const { data, error }=await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
   if (error) throw error;
-  const { data: profile }=await supabase.from('profiles').select('username,display_name,is_public,theme,notifications_enabled,created_at,avatar_path').eq('id', data.user.id).maybeSingle();
+  const { data: profile }=await supabase.from('profiles').select('username,display_name,is_public,theme,notifications_enabled,created_at,avatar_path,role,interests,home_location,onboarding_complete,starter_collection_followed').eq('id', data.user.id).maybeSingle();
   const mapped=mapProfile(data.user, profile??undefined);
   localStorage.setItem(cachedProfileKey, JSON.stringify(mapped));
   localStorage.setItem('aeris:session', mapped.email);

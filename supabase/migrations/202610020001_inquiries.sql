@@ -1,8 +1,12 @@
 -- Public inquiries are accepted through the submit-inquiry Edge Function only.
 alter table public.profiles add column if not exists role text not null default 'member' check (role in ('member', 'admin'));
+alter table public.profiles add column if not exists interests text[] not null default '{}';
+alter table public.profiles add column if not exists home_location text not null default '' check (char_length(home_location) <= 120);
+alter table public.profiles add column if not exists onboarding_complete boolean not null default false;
+alter table public.profiles add column if not exists starter_collection_followed boolean not null default false;
 revoke update on public.profiles from authenticated;
-grant update (display_name, bio, avatar_path, is_public, theme, notifications_enabled) on public.profiles to authenticated;
-grant select (id, username, display_name, bio, avatar_path, is_public, theme, notifications_enabled, created_at, updated_at, role) on public.profiles to anon, authenticated;
+grant update (display_name, bio, avatar_path, is_public, theme, notifications_enabled, interests, home_location, onboarding_complete, starter_collection_followed) on public.profiles to authenticated;
+grant select (id, username, display_name, bio, avatar_path, is_public, theme, notifications_enabled, created_at, updated_at, role, interests, home_location, onboarding_complete, starter_collection_followed) on public.profiles to anon, authenticated;
 
 create table if not exists public.inquiries (
   id uuid primary key default gen_random_uuid(),
@@ -12,6 +16,8 @@ create table if not exists public.inquiries (
   message text not null check (char_length(message) between 1 and 5000),
   photo_id text,
   photo_title text,
+  purpose text not null default 'personal' check (purpose in ('personal', 'commercial', 'editorial', 'other')),
+  usage text not null default '' check (char_length(usage) <= 300),
   status text not null default 'new' check (status in ('new', 'replied', 'closed')),
   created_at timestamptz not null default now()
 );
