@@ -1,6 +1,6 @@
-# AERIS — Moments Above
+# AERIS — Read the Sky
 
-A premium photography journal for sky, light, clouds and nature, built with React, TypeScript and Vite.
+AERIS is a sky journal and shooting companion. It helps people look at sky photography, learn what clouds and light can tell them, and plan to go make photographs of their own. The three jobs are **Look** (experience the gallery), **Learn** (understand the sky), and **Go** (plan a shoot).
 
 ## Project structure
 

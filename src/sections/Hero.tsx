@@ -21,7 +21,7 @@ export function Hero({ copyRef }: { copyRef: RefObject<HTMLDivElement | null> })
     {heroImageFailed && <span className="hero__image-fallback" aria-hidden="true">Photograph unavailable</span>}
     <div className="hero__veil" />
     {showAtmosphere && <div className="hero-atmosphere" aria-hidden="true"><Suspense fallback={null}><AtmosphereCanvas /></Suspense></div>}
-    <div className="hero__copy" ref={copyRef}><p className="eyebrow">A photographic journal of the natural world</p><h1>ABOVE<br /><em>EVERYTHING</em></h1><p className="hero__slogan">Moments Above.</p><p className="hero__note">A collection of moments captured<br />between earth and sky.</p><a className="hero__explore" href="#collection">Explore <ArrowDown size={14} /></a></div>
+    <div className="hero__copy" ref={copyRef}><p className="eyebrow">A sky journal and shooting companion</p><h1>READ<br /><em>THE SKY</em></h1><p className="hero__slogan">Look closer. Learn the light. Go make a photograph.</p><p className="hero__note">Understand the clouds above you<br />and find a reason to step outside.</p><a className="hero__explore" href="#collection">Explore <ArrowDown size={14} /></a></div>
     <div className="hero__bottom"><span>Independent photography · Est. 2018</span><span>45° 26′ N &nbsp; 12° 20′ E</span></div>
     <span className="hero__index">01 <i /> 06</span>
   </section>;

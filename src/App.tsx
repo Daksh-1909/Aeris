@@ -6,6 +6,7 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { CustomCursor } from './components/CustomCursor';
 import { Hero } from './sections/Hero';
 import { Introduction } from './sections/Introduction';
+import { WhatIsAeris } from './sections/WhatIsAeris';
 import { SkySection } from './sections/SkySection';
 import { CloudsSection } from './sections/CloudsSection';
 import { NatureSection } from './sections/NatureSection';
@@ -92,11 +93,13 @@ export default function App() {
 
   return (
     <div ref={pageRef} data-member-revision={memberRevision} className={isLoading ? '' : 'page--ready'}>
+      {!import.meta.env.VITE_SUPABASE_URL && <aside className="demo-mode-banner" role="status">Demo mode — member data stays in this browser only; email and contact messages are not sent.</aside>}
       <CustomCursor />
       <Header category={category} onNavigate={setCategory} />
       <main>
         <Hero copyRef={heroCopyRef} />
         <Introduction />
+        <WhatIsAeris />
         <SkySection onOpen={openLightbox} />
         <CloudsSection onOpen={openLightbox} />
         <NatureSection onOpen={openLightbox} />
