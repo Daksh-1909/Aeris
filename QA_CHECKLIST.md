@@ -23,6 +23,13 @@ The browser/device checks require a browser with responsive emulation and develo
 - Confirm Demo Mode is visibly labeled, recovery/verification do not claim to send email, and contact submission says “Demo mode — message not sent.”
 - With Supabase configured, deploy both migrations and `submit-inquiry`; verify a submission is stored, email notification status is honest, and a normal authenticated user cannot query inquiries.
 
+## Cloud Atlas
+
+- Open `/atlas` offline and confirm all ten cloud guide entries are available.
+- Open a cloud type, check altitude, weather signal, photography tip and matching tagged gallery images.
+- Complete each field in the cloud identifier; confirm the suggestion links to a guide with at least one tagged gallery photograph.
+- Open a gallery lightbox and follow its cloud type tag into the Atlas.
+
 ## Phase 46 local smoke pass (2026-09-26)
 
 - `npm run check` passed: ESLint, strict TypeScript, and production build.

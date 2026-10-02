@@ -3,7 +3,9 @@
 ## Progress ledger
 
 - Phase 1: demo auth/contact honesty, inquiry migration and Edge Function, core concept copy, metadata, friendly 404 and docs are implemented; `npm.cmd run check` passes. Owned responsive photo files are still needed before removing existing Unsplash URLs.
-- Later phases: not started.
+- Phase 2: navigation links, active member route styling, URL-backed debounced search, lightbox swipe/preload, protected loading and retry states implemented; `npm.cmd run check` passes. Focused browser and assistive technology review remains.
+- Phase 3 / Feature A: offline Cloud Atlas, per-photo cloud tags, field notes and four-question identifier implemented; `npm.cmd run check` passes.
+- Phase 4 onward: in progress.
 
 > **How to use this file:** Place it in the repo root. Tell Codex:
 > *"Read `AERIS_IMPROVEMENT_PLAN.md` fully. Work phase by phase. Finish and verify one phase before starting the next. After every phase run `npm run check` and fix all errors."*

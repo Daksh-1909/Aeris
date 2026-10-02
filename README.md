@@ -26,6 +26,8 @@ The gallery is served by the Vite frontend. When Supabase is not configured, mem
 - `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`
 - `/dashboard`, `/favorites`, `/collections`, `/search`, `/notifications`
 - `/profile/:username`, `/contact`
+- `/atlas`, `/atlas/:type` (offline cloud field guide and identifier)
+- `/planner` (planned next feature)
 
 Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage in Demo Mode. Contact submissions show an honest “message not sent” status in Demo Mode. Configure the trusted inquiry backend before collecting real requests.
 

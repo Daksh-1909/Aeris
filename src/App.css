@@ -191,4 +191,5 @@
 .what-is-aeris__jobs article{border-top:1px solid rgba(242,240,234,.3);padding-top:17px}
 .what-is-aeris__jobs h3{font-size:11px;text-transform:uppercase;letter-spacing:.16em}
 .what-is-aeris__jobs p{max-width:32ch;color:#c3c2bd;font-size:14px;line-height:1.7}
+.lightbox__cloud-tag{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;color:#e6dfc8;text-decoration:underline;text-underline-offset:4px}
 @media(max-width:760px){.what-is-aeris__jobs{grid-template-columns:1fr;gap:18px}.what-is-aeris{padding-top:65px;padding-bottom:70px}}
