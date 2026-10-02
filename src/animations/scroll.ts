@@ -8,6 +8,10 @@ let activeLenis: Lenis | null = null;
 export function setScrollEffectsReduced(reduced: boolean) {
   if (reduced) activeLenis?.stop();
   else if (activeLenis) activeLenis.start();
+}
+
+export function resumeScrollExperience() {
+  if (activeLenis) activeLenis.start();
   else startScrollExperience();
 }
 
