@@ -6,7 +6,7 @@ The app now supports Supabase email authentication and remote storage for profil
 
 1. Create a Supabase project and copy its project URL and publishable key. The browser app must never receive a `service_role` key.
 2. Copy `.env.example` to `.env.local`, then set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
-3. In Supabase **SQL Editor**, run `supabase/migrations/202609260001_member_platform.sql`, then `supabase/migrations/202610020001_inquiries.sql`.
+3. In Supabase **SQL Editor**, run `supabase/migrations/202609260001_member_platform.sql`, then `supabase/migrations/202610020001_inquiries.sql`. The second migration also adds onboarding profile fields and the Planner's `shoot_spots` table with owner-only RLS.
 4. In **Authentication → URL Configuration**, add `http://localhost:5173/verify-email` and `http://localhost:5173/reset-password` as redirect URLs. Add the deployed site's equivalent URLs before production.
 5. Configure email confirmation and an email sender in Supabase Auth. The app sends the confirmation and reset requests through Supabase Auth.
 6. Restart Vite after changing `.env.local`.

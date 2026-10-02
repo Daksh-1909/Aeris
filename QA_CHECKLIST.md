@@ -9,6 +9,7 @@
 - [ ] Open a photograph, move between photos with arrow keys and controls, close with Escape, and confirm focus returns to the opener.
 - [ ] Scroll through each section and confirm reveals, parallax, the desktop cloud gallery, and the mobile vertical cloud gallery work. Repeat with reduced motion enabled.
 - [ ] Confirm the hero image loads eagerly, later images load as they enter view, and image failures preserve their frames with a fallback.
+- [ ] Confirm gallery records load local 480/960/1600 WebP variants, `srcset` selects an appropriate width, and there are no runtime `images.unsplash.com` requests. Treat current Unsplash copies as demo assets until replaced with verified owned/licensed photographs and credits.
 - [ ] Check empty gallery and failed gallery request states, then confirm the hero, filters, collection, and footer still work.
 - [ ] Repeat core navigation and gallery checks after changes to confirm previous phases remain intact.
 
@@ -55,6 +56,12 @@ The browser/device checks require a browser with responsive emulation and develo
 
 - Search by text and combine cloud type, time of day, season, mood/color and location filters. Remove individual chips, refresh, and use browser back/forward to confirm URL state.
 - Register a new account and finish each onboarding step; repeat with every skip path. Confirm the optional home city appears as the Planner's initial search.
+
+## Latest implementation check (2026-10-02)
+
+- `npm.cmd run check` passed: ESLint, strict TypeScript, and Vite production build.
+- Source search found no `images.unsplash.com` hot-links in `src/`; 11 demo photographs are present as three local WebP widths each.
+- Manual browser/device checks, Lighthouse, screen-reader review, and live Supabase/RLS verification remain outstanding. The production build reports a chunk-size advisory for the 603.54 kB main JavaScript chunk.
 
 ## Phase 46 local smoke pass (2026-09-26)
 
