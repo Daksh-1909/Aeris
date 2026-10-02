@@ -23,11 +23,20 @@ import { isFavorite, recordView, toggleFavorite } from './services/memberStore';
 
 const Lightbox = lazy(() => import('./components/Lightbox').then((module) => ({ default: module.Lightbox })));
 
+function shouldShowIntroLoader() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  try {
+    if (window.sessionStorage.getItem('aeris:intro-loader-seen') === 'true') return false;
+    window.sessionStorage.setItem('aeris:intro-loader-seen', 'true');
+  } catch { /* Storage can be disabled. */ }
+  return true;
+}
+
 export default function App() {
   const [selection, setSelection] = useState<{ photo: Photograph; photos: Photograph[] } | null>(null);
   const [category, setCategory] = useState<GalleryCategory>('Featured');
   const [memberRevision, setMemberRevision] = useState(0);
-  const [isLoading, setIsLoading] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [isLoading, setIsLoading] = useState(shouldShowIntroLoader);
   const pageRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
@@ -48,6 +57,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!isLoading) return;
+    const failSafe = window.setTimeout(() => setIsLoading(false), 1400);
+    return () => window.clearTimeout(failSafe);
+  }, [isLoading]);
+
+  useEffect(() => {
     let userPrefersReducedEffects = false;
     try { userPrefersReducedEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
     setScrollEffectsReduced(userPrefersReducedEffects || selection !== null);
@@ -65,7 +80,10 @@ export default function App() {
     const slogan = heroCopyRef.current?.querySelector('.hero__slogan');
     const note = heroCopyRef.current?.querySelector('.hero__note');
     const explore = heroCopyRef.current?.querySelector('.hero__actions');
-    if (!image || !nav || !heading || !slogan || !note || !explore) return;
+    if (!image || !nav || !heading || !slogan || !note || !explore) {
+      setIsLoading(false);
+      return;
+    }
 
     const timeline = gsap.timeline({ onComplete: () => setIsLoading(false) });
     timeline

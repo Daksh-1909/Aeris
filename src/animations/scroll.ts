@@ -48,7 +48,7 @@ export function startScrollExperience() {
   if (reduceMotion.matches || reduceEffects) return () => undefined;
 
   const lenis = new Lenis({
-    duration: 1.05,
+    duration: 0.72,
     smoothWheel: true,
     anchors: { offset: -80 },
   });

@@ -7,13 +7,13 @@
   --sky-cloud-opacity: .13;
   --sky-star-opacity: .5;
   position: fixed;
-  z-index: 2;
+  z-index: -1;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
   background: transparent;
   isolation: isolate;
-  opacity: .72;
+  opacity: .62;
 }
 .sky-timeline::before {
   content: '';
