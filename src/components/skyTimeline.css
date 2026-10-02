@@ -1,0 +1,111 @@
+.sky-timeline {
+  --sky-top: rgb(7 17 31);
+  --sky-middle: rgb(19 36 59);
+  --sky-bottom: rgb(58 67 84);
+  --sky-warmth: rgb(177 112 99);
+  --sky-horizon: .16;
+  --sky-cloud-opacity: .13;
+  --sky-star-opacity: .5;
+  position: fixed;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+  isolation: isolate;
+  opacity: .72;
+}
+.sky-timeline::before {
+  content: '';
+  position: absolute;
+  inset: auto -20% -22vh;
+  height: 58vh;
+  background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, var(--sky-warmth) 84%, transparent), transparent 68%);
+  opacity: var(--sky-horizon);
+}
+.sky-timeline__horizon {
+  position: absolute;
+  inset: auto 0 0;
+  height: 19vh;
+  background: linear-gradient(180deg, transparent, rgb(3 8 18 / .3));
+}
+.sky-timeline__sun {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(48px, 6.2vw, 88px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate3d(var(--sun-x, 14vw), var(--sun-y, 86vh), 0) translate(-50%, -50%) scale(var(--sun-scale, .72));
+  background: radial-gradient(circle at 40% 38%, #fff9e8 0%, var(--sky-warmth) 52%, rgb(244 174 117 / .72) 72%, transparent 74%);
+  box-shadow: 0 0 24px 8px color-mix(in srgb, var(--sky-warmth) 45%, transparent), 0 0 90px 34px color-mix(in srgb, var(--sky-warmth) 32%, transparent), 0 0 190px 70px color-mix(in srgb, var(--sky-warmth) 18%, transparent);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+.sky-timeline__cloud {
+  position: absolute;
+  width: 64vw;
+  height: 24vh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--sky-warmth) 17%, rgb(226 239 246 / .14)) 0%, rgb(211 227 237 / .08) 32%, transparent 72%);
+  opacity: var(--sky-cloud-opacity);
+  mix-blend-mode: screen;
+  animation: sky-cloud-drift 78s ease-in-out infinite alternate;
+}
+.sky-timeline__cloud--far { left: -21vw; top: 26vh; transform: scale(.82); }
+.sky-timeline__cloud--near { right: -26vw; top: 45vh; transform: scale(1.15); animation-duration: 96s; animation-direction: alternate-reverse; }
+@keyframes sky-cloud-drift { from { translate: -1.2vw 0; } to { translate: 1.4vw -1.2vh; } }
+.sky-timeline__stars {
+  position: absolute;
+  inset: 0;
+  opacity: var(--sky-star-opacity);
+  background-image:
+    radial-gradient(1px 1px at 9% 18%, rgb(255 255 255 / .8) 50%, transparent 100%),
+    radial-gradient(1.4px 1.4px at 22% 63%, rgb(234 244 255 / .68) 50%, transparent 100%),
+    radial-gradient(1px 1px at 39% 31%, rgb(255 255 255 / .64) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 57% 14%, rgb(255 248 229 / .78) 50%, transparent 100%),
+    radial-gradient(1px 1px at 69% 54%, rgb(255 255 255 / .7) 50%, transparent 100%),
+    radial-gradient(1px 1px at 84% 26%, rgb(234 244 255 / .7) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 93% 76%, rgb(255 255 255 / .75) 50%, transparent 100%);
+  background-size: 100% 100%;
+}
+.sky-timeline__moon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(42px, 5vw, 68px);
+  aspect-ratio: 1;
+  transform: translate3d(var(--moon-x, 78vw), var(--moon-y, 72vh), 0) translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fffef3 0%, #e3e5dc 42%, #aeb8c6 77%, #54677e 100%);
+  box-shadow: 0 0 0 12px rgb(220 232 247 / .025), 0 0 34px 14px rgb(218 230 247 / .18), 0 0 108px 46px rgb(127 161 204 / .12);
+}
+.sky-timeline__moon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 73% 45%, rgb(18 29 49 / .46), transparent 63%);
+}
+.sky-timeline__debug {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 8px 10px;
+  border: 1px solid rgb(255 255 255 / .22);
+  border-radius: 6px;
+  background: rgb(3 7 18 / .72);
+  color: #fff;
+  font: 11px/1.4 ui-monospace, monospace;
+}
+@media (max-width: 760px) {
+  .sky-timeline__cloud { width: 88vw; height: 15vh; }
+  .sky-timeline__cloud--far { top: 31vh; left: -40vw; }
+  .sky-timeline__cloud--near { top: 51vh; right: -43vw; }
+  .sky-timeline__sun { width: 54px; box-shadow: 0 0 20px 7px color-mix(in srgb, var(--sky-warmth) 40%, transparent), 0 0 64px 26px color-mix(in srgb, var(--sky-warmth) 27%, transparent); }
+  .sky-timeline__moon { width: 48px; }
+}
+@media (prefers-reduced-motion: reduce) { .sky-timeline__cloud { animation: none; } }
+html[data-reduce-effects='true'] .sky-timeline__cloud { animation: none; }
+.sky-timeline[data-paused='true'] .sky-timeline__cloud { animation-play-state: paused; }
+.sky-timeline[data-effects-reduced='true'] .sky-timeline__cloud { animation: none; }

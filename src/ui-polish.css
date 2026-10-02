@@ -98,6 +98,8 @@ html[data-theme='daylight'] {
   --chapter-ease: 900ms cubic-bezier(.22, 1, .36, 1);
 }
 body { transition: background-color var(--chapter-ease), color var(--chapter-ease); }
+html { background: var(--page-bg) fixed; background-size: 100% 100vh; }
+body { background-color: transparent; }
 body[data-chapter='dawn'] { --chapter-bg: #14202E; --chapter-accent: #F2B8A0; --chapter-glow: 242,184,160; --cursor-a: #F2B8A0; --cursor-b: #C9B6E8; }
 body[data-chapter='day'] { --chapter-bg: #0E2A3D; --chapter-accent: #9FD6EC; --chapter-glow: 159,214,236; --cursor-a: #9FD6EC; --cursor-b: #EAF4F7; }
 body[data-chapter='golden'] { --chapter-bg: #2A1B14; --chapter-accent: #F2B880; --chapter-glow: 242,184,128; --cursor-a: #F2B880; --cursor-b: #E8A0A0; }
@@ -390,3 +392,7 @@ textarea { accent-color: var(--sage-300); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* The scroll timeline paints the changing sky on the document canvas. */
+html { background-color: var(--page-bg); background-image: none; background-attachment: fixed; background-size: 100% 100vh; }
+body { background-color: transparent; }

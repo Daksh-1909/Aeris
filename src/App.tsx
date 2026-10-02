@@ -1,6 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Header } from './components/Header';
 import { LoadingScreen } from './components/LoadingScreen';
 import { CustomCursor } from './components/CustomCursor';
@@ -16,6 +15,7 @@ import { Manifesto } from './sections/Manifesto';
 import { ClosingExperience } from './sections/ClosingExperience';
 import { Footer } from './sections/Footer';
 import { ChapterRail } from './components/ChapterRail';
+import { SkyTimeline } from './components/SkyTimeline';
 import type { Photograph } from './types/gallery';
 import type { GalleryCategory } from './types/gallery';
 import { setScrollEffectsReduced, startScrollExperience, startScrollReveals } from './animations/scroll';
@@ -29,6 +29,7 @@ export default function App() {
   const [memberRevision, setMemberRevision] = useState(0);
   const [isLoading, setIsLoading] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const pageRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const closeLightbox = useCallback(() => setSelection(null), []);
   const openLightbox = useCallback((photo: Photograph, photos: Photograph[]) => { recordView(photo); setSelection({ photo, photos }); }, []);
@@ -51,30 +52,6 @@ export default function App() {
     try { userPrefersReducedEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
     setScrollEffectsReduced(userPrefersReducedEffects || selection !== null);
   }, [selection]);
-
-  useEffect(() => {
-    const chapters = [
-      ['.hero', 'dawn'], ['.what-is-aeris', 'day'], ['.clouds-section', 'golden'],
-      ['.nature-section', 'dusk'], ['.closing-experience', 'night'],
-    ] as const;
-    const triggers = chapters.flatMap(([selector, theme]) => {
-      const element = pageRef.current?.querySelector<HTMLElement>(selector);
-      if (!element) return [];
-      const trigger = ScrollTrigger.create({
-        trigger: element, start: 'top 55%', end: 'bottom 45%',
-        onToggle: (self) => {
-          if (!self.isActive) return;
-          document.body.dataset.chapter = theme;
-          document.querySelectorAll<HTMLElement>('[data-chapter-link]').forEach((link) => {
-            if (link.dataset.chapterLink === theme) link.setAttribute('aria-current', 'step');
-            else link.removeAttribute('aria-current');
-          });
-        },
-      });
-      return [trigger];
-    });
-    return () => triggers.forEach((trigger) => trigger.kill());
-  }, []);
 
   useEffect(() => {
     const page = pageRef.current;
@@ -131,7 +108,8 @@ export default function App() {
       <CustomCursor />
       <ChapterRail />
       <Header category={category} onNavigate={setCategory} />
-      <main id="main-content" tabIndex={-1}>
+      <main ref={mainRef} id="main-content" tabIndex={-1}>
+        <SkyTimeline scrollRootRef={mainRef} />
         <Hero copyRef={heroCopyRef} />
         <DailySky onOpen={openLightbox} />
         <Introduction />
