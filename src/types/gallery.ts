@@ -1,4 +1,4 @@
-export type GalleryCategory = 'All' | 'Sky' | 'Clouds' | 'Nature' | 'Light';
+export type GalleryCategory = 'All' | 'Sky' | 'Cloud' | 'Nature' | 'Featured';
 
 export interface Photograph {
   id: string;

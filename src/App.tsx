@@ -20,7 +20,7 @@ import { isFavorite, recordView, toggleFavorite } from './services/memberStore';
 
 export default function App() {
   const [selection, setSelection] = useState<{ photo: Photograph; photos: Photograph[] } | null>(null);
-  const [category, setCategory] = useState<GalleryCategory>('All');
+  const [category, setCategory] = useState<GalleryCategory>('Featured');
   const [memberRevision, setMemberRevision] = useState(0);
   const [isLoading, setIsLoading] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const pageRef = useRef<HTMLDivElement>(null);

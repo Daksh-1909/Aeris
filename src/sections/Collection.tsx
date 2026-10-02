@@ -4,7 +4,7 @@ import { GalleryStatus } from '../components/GalleryStatus';
 import { useGalleryPhotos } from '../hooks/useGalleryPhotos';
 import type { GalleryCategory, OpenPhotograph } from '../types/gallery';
 
-const categories: GalleryCategory[] = ['All', 'Sky', 'Clouds', 'Nature', 'Light'];
+const categories: GalleryCategory[] = ['Sky', 'Nature', 'Cloud', 'Featured'];
 export function Collection({ category, onCategoryChange, onOpen }: { category: GalleryCategory; onCategoryChange: (category: GalleryCategory) => void; onOpen: OpenPhotograph }) {
   const { photos, isLoading, hasError } = useGalleryPhotos(category);
   return <section className="collection section-wrap" id="collection" data-reveal>

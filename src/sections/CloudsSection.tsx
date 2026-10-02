@@ -6,7 +6,7 @@ import { GalleryImage } from '../components/GalleryImage';
 import { GalleryStatus } from '../components/GalleryStatus';
 
 export function CloudsSection({ onOpen }: { onOpen: OpenPhotograph }) {
-  const { photos, isLoading, hasError } = useGalleryPhotos('Clouds');
+  const { photos, isLoading, hasError } = useGalleryPhotos('Cloud');
   const viewportRef = useRef<HTMLDivElement>(null);
   const [feature, ...studies] = photos;
   const scrollStudies = (direction: -1 | 1) => viewportRef.current?.scrollBy({ left: direction * viewportRef.current.clientWidth * .78, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });

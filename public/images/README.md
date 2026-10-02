@@ -1,15 +1,15 @@
 # Gallery image folders
 
-Store owned, optimized photographs here. Vite serves files in `public/` from the site root, so these are their browser paths:
+Store the photographs for the four homepage collections here. Vite serves files in `public/` from the site root, so these are their browser paths:
 
 - `public/images/sky/` → `/images/sky/filename.webp`
-- `public/images/clouds/` → `/images/clouds/filename.webp`
+- `public/images/cloud/` → `/images/cloud/filename.webp`
 - `public/images/nature/` → `/images/nature/filename.webp`
 - `public/images/featured/` → `/images/featured/filename.webp`
 
 Use descriptive, lowercase filenames, for example `lofoten-blue-hour.webp` or `dolomites-low-cloud.webp`.
 
-Then add an entry in `src/data/gallery.ts` with `image` set to the browser path and `category` set to `Sky`, `Clouds`, or `Nature`. The collection service filters these records and the existing cards and lightbox will load the local file. Keep a matching photograph entry for each image you want displayed; placing a file in this folder alone does not add it to the collection.
+Then add an entry in `src/data/gallery.ts` with `image` set to the browser path and `category` set to `Sky`, `Cloud`, `Nature`, or `Featured`. The collection service filters these records and the existing cards and lightbox will load the local file. Keep a matching photograph entry for each image you want displayed; placing a file in this folder alone does not add it to the collection.
 
 Example:
 
@@ -27,4 +27,4 @@ Example:
 }
 ```
 
-Prefer compressed WebP or AVIF images at appropriate display dimensions. The current demo entries still use Unsplash URLs.
+The four collection folders are `sky`, `nature`, `cloud`, and `featured`. Prefer compressed WebP or AVIF images at appropriate display dimensions. The current demo entries still use Unsplash URLs until local photographs are added.

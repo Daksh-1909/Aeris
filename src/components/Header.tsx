@@ -5,7 +5,7 @@ import type { GalleryCategory } from '../types/gallery';
 
 const categoryLinks: { label: string; category: GalleryCategory }[] = [
   { label: 'Sky', category: 'Sky' },
-  { label: 'Clouds', category: 'Clouds' },
+  { label: 'Clouds', category: 'Cloud' },
   { label: 'Nature', category: 'Nature' },
   { label: 'Gallery', category: 'All' },
 ];
