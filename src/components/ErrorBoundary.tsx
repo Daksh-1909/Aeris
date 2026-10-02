@@ -5,5 +5,18 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   state: State = { hasError: false };
   static getDerivedStateFromError(): State { return { hasError: true }; }
   componentDidCatch(error: Error, info: ErrorInfo) { console.error('AERIS interface error', error, info.componentStack); }
-  render() { if (this.state.hasError) return <main role="alert" style={{ minHeight: '100vh', display: 'grid', placeContent: 'center', gap: 14, padding: 24, background: '#111514', color: '#f5f3ef', textAlign: 'center' }}><p className="eyebrow">AERIS / A MOMENT TO RESET</p><h1 style={{ font: "300 clamp(48px, 8vw, 88px) 'Cormorant Garamond', serif" }}>Something interrupted the view.</h1><p>Please try again, or return to the AERIS home page.</p><button onClick={() => this.setState({ hasError: false })} style={{ padding: '14px 20px', cursor: 'pointer' }}>Try again</button><button onClick={() => window.location.assign('/')} style={{ padding: '14px 20px', cursor: 'pointer' }}>Return to AERIS</button></main>; return this.props.children; }
+  render() {
+    if (this.state.hasError) {
+      return <main className="app-error" role="alert">
+        <p className="eyebrow">AERIS / A MOMENT TO RESET</p>
+        <h1>Something interrupted the view.</h1>
+        <p>Please reload the page, or return to the AERIS home page.</p>
+        <div className="app-error__actions">
+          <button type="button" onClick={() => window.location.reload()}>Reload page</button>
+          <a href="/">Return to AERIS</a>
+        </div>
+      </main>;
+    }
+    return this.props.children;
+  }
 }

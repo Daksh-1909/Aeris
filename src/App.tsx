@@ -1,5 +1,4 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import './App.css';
 import gsap from 'gsap';
 import { Header } from './components/Header';
 import { LoadingScreen } from './components/LoadingScreen';

@@ -1,0 +1,56 @@
+/* Small, isolated baseline fixes; shared design tokens are introduced in Phase 2. */
+.app-error {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+  background: #111514;
+  color: #f5f3ef;
+  text-align: center;
+}
+
+.app-error h1 {
+  max-width: 16ch;
+  margin: 0;
+  font: 300 clamp(48px, 8vw, 88px)/.95 'Cormorant Garamond', Georgia, serif;
+}
+
+.app-error p { margin: 0; }
+.app-error__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.app-error__actions button,
+.app-error__actions a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border: 1px solid #aaa79f;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.member-shell-loading {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: #111514;
+  color: #f5f3ef;
+  letter-spacing: .2em;
+  font-size: 10px;
+}
+
+.member-content { min-height: calc(100vh - 76px); min-height: calc(100dvh - 76px); padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
+.auth-stage { min-height: calc(100vh - 76px); min-height: calc(100dvh - 76px); padding-bottom: calc(7vh + env(safe-area-inset-bottom)); }
+.mobile-nav { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
+.cloud-atlas { min-height: calc(100vh - 76px); min-height: calc(100dvh - 76px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-error__actions button,
+  .app-error__actions a { scroll-behavior: auto; transition: none; }
+}
