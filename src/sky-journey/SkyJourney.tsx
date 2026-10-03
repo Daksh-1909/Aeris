@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { scrollToPosition } from '../animations/scroll';
 import { sample, type RGB } from '../sky/timeline';
 import { cloudPlacements, type CloudDepth } from './clouds';
+import { BirdFlock } from './BirdFlock';
 import { GroundScene } from './GroundScene';
 import { NightSky } from './NightSky';
 import './journey.css';
@@ -18,7 +19,7 @@ const beats = [
   { title: 'READ THE SKY', position: 'top-left', side: 'left', copy: 'A journal of light, cloud and weather. Begin where the day begins.' },
   { title: 'A NEW ANGLE OF LIGHT', position: 'top-left', side: 'right', copy: 'Follow the changing colour from first light to evening.' },
   { title: 'UNDER AN ENDLESS BLUE', position: 'center', side: 'left', copy: 'Clouds and clear air make every day a different study.' },
-  { title: 'LIGHT, BEFORE IT LEAVES', position: 'right', side: 'left', copy: 'Make time for the last warm minutes of daylight.' },
+  { title: 'LIGHT, BEFORE IT LEAVES', position: 'right', side: 'right', copy: 'Make time for the last warm minutes of daylight.' },
   { title: 'THE SUN BECOMES THE MOON', position: 'center', side: 'right', copy: 'Stay a little longer and watch the sky change.' },
   { title: 'WHEN THE SKY BECOMES INFINITE', position: 'top-left', side: 'left', copy: 'Keep a record of what you find above.' },
 ] as const;
@@ -51,9 +52,30 @@ export function SkyJourney() {
     const track = trackRef.current;
     const stage = stageRef.current;
     if (!track || !stage) return;
+    let lastProgress = 0;
+    let lastFrameTime = performance.now();
+    let swayTimer = 0;
+    let swayTween: gsap.core.Tween | undefined;
 
     const renderProgress = (value: number) => {
       const frame = sample(value);
+      const now = performance.now();
+      const elapsed = Math.max(1, now - lastFrameTime);
+      const speed = Math.abs(frame.progress - lastProgress) / elapsed * 1000;
+      if (frame.progress !== lastProgress) {
+        window.clearTimeout(swayTimer);
+        swayTimer = window.setTimeout(() => {
+          swayTween?.kill();
+          swayTween = gsap.to(stage, { '--canopy-sway': '1.2deg', duration: 1.5, ease: 'power2.out' });
+        }, 1500);
+        if (speed > .12) {
+          const sway = 1.2 + 1.2 * clamp01(speed / 1.2);
+          swayTween?.kill();
+          swayTween = gsap.to(stage, { '--canopy-sway': `${sway.toFixed(2)}deg`, duration: .12, ease: 'power1.out' });
+        }
+      }
+      lastProgress = frame.progress;
+      lastFrameTime = now;
       stage.style.setProperty('--sky-top', rgb(frame.top));
       stage.style.setProperty('--sky-middle', rgb(frame.middle));
       stage.style.setProperty('--sky-horizon', rgb(frame.horizon));
@@ -88,6 +110,8 @@ export function SkyJourney() {
     ScrollTrigger.refresh();
 
     return () => {
+      window.clearTimeout(swayTimer);
+      swayTween?.kill();
       tween.scrollTrigger?.kill();
       tween.kill();
     };
@@ -125,6 +149,7 @@ export function SkyJourney() {
         </figure>)}
       </div>)}
       <NightSky progress={progress} opacity={nightOpacity} auroraOpacity={auroraOpacity} />
+      <BirdFlock progress={progress} />
       {beats.map((beat, index) => {
         const visibility = beatVisibility(progress, index);
         const hidden = visibility.opacity < .02;
@@ -144,7 +169,7 @@ export function SkyJourney() {
       {beats.map((beat, index) => {
         const visibility = beatVisibility(progress, index);
         const hidden = visibility.opacity < .02;
-        return <aside key={beat.title} className={`journey__copy journey__copy--${beat.side}`} style={beatStyle(progress, index)} aria-hidden={hidden} inert={hidden}>
+        return <aside key={beat.title} className={`journey__copy journey__copy--${beat.side} journey__copy--beat-${index + 1}`} style={beatStyle(progress, index)} aria-hidden={hidden} inert={hidden}>
           <p>{beat.copy}</p>
           <a href="#collection" className="journey__button">Explore the gallery <span aria-hidden="true">↗</span></a>
         </aside>;
