@@ -22,7 +22,7 @@ function mixHex(a: string, b: string, amount: number) {
 }
 
 function treeColors(progress: number): CSSProperties {
-  const found = treeStops.findIndex((stop, i) => i < treeStops.length - 1 && progress <= treeStops[i + 1].at);
+  const found = treeStops.findIndex((_, i) => i < treeStops.length - 1 && progress <= treeStops[i + 1].at);
   const index = found < 0 ? treeStops.length - 2 : found;
   const from = treeStops[index];
   const to = treeStops[index + 1] ?? from;
@@ -44,7 +44,7 @@ export function GroundScene({ progress }: { progress: number }) {
   const childrenVisible = progress >= .64 && progress <= .82;
   const childrenActive = progress >= .70 && progress <= .76;
   const duskT = smoothstep(clamp01((progress - .76) / .06));
-  const picnicOpacity = smoothstep(clamp01((progress - .45) / .04)) * (1 - smoothstep(clamp01((progress - .61) / .04)));
+  const picnicOpacity = smoothstep(clamp01((progress - .45) / .04)) * (1 - smoothstep(clamp01((progress - .61) / .02)));
   const childrenStyle = {
     '--children-rise': `${(1 - smoothstep(clamp01((progress - .64) / .06))) * 12}px`,
     '--kids': mixHex('#2a1222', '#120a14', duskT),

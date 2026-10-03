@@ -16,13 +16,30 @@
   isolation: isolate;
   color: #f4f6ff;
   background: linear-gradient(180deg, var(--cloud-journey-sky-top), var(--cloud-journey-sky-bottom));
+  transition: background 80ms linear;
+}
+
+.cloud-journey__camera {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.cloud-journey__stars {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  opacity: .48;
+  background-image: radial-gradient(1.5px 1.5px at 12% 18%, #e5efff 55%, transparent 70%), radial-gradient(1px 1px at 76% 23%, #d8e5ff 55%, transparent 70%), radial-gradient(1.5px 1.5px at 49% 38%, #e5efff 55%, transparent 70%), radial-gradient(1px 1px at 88% 72%, #d8e5ff 55%, transparent 70%), radial-gradient(1px 1px at 28% 79%, #d8e5ff 55%, transparent 70%);
+  transform: translateX(var(--cloud-journey-star-drift, 0px));
+  pointer-events: none;
 }
 
 .cloud-journey__glow {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: radial-gradient(ellipse at 50% 55%, rgb(161 190 255 / .16), transparent 56%);
+  background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--cloud-journey-glow, #a1beff) 18%, transparent), transparent 56%);
   pointer-events: none;
 }
 
@@ -36,6 +53,18 @@
   pointer-events: none;
 }
 
+.cloud-journey__mist {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cloud-journey__mist circle { fill: #e9f1ff; filter: blur(10px); }
+
 .cloud-journey__path {
   fill: none;
   stroke: rgb(221 232 255 / .34);
@@ -47,18 +76,19 @@
 
 .cloud-journey__cloud {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   display: block;
   width: clamp(200px, 26vw, 420px);
   height: auto;
-  transform: translate(-50%, -50%);
+  transform: translate3d(var(--cloud-x, 0px), var(--cloud-y, 0px), 0) translate(-50%, calc(-50% + var(--cloud-bounce, 0px))) rotate(var(--cloud-rotation, 0deg)) scale(var(--cloud-scale, 1));
   filter: drop-shadow(0 22px 42px rgb(0 0 0 / .2));
+  will-change: transform;
   user-select: none;
 }
 
 .cloud-journey__card {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   top: 50%;
   width: min(520px, 38vw);
   max-height: 70vh;
@@ -69,8 +99,14 @@
   background: linear-gradient(145deg, rgb(13 26 54 / .88), rgb(16 29 61 / .62));
   box-shadow: 0 24px 80px rgb(0 0 0 / .18);
   backdrop-filter: blur(14px);
-  transform: translateY(-50%);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-50% + 24px));
+  transition: opacity 500ms ease, transform 500ms ease, visibility 0s linear 500ms;
 }
+
+.cloud-journey__card.is-visible { visibility: visible; opacity: 1; pointer-events: auto; transform: translateY(-50%); transition-delay: 0s; }
 
 .cloud-journey__card--right { right: clamp(28px, 7vw, 112px); }
 .cloud-journey__card--left { left: clamp(28px, 7vw, 112px); }
@@ -97,6 +133,22 @@
   font: 400 clamp(14px, 1.25vw, 17px)/1.65 Inter, Arial, sans-serif;
 }
 
+.cloud-journey__card .cloud-journey__copy { margin-top: 10px; }
+.cloud-journey__photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+.cloud-journey__photo { display: grid; align-content: start; gap: 5px; min-width: 0; color: #eef3ff; text-decoration: none; font: 500 11px/1.35 Inter, Arial, sans-serif; }
+.cloud-journey__photo img { width: 100%; aspect-ratio: 4 / 3; border-radius: 9px; object-fit: cover; background: #18233c; }
+.cloud-journey__photo span { margin-top: 2px; }
+.cloud-journey__photo small { color: #c0cee9; font-size: 9px; font-weight: 400; }
+.cloud-journey__photo:hover span, .cloud-journey__links a:hover { text-decoration: underline; }
+.cloud-journey__facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 24px 0 0; }
+.cloud-journey__facts div { display: grid; gap: 5px; }
+.cloud-journey__facts dt { color: #c0cee9; font: 500 9px/1.3 Inter, Arial, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+.cloud-journey__facts dd { margin: 0; color: #fff; font: 400 28px/1 Georgia, serif; }
+.cloud-journey__links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 22px 0 0; padding: 0; list-style: none; }
+.cloud-journey__links a { color: #fff; font: 600 11px/1.4 Inter, Arial, sans-serif; text-decoration: none; }
+.cloud-journey__shooting-star { position: absolute; z-index: 3; top: 18%; left: 70%; width: 92px; height: 1px; opacity: 0; background: linear-gradient(90deg, transparent, #fff 75%, transparent); box-shadow: 0 0 8px #e8f4ff; transform: rotate(-24deg); animation: cloud-journey-shooting-star 2.8s ease-in-out 1 both; pointer-events: none; }
+@keyframes cloud-journey-shooting-star { 0%, 58%, 100% { opacity: 0; translate: 0 0; } 63% { opacity: 1; } 78% { opacity: 0; translate: -20vw 15vh; } }
+
 .cloud-journey__dots {
   position: absolute;
   z-index: 4;
@@ -108,40 +160,47 @@
 }
 
 .cloud-journey__dots button {
-  width: 10px;
-  height: 10px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
   padding: 0;
-  border: 1px solid rgb(240 244 255 / .72);
+  border: 0;
   border-radius: 50%;
-  background: rgb(240 244 255 / .2);
+  background: transparent;
   cursor: pointer;
 }
 
-.cloud-journey__dots button.is-active { width: 14px; height: 14px; margin: -2px; background: #f2f5ff; }
+.cloud-journey__dots button::before { content: ''; width: 9px; height: 9px; border: 1px solid rgb(240 244 255 / .8); border-radius: 50%; background: rgb(240 244 255 / .25); }
+.cloud-journey__dots button.is-active::before { width: 14px; height: 14px; background: #f2f5ff; }
 .cloud-journey__dots button:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
 
-.cloud-journey__debug {
-  position: absolute;
-  z-index: 5;
-  bottom: 16px;
-  left: 50%;
+.cloud-journey--status { display: grid; min-height: 45vh; place-items: center; color: #f4f6ff; }
+
+.cloud-journey--reduced {
   display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  width: min(640px, calc(100% - 32px));
-  padding: 10px 14px;
-  border: 1px solid rgb(255 255 255 / .2);
-  border-radius: 10px;
-  background: rgb(5 13 29 / .76);
+  gap: clamp(28px, 6vw, 80px);
+  height: auto;
+  min-height: 100vh;
+  padding: clamp(48px, 8vw, 120px) clamp(16px, 7vw, 112px);
   color: #f4f6ff;
-  transform: translateX(-50%);
-  font: 11px/1.3 Inter, Arial, sans-serif;
+  background: linear-gradient(180deg, #03060f, #0a1030 35%, #0f4a45 62%, #3b2370 82%, #7a3d6a);
 }
 
-.cloud-journey__debug input { width: 100%; accent-color: #c9d8ff; }
-.cloud-journey__debug output { min-width: 112px; text-align: right; }
-.cloud-journey--status { display: grid; min-height: 45vh; place-items: center; color: #f4f6ff; }
+.cloud-journey__static-block {
+  display: grid;
+  grid-template-columns: minmax(180px, .8fr) minmax(0, 1.5fr);
+  align-items: center;
+  gap: clamp(20px, 5vw, 72px);
+  width: min(1120px, 100%);
+  margin-inline: auto;
+}
+
+.cloud-journey__static-block:nth-child(even) .cloud-journey__static-cloud { order: 2; }
+.cloud-journey__static-cloud { display: block; width: 100%; max-width: 360px; height: auto; margin-inline: auto; filter: drop-shadow(0 20px 35px rgb(0 0 0 / .25)); }
+.cloud-journey__static-card { min-width: 0; padding: clamp(22px, 4vw, 48px); border: 1px solid rgb(242 246 255 / .22); border-radius: 24px; background: rgb(13 26 54 / .9); box-shadow: 0 24px 80px rgb(0 0 0 / .18); }
+.cloud-journey__static-card h2 { margin: 0; color: #f5f0e7; font: 400 clamp(42px, 6vw, 76px)/.95 'Cormorant Garamond', Georgia, serif; letter-spacing: -.035em; }
+.cloud-journey__static-card > p:not(.cloud-journey__eyebrow) { max-width: 55ch; margin: 16px 0 0; color: #e3eaf8; font: 400 15px/1.65 Inter, Arial, sans-serif; }
 
 @media (max-width: 767px) {
   .cloud-journey { height: 600vh; }
@@ -155,15 +214,32 @@
     width: auto;
     max-height: 52vh;
     padding: 20px 22px;
-    transform: none;
+    transform: translateY(24px);
   }
+  .cloud-journey__card.is-visible { transform: translateY(0); }
   .cloud-journey__card--below { top: auto; bottom: 28px; }
   .cloud-journey__card:not(.cloud-journey__card--below) { top: 28px; }
   .cloud-journey__card h2 { font-size: clamp(40px, 12vw, 58px); }
   .cloud-journey__card > p:last-child { margin-top: 12px; font-size: 14px; }
+  .cloud-journey__photos { gap: 7px; margin-top: 15px; }
+  .cloud-journey__photo { font-size: 10px; }
+  .cloud-journey__photo small { font-size: 8px; }
+  .cloud-journey__facts { gap: 8px; margin-top: 18px; }
+  .cloud-journey__facts dd { font-size: 24px; }
   .cloud-journey__eyebrow { margin-bottom: 10px; }
   .cloud-journey__dots { top: auto; right: 18px; bottom: 20px; display: flex; transform: none; }
   .cloud-journey__card--below ~ .cloud-journey__dots { top: 18px; bottom: auto; }
-  .cloud-journey__debug { grid-template-columns: auto 1fr; gap: 5px 10px; bottom: 8px; }
-  .cloud-journey__debug output { grid-column: 1 / -1; justify-self: end; }
+  .cloud-journey__mist { display: none; }
+  .cloud-journey--reduced { gap: 24px; padding: 36px 16px; }
+  .cloud-journey.cloud-journey--reduced { height: auto; }
+  .cloud-journey__static-block { grid-template-columns: 1fr; gap: 8px; }
+  .cloud-journey__static-block:nth-child(even) .cloud-journey__static-cloud { order: 0; }
+  .cloud-journey__static-cloud { width: min(58vw, 230px); }
+  .cloud-journey__static-card { padding: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud-journey__card { transition: none; }
+  .cloud-journey__camera { will-change: auto; }
+  .cloud-journey__shooting-star { animation: none; display: none; }
 }
