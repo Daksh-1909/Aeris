@@ -7,14 +7,27 @@ const moments = [0, .12, .3, .42, .58, .72, .84, 1];
 const viewports = [{ width: 1920, height: 1080 }, { width: 390, height: 844 }];
 const outputDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'shots');
 await mkdir(outputDir, { recursive: true });
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({
+  headless: true,
+  args: ['--enable-webgl', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--use-gl=angle', '--use-angle=swiftshader'],
+});
 
 try {
   for (const viewport of viewports) {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
+    page.on('console', (message) => {
+      if (message.type() === 'error' || message.type() === 'warning') console.error(`[browser:${message.type()}] ${message.text().split('\n')[0]}`);
+    });
+    page.on('pageerror', (error) => console.error(`[pageerror] ${error.message}`));
     for (const progress of moments) {
       await page.goto(`http://127.0.0.1:5173/?p=${progress}`, { waitUntil: 'networkidle' });
       await page.locator('.journey__stage').waitFor();
+      await page.locator('.journey__canvas').waitFor();
+      await page.waitForFunction(() => {
+        const stage = document.querySelector('.journey__stage');
+        return stage?.dataset.webglReady === 'true' || stage?.dataset.webglFallback === 'true';
+      }, undefined, { timeout: 10000 });
+      if (await page.locator('.journey__stage').getAttribute('data-webgl-ready') === 'true') await page.waitForTimeout(450);
       await page.screenshot({
         path: join(outputDir, `journey-${progress}-${viewport.width}.png`),
         fullPage: false,
@@ -29,6 +42,7 @@ try {
           visibleScene: title?.textContent?.trim() ?? null,
           headlineBounds: titleRect ? [Math.round(titleRect.left), Math.round(titleRect.right)] : null,
           railStops: document.querySelectorAll('.journey__rail [data-stop-progress]').length,
+          webgl: document.querySelector('.journey__stage')?.getAttribute('data-webgl-ready') === 'true' ? 'ready' : 'CSS fallback',
         };
       });
       console.log(JSON.stringify({ requestedProgress: progress, ...proof }));

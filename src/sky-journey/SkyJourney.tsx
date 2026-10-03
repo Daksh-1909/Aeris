@@ -1,9 +1,11 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { scrollToPosition, subscribeScrollFrames } from '../animations/scroll';
 import { sample, type RGB } from '../sky/timeline';
 import { journeyScenes, journeyStops } from './scenes';
 import './journey.css';
+
+const JourneyCanvas = lazy(() => import('./webgl/JourneyCanvas'));
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const smoothstep = (value: number) => value * value * (3 - 2 * value);
@@ -26,6 +28,12 @@ function sceneOpacity(progress: number, scene: typeof journeyScenes[number]) {
 
 export function SkyJourney() {
   const trackRef = useRef<HTMLElement>(null);
+  const [loadWebGL, setLoadWebGL] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoadWebGL(true), 120);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -107,6 +115,7 @@ export function SkyJourney() {
 
   return <section className="journey" id="top" ref={trackRef} aria-label="A journey through the sky">
     <div className="journey__stage">
+      {loadWebGL && <Suspense fallback={null}><JourneyCanvas /></Suspense>}
       <div className="journey__content">
         {journeyScenes.map((scene) => <article key={scene.id} className="journey__scene" data-scene={scene.id} data-side={scene.side} aria-hidden="true" inert>
           <p className="journey__eyebrow"><span>{scene.label}</span><time dateTime={scene.time}>{scene.time}</time></p>

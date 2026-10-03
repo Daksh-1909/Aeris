@@ -15,7 +15,7 @@ export function subscribeScrollFrames(listener: (scroll: number, deltaSeconds: n
   scrollFrameListeners.add(listener);
   const onNativeScroll = () => {
     if (activeLenis) return;
-    listener(window.scrollY, 1 / 60);
+    listener(window.scrollY, 1);
   };
   if (!activeLenis) window.addEventListener('scroll', onNativeScroll, { passive: true });
   return () => {

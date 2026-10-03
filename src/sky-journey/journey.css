@@ -18,6 +18,17 @@
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-middle) 55%, var(--sky-horizon) 100%);
   isolation: isolate;
 }
+.journey__canvas {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms cubic-bezier(.22, 1, .36, 1);
+}
+.journey__stage[data-webgl-ready='true'] .journey__canvas { opacity: 1; }
 .journey__stage::after {
   content: '';
   position: absolute;
@@ -28,6 +39,7 @@
 }
 .journey__content {
   position: absolute;
+  z-index: 1;
   inset: 0;
   display: grid;
   align-items: center;
