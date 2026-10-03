@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { subscribeScrollFrames } from '../../animations/scroll';
 import { sample, type RGB } from '../../sky/timeline';
+import { createClouds } from './clouds';
+import { createLandscape } from './landscape';
 
 const vertexShader = /* glsl */`
   varying vec3 vDirection;
@@ -105,6 +107,8 @@ export default function JourneyCanvas() {
     let tightMaterial: THREE.SpriteMaterial | undefined;
     let wideMaterial: THREE.SpriteMaterial | undefined;
     let glowTexture: THREE.CanvasTexture | undefined;
+    let clouds: ReturnType<typeof createClouds> | undefined;
+    let landscape: ReturnType<typeof createLandscape> | undefined;
     let resizeObserver: ResizeObserver | undefined;
     let unsubscribe: () => void = () => {};
 
@@ -172,6 +176,9 @@ export default function JourneyCanvas() {
       sunLight.position.set(0, 0, 30);
       scene.add(ambient, sunLight);
 
+      landscape = createLandscape(scene);
+      clouds = createClouds(scene);
+
       const resize = () => {
         if (!renderer) return;
         const width = Math.max(1, stage.clientWidth);
@@ -181,6 +188,8 @@ export default function JourneyCanvas() {
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+        landscape?.resize(width, height, camera);
+        clouds?.resize(width, height, camera);
       };
       resize();
       resizeObserver = new ResizeObserver(resize);
@@ -188,11 +197,28 @@ export default function JourneyCanvas() {
       window.addEventListener('resize', resize, { passive: true });
 
       let elapsed = 0;
+      let pointerX = 0;
+      let pointerY = 0;
+      let dampedPointerX = 0;
+      let dampedPointerY = 0;
+      const onPointerMove = (event: PointerEvent) => {
+        if (widthIsMobile()) return;
+        pointerX = (event.clientX / Math.max(window.innerWidth, 1) - .5) * 2;
+        pointerY = (event.clientY / Math.max(window.innerHeight, 1) - .5) * 2;
+      };
+      const widthIsMobile = () => stage.clientWidth <= 760;
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
       const update = (progress: number) => {
         const sky = sample(progress);
         skyMaterial?.uniforms.uTop.value.copy(linearColor(sky.top));
         skyMaterial?.uniforms.uMiddle.value.copy(linearColor(sky.middle));
         skyMaterial?.uniforms.uHorizon.value.copy(linearColor(sky.horizon));
+        landscape?.update(sky.horizon, sky.middle, progress);
+        clouds?.update(progress, elapsed);
+        const targetPitch = (progress - .5) * THREE.MathUtils.degToRad(10);
+        camera.rotation.x += (targetPitch - dampedPointerY * .012 - camera.rotation.x) * .08;
+        camera.position.x += (dampedPointerX * .6 - camera.position.x) * .08;
+        camera.position.z += ((progress - .5) * 6 - camera.position.z) * .08;
         if (coreMaterial && tightMaterial && wideMaterial) updateSun(progress, elapsed, camera, sunGroup, coreMaterial, tightMaterial, wideMaterial);
         if (document.visibilityState !== 'hidden') renderer?.render(scene, camera);
       };
@@ -202,6 +228,8 @@ export default function JourneyCanvas() {
       stage.dataset.webglReady = 'true';
       unsubscribe = subscribeScrollFrames((_scroll, deltaSeconds) => {
         elapsed += deltaSeconds;
+        dampedPointerX += (pointerX - dampedPointerX) * .05;
+        dampedPointerY += (pointerY - dampedPointerY) * .05;
         const progress = Number.parseFloat(stage.style.getPropertyValue('--journey-progress'));
         update(Number.isFinite(progress) ? progress : 0);
       });
@@ -216,9 +244,12 @@ export default function JourneyCanvas() {
 
       return () => {
         document.removeEventListener('visibilitychange', onVisibility);
+        window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('resize', resize);
         resizeObserver?.disconnect();
         unsubscribe();
+        clouds?.dispose();
+        landscape?.dispose();
         stage.removeAttribute('data-webgl-ready');
         skyGeometry?.dispose();
         skyMaterial?.dispose();
@@ -236,6 +267,8 @@ export default function JourneyCanvas() {
       stage.removeAttribute('data-webgl-ready');
       resizeObserver?.disconnect();
       unsubscribe();
+      clouds?.dispose();
+      landscape?.dispose();
       skyGeometry?.dispose();
       skyMaterial?.dispose();
       sunGeometry?.dispose();
