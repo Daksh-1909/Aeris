@@ -46,6 +46,10 @@ export function SkyJourney() {
     }));
     const stopButtons = [...stage.querySelectorAll<HTMLButtonElement>('[data-stop-progress]')];
     const debug = stage.querySelector<HTMLElement>('.journey__debug');
+    const hud = stage.querySelector<HTMLOutputElement>('.journey__hud');
+    const previousCursorA = document.body.style.getPropertyValue('--cursor-a');
+    const previousCursorB = document.body.style.getPropertyValue('--cursor-b');
+    const previousChapterGlow = document.body.style.getPropertyValue('--chapter-glow');
     const frozenProgress = progressFromQuery();
     let smoothProgress = frozenProgress ?? 0;
 
@@ -64,6 +68,14 @@ export function SkyJourney() {
       stage.style.setProperty('--journey-text', cssRgb(sky.text));
       stage.style.setProperty('--journey-accent', cssRgb(sky.horizon));
       stage.style.setProperty('--journey-progress', smoothProgress.toFixed(4));
+      const cursorPalette = smoothProgress < .22 ? { a: '#F2B8A0', b: '#C9B6E8', glow: '242, 184, 160' }
+        : smoothProgress < .52 ? { a: '#9FD6EC', b: '#7FD1C4', glow: '159, 214, 236' }
+          : smoothProgress < .78 ? { a: '#F2B880', b: '#E8A0A0', glow: '242, 184, 128' }
+            : smoothProgress < .93 ? { a: '#C9A0E8', b: '#E8A0A0', glow: '201, 160, 232' }
+              : { a: '#7FD1C4', b: '#9FD6EC', glow: '127, 209, 196' };
+      document.body.style.setProperty('--cursor-a', cursorPalette.a);
+      document.body.style.setProperty('--cursor-b', cursorPalette.b);
+      document.body.style.setProperty('--chapter-glow', cursorPalette.glow);
 
       sceneElements.forEach(({ scene, element }) => {
         if (!element) return;
@@ -80,6 +92,8 @@ export function SkyJourney() {
       });
 
       const activeStop = smoothProgress < .25 ? 'sunrise' : smoothProgress < .52 ? 'noon' : smoothProgress < .80 ? 'sunset' : 'night';
+      const activeMoment = journeyStops.find((stop) => stop.id === activeStop) ?? journeyStops[0];
+      if (hud) hud.textContent = `${activeMoment.time} · ${activeMoment.label}`;
       stopButtons.forEach((button) => {
         if (button.dataset.stopId === activeStop) button.setAttribute('aria-current', 'step');
         else button.removeAttribute('aria-current');
@@ -108,6 +122,12 @@ export function SkyJourney() {
     return () => {
       unsubscribe();
       stage.removeEventListener('click', onStopClick);
+      if (previousCursorA) document.body.style.setProperty('--cursor-a', previousCursorA);
+      else document.body.style.removeProperty('--cursor-a');
+      if (previousCursorB) document.body.style.setProperty('--cursor-b', previousCursorB);
+      else document.body.style.removeProperty('--cursor-b');
+      if (previousChapterGlow) document.body.style.setProperty('--chapter-glow', previousChapterGlow);
+      else document.body.style.removeProperty('--chapter-glow');
     };
   }, []);
 
@@ -136,6 +156,7 @@ export function SkyJourney() {
         </button>)}
       </nav>
       {showDebug && <output className="journey__debug" aria-live="off" />}
+      <output className="journey__hud" aria-label="Current sky journey time" aria-live="off" />
     </div>
   </section>;
 }

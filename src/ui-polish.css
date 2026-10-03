@@ -450,4 +450,92 @@ html[data-reduce-effects='true'] .hero__scroll-cue svg { animation: none; }
   .nature-section__chapter-word { top: 13%; font-size: 32vw; }
   .closing-experience__copy { margin: 0 8%; }
 }
+
+/* Sky Journey V2 Phase 5: centered glass navigation and a continuous night-page backdrop. */
+.site-header { z-index: 50; background: transparent !important; transition: transform .42s var(--ease-sky), opacity .32s var(--ease-sky); }
+.site-header--hidden { transform: translateY(calc(-100% - 12px)); opacity: 0; pointer-events: none; }
+.site-header__bar { justify-content: center; }
+.site-header__bar > .brand { display: none; }
+.desktop-nav {
+  position: absolute; left: 50%; margin: 0; transform: translateX(-50%);
+  display: flex; align-items: center; gap: clamp(14px, 1.8vw, 27px);
+  width: max-content; max-width: calc(100vw - 48px); padding: 11px 19px;
+  border: 1px solid rgb(255 255 255 / .13); border-radius: 999px;
+  background: rgb(11 26 36 / .48); box-shadow: 0 12px 36px rgb(2 8 16 / .16);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.desktop-nav a, .desktop-nav a.is-current { color: rgb(234 244 247 / .86); white-space: nowrap; }
+.desktop-nav a:hover, .desktop-nav a:focus-visible, .desktop-nav a.is-current { color: #fff; }
+.desktop-nav .desktop-nav__brand { padding-right: clamp(12px, 1.5vw, 22px); border-right: 1px solid rgb(255 255 255 / .2); font-size: 10px; font-weight: 600; letter-spacing: .24em; }
+.desktop-nav .desktop-nav__sign-in { padding-left: clamp(12px, 1.5vw, 22px); border-left: 1px solid rgb(255 255 255 / .2); }
+.journey-continuation {
+  position: relative; isolation: isolate; overflow: clip;
+  background: #050b18; color: #eaf4f7;
+}
+.journey-continuation::before {
+  content: ''; position: absolute; z-index: -1; inset: 0; pointer-events: none; opacity: .28;
+  background-image:
+    radial-gradient(1px 1px at 29px 41px, rgb(224 235 255 / .68) 70%, transparent 100%),
+    radial-gradient(1px 1px at 149px 103px, rgb(224 235 255 / .46) 70%, transparent 100%),
+    radial-gradient(1.2px 1.2px at 221px 169px, rgb(255 224 196 / .58) 70%, transparent 100%),
+    radial-gradient(1px 1px at 87px 206px, rgb(224 235 255 / .4) 70%, transparent 100%);
+  background-size: 280px 230px;
+}
+.journey-continuation > * { position: relative; z-index: 1; }
+.journey-continuation .introduction,
+.journey-continuation .what-is-aeris,
+.journey-continuation .sky-section,
+.journey-continuation .clouds-section,
+.journey-continuation .golden-hour,
+.journey-continuation .nature-section,
+.journey-continuation .collection,
+.journey-continuation .manifesto,
+.journey-continuation .night-chapter { background: transparent; color: #eaf4f7; }
+.journey-continuation .intro-line--italic,
+.journey-continuation .intro__statement,
+.journey-continuation .what-is-aeris__jobs p,
+.journey-continuation .sky-section__title p,
+.journey-continuation .sky-section__foot > p span,
+.journey-continuation .sky-detail,
+.journey-continuation .sky-detail .gallery-image__meta strong,
+.journey-continuation .cloud-studies__heading > span,
+.journey-continuation .nature-section__heading > div > p,
+.journey-continuation .nature-section__mark,
+.journey-continuation .nature-section__note,
+.journey-continuation .collection .section-heading__aside { color: rgb(234 244 247 / .68); }
+.journey-continuation .sky-section .eyebrow,
+.journey-continuation .manifesto .eyebrow { color: rgb(234 244 247 / .58); }
+.journey-continuation .nature-section__chapter-word { -webkit-text-stroke-color: rgb(234 244 247 / .1); }
+.journey-continuation .manifesto__copy > p:not(.eyebrow),
+.journey-continuation .signature { color: rgb(234 244 247 / .66); }
+.journey-continuation .sky-detail .gallery-image__meta small { color: rgb(234 244 247 / .55); }
+.journey-continuation .collection .filters button { color: rgb(234 244 247 / .56); }
+.journey-continuation .collection .filters button:hover,
+.journey-continuation .collection .filters button.is-active { color: #eaf4f7; }
+.journey-continuation .collection .collection-toolbar > span { color: rgb(234 244 247 / .5); }
+.journey-continuation .site-footer--minimal { background: #050b18; }
+.journey-continuation .photo-card { border: 1px solid rgb(234 244 247 / .14); box-shadow: 0 20px 54px rgb(1 6 16 / .28); }
+.journey-continuation .gallery-image__capture { width: fit-content; padding: 6px 9px; border: 1px solid rgb(255 255 255 / .2); border-radius: 999px; background: rgb(7 16 28 / .42); backdrop-filter: blur(8px); }
+@media (max-width: 760px) {
+  .site-header { background: transparent !important; }
+  .site-header__bar { justify-content: space-between; }
+  .site-header__bar > .brand { display: flex; }
+  .desktop-nav { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
+.cursor-dot { background: var(--cursor-a, #9fd6ec); }
+.cursor-ring { border-color: color-mix(in srgb, var(--cursor-a, #9fd6ec) 55%, transparent); }
+.cursor-ring[data-state='link'] { background: color-mix(in srgb, var(--cursor-a, #9fd6ec) 18%, transparent); }
+.cursor-ring[data-state='view'], .cursor-ring[data-state='drag'] {
+  border-color: color-mix(in srgb, var(--cursor-b, #7fd1c4) 38%, transparent);
+  background: color-mix(in srgb, var(--cursor-b, #7fd1c4) 20%, #10283a);
+}
+.site-footer--minimal {
+  background-color: #050b18;
+  background-image:
+    radial-gradient(1px 1px at 29px 41px, rgb(224 235 255 / .2) 70%, transparent 100%),
+    radial-gradient(1px 1px at 149px 103px, rgb(224 235 255 / .14) 70%, transparent 100%),
+    radial-gradient(1.2px 1.2px at 221px 169px, rgb(255 224 196 / .16) 70%, transparent 100%);
+  background-size: 280px 230px;
+}
 @media (prefers-reduced-motion: reduce) { .golden-hour__copy { position: relative; top: auto; } }

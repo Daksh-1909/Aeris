@@ -50,6 +50,22 @@ try {
     await page.close();
   }
 
+  for (const viewport of viewports) {
+    const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
+    await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
+    await page.evaluate(() => window.scrollTo({ top: document.querySelector('.journey')?.clientHeight ?? 0, behavior: 'instant' }));
+    await page.waitForTimeout(1400);
+    await page.screenshot({ path: join(outputDir, `journey-continuation-${viewport.width}.png`), fullPage: false });
+    console.log(JSON.stringify(await page.evaluate(() => ({
+      continuationWidth: innerWidth,
+      documentWidth: document.documentElement.scrollWidth,
+      continuation: Boolean(document.querySelector('.journey-continuation')),
+      continuationBackground: getComputedStyle(document.querySelector('.journey-continuation')).backgroundColor,
+      navHidden: document.querySelector('.site-header')?.classList.contains('site-header--hidden'),
+    }))));
+    await page.close();
+  }
+
   const journeyPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await journeyPage.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
   await journeyPage.locator('.journey__rail [data-stop-id="noon"]').click();

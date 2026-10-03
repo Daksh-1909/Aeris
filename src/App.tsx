@@ -54,15 +54,17 @@ export default function App() {
       <Header category={category} onNavigate={setCategory} />
       <main id="main-content" tabIndex={-1}>
         <SkyJourney />
-        <Introduction />
-        <WhatIsAeris />
-        <SkySection onOpen={openLightbox} />
-        <CloudsSection onOpen={openLightbox} />
-        <GoldenHourSection onOpen={openLightbox} />
-        <NatureSection onOpen={openLightbox} />
-        <Collection category={category} onCategoryChange={setCategory} onOpen={openLightbox} />
-        <Manifesto />
-        <NightChapter onOpen={openLightbox} />
+        <div className="journey-continuation">
+          <Introduction />
+          <WhatIsAeris />
+          <SkySection onOpen={openLightbox} />
+          <CloudsSection onOpen={openLightbox} />
+          <GoldenHourSection onOpen={openLightbox} />
+          <NatureSection onOpen={openLightbox} />
+          <Collection category={category} onCategoryChange={setCategory} onOpen={openLightbox} />
+          <Manifesto />
+          <NightChapter onOpen={openLightbox} />
+        </div>
       </main>
       <Footer />
       {selection && <Suspense fallback={<p role="status" className="lightbox-loading">Opening photograph…</p>}><Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} favorite={isFavorite(selection.photo.id)} onToggleFavorite={(photo) => { toggleFavorite(photo.id); setMemberRevision((value) => value + 1); }} /></Suspense>}
