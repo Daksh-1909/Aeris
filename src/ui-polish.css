@@ -88,7 +88,7 @@ html[data-theme='daylight'] {
   :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
 }
 
-/* Cinematic chapter journey: the existing Sky Clock remains an independent user setting. */
+/* Shared night palette and cursor accents. */
 :root {
   --chapter-bg: #0B1A24;
   --chapter-accent: #7FD1C4;
@@ -108,28 +108,6 @@ body[data-chapter='night'] { --chapter-bg: #070D16; --chapter-accent: #7FD1C4; -
 body::before { content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse at 78% 20%, rgb(var(--chapter-glow) / .11), transparent 48%); transition: background var(--chapter-ease); }
 body > #root { position: relative; z-index: 1; }
 
-.hero::before {
-  content: ''; position: absolute; z-index: 1; pointer-events: none;
-  width: min(68vw, 920px); aspect-ratio: 1; border-radius: 50%; right: 4%; top: 50%;
-  transform: translateY(-50%);
-  background: radial-gradient(circle, rgb(var(--chapter-glow) / .28) 0, rgb(var(--chapter-glow) / .15) 18%, transparent 67%),
-    radial-gradient(circle, transparent 39%, rgb(var(--chapter-glow) / .18) 39.2%, transparent 39.7%, transparent 48%, rgb(var(--chapter-glow) / .12) 48.2%, transparent 48.7%, transparent 58%, rgb(var(--chapter-glow) / .09) 58.2%, transparent 58.7%);
-  mix-blend-mode: screen; opacity: .88; animation: halo-breathe 9s ease-in-out infinite alternate;
-}
-@keyframes halo-breathe { from { scale: .98; opacity: .72; } to { scale: 1.035; opacity: .95; } }
-@media (max-width: 760px) { .hero::before { width: 115vw; right: -18%; top: 43%; opacity: .58; } }
-@media (prefers-reduced-motion: reduce) { .hero::before { animation: none; } }
-
-.chapter-rail { position: fixed; z-index: 12; top: 50%; right: clamp(12px, 2.3vw, 36px); display: grid; gap: 13px; transform: translateY(-50%); }
-.chapter-rail a { min-width: 16px; min-height: 22px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; color: var(--cloud-50); }
-.chapter-rail a > span:first-child { width: 6px; height: 6px; flex: none; border: 1px solid rgb(255 255 255 / .72); border-radius: 50%; background: transparent; transition: transform .35s var(--ease-sky), background .35s, box-shadow .35s; }
-.chapter-rail a[aria-current='step'] > span:first-child { transform: scale(1.45); border-color: var(--chapter-accent); background: var(--chapter-accent); box-shadow: 0 0 14px rgb(var(--chapter-glow) / .8); }
-.chapter-rail__label { position: absolute; right: 22px; opacity: 0; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; transition: opacity .2s; }
-.chapter-rail a:hover .chapter-rail__label, .chapter-rail a:focus-visible .chapter-rail__label { opacity: 1; }
-.chapter-rail a:focus-visible { outline: 2px solid var(--chapter-accent); outline-offset: 4px; }
-@media (max-width: 760px) { .chapter-rail { right: 9px; gap: 10px; } .chapter-rail__label { display: none; } }
-@media (prefers-reduced-motion: reduce) { .chapter-rail a > span:first-child, .chapter-rail__label { transition: none; } }
-
 .hero__veil { background-image: linear-gradient(90deg, rgba(5,7,8,.5), rgba(5,7,8,.04) 78%), linear-gradient(0deg, rgba(5,7,8,.42), transparent 35%); }
 .hero__explore { min-height: 48px; padding: 0 21px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; background: rgba(234,244,247,.94); color: #10232d; letter-spacing: .12em; transition: gap .25s, background .25s, color .25s; }
 .hero__explore:hover, .hero__explore:focus-visible { gap: 16px; background: white; }
@@ -138,16 +116,11 @@ body > #root { position: relative; z-index: 1; }
   .hero__copy { left: clamp(7%, calc((100vw - 1360px) / 2), 12%); top: 50%; width: min(44%, 610px); align-items: flex-start; text-align: left; translate: 0 -50%; }
   .hero h1 { font-size: clamp(76px, 8.2vw, 132px); line-height: .84; }
   .hero__slogan, .hero__note { text-align: left; }
-  .hero::before { right: 2%; }
 }
 .what-is-aeris, .introduction { scroll-margin-top: 90px; }
 .sky-section, .clouds-section, .nature-section, .closing-experience { scroll-margin-top: 76px; }
-.hero h1 em { color: #fff; text-shadow: 0 0 42px rgb(var(--chapter-glow) / .28); }
-html[data-reduce-effects='true'] .hero::before { animation: none; opacity: .32; }
-html[data-reduce-effects='true'] .hero-atmosphere { visibility: hidden; }
 html[data-reduce-effects='true'] .image-reveal img { transform: none !important; }
 .sky-section, .clouds-section, .nature-section, .closing-experience { transition: color var(--chapter-ease), background-color var(--chapter-ease); }
-@media (max-width: 420px) { .chapter-rail { right: 6px; } }
 
 html.custom-cursor-enabled input,
 html.custom-cursor-enabled textarea,
@@ -203,7 +176,6 @@ body { background-color: var(--page-bg); color: var(--page-text); }
 ::selection { background: var(--sage-300); color: var(--sky-950); }
 :focus-visible { outline-color: var(--azure-300); }
 .site-header--scrolled { background: color-mix(in srgb, var(--sky-950) 78%, transparent); }
-.sky-clock-control select { background: var(--page-bg); border-color: var(--page-border); color: var(--page-text); }
 
 /* Small, isolated baseline fixes. */
 .app-error {
@@ -311,7 +283,6 @@ html[data-theme='daylight'] .site-header:not(.site-header--scrolled) .brand,
 html[data-theme='daylight'] .site-header:not(.site-header--scrolled) .header-contact { color: #EAF4F7; }
 html[data-theme='daylight'] .hero__copy .hero__explore { color: #10232D; }
 html[data-theme='daylight'] .account-launch a { color: #EAF4F7; }
-html[data-theme='daylight'] .site-header:not(.site-header--scrolled) .sky-clock-control select { background: rgb(11 26 36 / .72); color: #EAF4F7; border-color: rgb(234 244 247 / .5); }
 html[data-theme='daylight'] .gallery-image__shade,
 html[data-theme='daylight'] .photo-card__shade { background: linear-gradient(180deg, transparent 30%, rgb(11 26 36 / .76)); }
 html[data-theme='daylight'] .clouds-section__hero { color: #EAF4F7; }

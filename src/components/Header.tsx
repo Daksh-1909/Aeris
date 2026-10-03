@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { Brand } from './Brand';
-import { AppearanceControl } from './AppearanceControl';
-import { SkyClock } from '../features/sky-clock/SkyClock';
 import { setScrollEffectsReduced } from '../animations/scroll';
 import type { GalleryCategory } from '../types/gallery';
 
@@ -80,8 +78,6 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
         <a href="/atlas">Cloud Atlas</a><a href="/planner">Planner</a><a href="/collections">Collections</a>
         <a href="#about" data-cursor="magnetic">About</a>
       </nav>
-      <SkyClock />
-      <AppearanceControl placement="header" />
       <a className="header-contact" data-cursor="arrow" href="/login">Profile / Sign in <ArrowUpRight size={15} /></a>
       <button ref={menuButtonRef} className="mobile-menu" data-cursor="arrow" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="mobile-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
     </div>
@@ -90,7 +86,6 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
       {categoryLinks.map((link) => <a key={link.label} href={link.category === 'Sky' ? '#sky' : link.category === 'Cloud' ? '#clouds' : link.category === 'Nature' ? '#nature' : '#collection'} onClick={() => selectCategory(link.category)}>{link.label}</a>)}
       <a href="/atlas" onClick={closeMenu}>Cloud Atlas</a><a href="/planner" onClick={closeMenu}>Planner</a><a href="/collections" onClick={closeMenu}>Collections</a>
       <a href="#about" onClick={closeMenu}>About</a>
-      <AppearanceControl placement="menu" />
       <a href="/login" onClick={closeMenu}>Profile / Sign in <ArrowUpRight size={15} /></a>
     </nav>
   </header>;
