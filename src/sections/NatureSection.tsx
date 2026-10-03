@@ -8,6 +8,7 @@ export function NatureSection({ onOpen }: { onOpen: OpenPhotograph }) {
   const [feature, ...details] = photos;
 
   return <section className="nature-section" id="nature" aria-labelledby="nature-title">
+    <span className="nature-section__chapter-word" aria-hidden="true">DUSK</span>
     <div className="nature-section__heading"><p className="eyebrow">Field note · 03</p><div><h2 id="nature-title">NATURE</h2><p>Where the sky<br /><em>meets the earth.</em></p></div></div>
     {!isLoading && !feature && <GalleryStatus hasError={hasError} />}
     {feature && <div className="nature-section__composition">

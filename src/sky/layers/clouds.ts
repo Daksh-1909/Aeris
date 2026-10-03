@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { sample, type SkySample } from '../timeline';
+import type { SkyQuality } from '../quality';
 
 const vertexShader = `
   varying vec2 vUv;
@@ -71,6 +72,7 @@ const fragmentShader = `
 `;
 
 const desktopLayers = [
+  { z: -145, y: 70, scale: 5.2, speed: .0015, opacity: .34, phase: 0.2 },
   { z: -200, y: 112, scale: 4.6, speed: .0012, opacity: .55, phase: 1.3 },
   { z: -350, y: 184, scale: 3.4, speed: -.00082, opacity: .39, phase: 8.1 },
   { z: -550, y: 270, scale: 2.8, speed: .00054, opacity: .27, phase: 16.7 },
@@ -80,8 +82,8 @@ function setRGB(target: THREE.Color, rgb: SkySample['cloudTint']) {
   target.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, THREE.SRGBColorSpace);
 }
 
-export function createClouds(scene: THREE.Scene) {
-  const specs = window.matchMedia('(max-width: 760px)').matches ? desktopLayers.slice(0, 2) : desktopLayers;
+export function createClouds(scene: THREE.Scene, initialQuality: SkyQuality) {
+  const specs = desktopLayers;
   const layers = specs.map((spec) => {
     const uniforms = {
       uTime: { value: 0 },
@@ -111,10 +113,12 @@ export function createClouds(scene: THREE.Scene) {
     return { mesh, geometry, material, uniforms, spec };
   });
 
+  let quality = initialQuality;
+  const setQuality = (next: SkyQuality) => { quality = next; };
   const update = (sky: SkySample, sunDirection: THREE.Vector3, time: number) => {
-    layers.forEach(({ uniforms, spec }) => {
+    layers.forEach(({ uniforms, spec }, index) => {
       uniforms.uTime.value = time + spec.phase;
-      uniforms.uOpacity.value = sky.clouds * spec.opacity;
+      uniforms.uOpacity.value = index < quality.cloudLayers ? sky.clouds * spec.opacity : 0;
       uniforms.uSunEnergy.value = sky.sunOpacity;
       uniforms.uSunDir.value.copy(sunDirection);
       setRGB(uniforms.uSunColor.value, sky.sunColor);
@@ -125,5 +129,5 @@ export function createClouds(scene: THREE.Scene) {
 
   const dispose = () => layers.forEach(({ geometry, material }) => { geometry.dispose(); material.dispose(); });
   update(sample(0), new THREE.Vector3(0, 0, -1), 0);
-  return { update, dispose };
+  return { update, setQuality, dispose };
 }

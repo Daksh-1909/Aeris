@@ -18,7 +18,7 @@ export function CloudsSection({ onOpen }: { onOpen: OpenPhotograph }) {
       <span className="clouds-section__edge-note">Weather, light, and everything in between</span>
     </div>}
     {studies.length > 0 && <div className="cloud-studies">
-      <div className="cloud-studies__heading"><p className="eyebrow">The cloud studies</p><div className="cloud-studies__controls"><span>{String(photos.length).padStart(2, '0')} collected moments</span><button type="button" onClick={() => scrollStudies(-1)} aria-label="Previous cloud photographs"><ArrowLeft size={16}/></button><button type="button" onClick={() => scrollStudies(1)} aria-label="Next cloud photographs"><ArrowRight size={16}/></button></div></div>
+      <div className="cloud-studies__heading"><p className="eyebrow">The cloud studies</p><div className="cloud-studies__controls"><a href="/atlas" className="cloud-studies__atlas-link">Explore the Cloud Atlas <ArrowRight size={14} aria-hidden="true" /></a><span>{String(photos.length).padStart(2, '0')} collected moments</span><button type="button" onClick={() => scrollStudies(-1)} aria-label="Previous cloud photographs"><ArrowLeft size={16}/></button><button type="button" onClick={() => scrollStudies(1)} aria-label="Next cloud photographs"><ArrowRight size={16}/></button></div></div>
       <div className="cloud-studies__viewport" ref={viewportRef} role="region" aria-label="Cloud photographs" tabIndex={0}>
         <div className="cloud-studies__track">{studies.map((photo, index) => <GalleryImage key={photo.id} photo={photo} photos={photos} onOpen={onOpen} className={`cloud-study cloud-study--${photo.aspect}`} imageWidth={1000} index={String(index + 2).padStart(2, '0')} parallax />)}</div>
       </div>

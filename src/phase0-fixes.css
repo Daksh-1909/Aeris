@@ -5,7 +5,8 @@
 .demo-mode-banner button:hover { background: rgb(0 0 0 / .08); }
 .demo-mode-banner + .member-shell .member-top { top: var(--banner-h, 32px); }
 .hero::before { content: none; }
-.hero__copy { left: 50%; right: auto; width: min(92%, 1200px); translate: -50% -50%; }
+.hero__copy { left: clamp(7%, calc((100vw - 1360px) / 2), 12%); right: auto; width: min(72%, 920px); translate: 0 -50%; text-align: left; align-items: flex-start; }
+.hero__actions { justify-content: flex-start; }
 @media (max-width: 760px) {
-  .hero__copy { left: 50%; right: auto; width: min(92%, 1200px); padding-inline: 2px; }
+  .hero__copy { left: 8%; right: 8%; width: auto; padding-inline: 0; translate: 0 -50%; }
 }

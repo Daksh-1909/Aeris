@@ -1,7 +1,7 @@
 const chapters = [
   { id: 'top', name: 'Dawn', theme: 'dawn' },
-  { id: 'what-is-aeris', name: 'Midday', theme: 'day' },
-  { id: 'clouds', name: 'Golden hour', theme: 'golden' },
+  { id: 'clouds', name: 'Midday', theme: 'day' },
+  { id: 'golden-hour', name: 'Golden hour', theme: 'golden' },
   { id: 'nature', name: 'Dusk', theme: 'dusk' },
   { id: 'closing', name: 'Night', theme: 'night' },
 ] as const;

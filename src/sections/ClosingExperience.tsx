@@ -48,7 +48,7 @@ export function ClosingExperience() {
     return () => { observer.disconnect(); tweens.forEach((tween) => tween.kill()); };
   }, []);
 
-  return <section className="closing-experience" id="closing" aria-labelledby="closing-title" data-reveal>
+  return <section className="closing-experience" id="night-message" aria-labelledby="closing-title" data-reveal>
     <img
       className="closing-experience__image"
       src={imageUrl(closingPhoto.image, 2200)}

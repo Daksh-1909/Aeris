@@ -1,17 +1,19 @@
 import * as THREE from 'three';
 import { sample, type SkySample } from '../timeline';
+import type { SkyQuality } from '../quality';
 
 const vertexShader = `
   attribute float aSize;
   attribute float aPhase;
   uniform float uTime;
   uniform float uDpr;
+  uniform float uTwinkle;
   varying float vTwinkle;
   varying vec3 vDirection;
   void main() {
     vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
     vDirection = normalize(position);
-    vTwinkle = 0.72 + 0.28 * sin(uTime * 1.4 + aPhase);
+    vTwinkle = mix(1.0, 0.72 + 0.28 * sin(uTime * 1.4 + aPhase), uTwinkle);
     gl_Position = projectionMatrix * viewPosition;
     gl_PointSize = aSize * (780.0 / max(1.0, -viewPosition.z)) * uDpr;
   }
@@ -60,11 +62,11 @@ function buildStarGeometry(count: number) {
 }
 
 export function createStars(scene: THREE.Scene) {
-  const mobile = window.matchMedia('(max-width: 760px)').matches;
-  const geometry = buildStarGeometry(mobile ? 1200 : 3000);
+  const geometry = buildStarGeometry(3000);
   const uniforms = {
     uTime: { value: 0 },
-    uDpr: { value: Math.min(window.devicePixelRatio || 1, 2) },
+    uDpr: { value: 1 },
+    uTwinkle: { value: 1 },
     uOpacity: { value: 0 },
     uSunGlow: { value: 0 },
     uSunDir: { value: new THREE.Vector3(0, 0, -1) },
@@ -84,6 +86,13 @@ export function createStars(scene: THREE.Scene) {
   points.renderOrder = -5;
   scene.add(points);
 
+  let quality: SkyQuality = { tier: 'high', maxDpr: 2, cloudLayers: 4, stars: 3000, mouseParallax: true, twinkle: true };
+  const setQuality = (next: SkyQuality, dpr: number) => {
+    quality = next;
+    geometry.setDrawRange(0, quality.stars);
+    uniforms.uDpr.value = dpr;
+    uniforms.uTwinkle.value = quality.twinkle ? 1 : 0;
+  };
   const update = (sky: SkySample, sunDirection: THREE.Vector3, time: number) => {
     uniforms.uOpacity.value = sky.stars;
     uniforms.uSunGlow.value = sky.glow;
@@ -92,5 +101,5 @@ export function createStars(scene: THREE.Scene) {
   };
   const dispose = () => { geometry.dispose(); material.dispose(); };
   update(sample(0), new THREE.Vector3(0, 0, -1), 0);
-  return { update, dispose };
+  return { update, setQuality, dispose };
 }

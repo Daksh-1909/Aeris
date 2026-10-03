@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, type RefObject } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { sunDirection } from '../sky/sunMoonPath';
+import { sunElevation } from '../sky/sunMoonPathMath';
 import { listenForSkyModeChange } from '../sky/skyMode';
 import { setSkyProgress } from '../sky/skyProgress';
 import { sample } from '../sky/timeline';
@@ -106,7 +106,7 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
         hudTimeRef.current.textContent = currentTime;
         hudTimeRef.current.dateTime = currentTime;
       }
-      if (hudElevationRef.current) hudElevationRef.current.value = `${Math.round(Math.asin(sunDirection(sky.progress).y) * 180 / Math.PI)}°`;
+      if (hudElevationRef.current) hudElevationRef.current.value = `${Math.round(sunElevation(sky.progress) * 180 / Math.PI)}°`;
       if (hudPhaseRef.current) hudPhaseRef.current.textContent = sky.phase;
       if (body.dataset.chapter !== sky.chapter) {
         body.dataset.chapter = sky.chapter;
@@ -124,7 +124,7 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
           fpsFrames = 0;
           fpsStart = now;
         }
-        const elevation = Math.round(Math.asin(sunDirection(sky.progress).y) * 180 / Math.PI);
+        const elevation = Math.round(sunElevation(sky.progress) * 180 / Math.PI);
         const tier = matchMedia('(max-width: 760px)').matches || devicePixelRatio > 1.5 ? 'low' : 'high';
         progressRef.current.textContent = `Sky Progress ${sky.progress.toFixed(2)} | Phase ${sky.phase} | Sun elev ${elevation}° | Stars ${Math.round(sky.stars * 100)}% | Moon ${Math.round(sky.moonOpacity * 100)}% | Tier ${tier} CSS | FPS ${fps}`;
       }

@@ -6,13 +6,13 @@ import { CustomCursor } from './components/CustomCursor';
 import { Hero } from './sections/Hero';
 import { Introduction } from './sections/Introduction';
 import { WhatIsAeris } from './sections/WhatIsAeris';
-import { DailySky } from './features/sky-clock/DailySky';
 import { SkySection } from './sections/SkySection';
 import { CloudsSection } from './sections/CloudsSection';
+import { GoldenHourSection } from './sections/GoldenHourSection';
 import { NatureSection } from './sections/NatureSection';
 import { Collection } from './sections/Collection';
 import { Manifesto } from './sections/Manifesto';
-import { ClosingExperience } from './sections/ClosingExperience';
+import { NightChapter } from './sections/NightChapter';
 import { Footer } from './sections/Footer';
 import { ChapterRail } from './components/ChapterRail';
 import { SkyTimeline } from './components/SkyTimeline';
@@ -133,15 +133,15 @@ export default function App() {
       <main ref={mainRef} id="main-content" tabIndex={-1}>
         <SkyTimeline scrollRootRef={mainRef} />
         <Hero copyRef={heroCopyRef} />
-        <DailySky onOpen={openLightbox} />
         <Introduction />
         <WhatIsAeris />
         <SkySection onOpen={openLightbox} />
         <CloudsSection onOpen={openLightbox} />
+        <GoldenHourSection onOpen={openLightbox} />
         <NatureSection onOpen={openLightbox} />
         <Collection category={category} onCategoryChange={setCategory} onOpen={openLightbox} />
         <Manifesto />
-        <ClosingExperience />
+        <NightChapter onOpen={openLightbox} />
       </main>
       <Footer />
       {selection && <Suspense fallback={<p role="status" className="lightbox-loading">Opening photograph…</p>}><Lightbox photos={selection.photos} active={selection.photo} onChange={changeLightboxPhoto} onClose={closeLightbox} favorite={isFavorite(selection.photo.id)} onToggleFavorite={(photo) => { toggleFavorite(photo.id); setMemberRevision((value) => value + 1); }} /></Suspense>}
