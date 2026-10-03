@@ -13,6 +13,8 @@ src/
   sections/         Page-level content sections
   services/         Gallery data access boundary
   types/            Shared TypeScript models and handlers
+  sky/              Shared sky palette and scroll timeline
+  sky-journey/       Journey scenes, sticky stage, and Three.js layers
   App.tsx           Page composition and top-level UI state
   index.css         Global styles and responsive visual system
 ```
@@ -31,7 +33,6 @@ The gallery is served by the Vite frontend. When Supabase is not configured, mem
 - `/admin/inquiries` (Supabase admin role required; enforced by RLS)
 - `/atlas`, `/atlas/:type` (offline cloud field guide and identifier)
 - `/planner` (local sun/moon times, city search, geolocation, saved shoot spots)
-- Sky Clock theme controls and a deterministic Daily Sky feature appear on the home page.
 
 Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage in Demo Mode. Contact submissions show an honest “message not sent” status in Demo Mode. Configure the trusted inquiry backend before collecting real requests.
 
@@ -62,32 +63,29 @@ TypeScript is configured in strict mode; `npm run build` runs the type check bef
 
 Gallery photography is served from local responsive WebP files in `public/images/`, with 480, 960, and 1600 pixel variants and `srcset` selection. These are self-hosted Unsplash demo copies, not AERIS-owned photographs; replace them with studio-owned or separately licensed photographs and verified photographer credits before launch.
 
-The site starts in Dusk, Daylight, or Auto (follows the operating-system appearance setting); choose the color theme in the home header. The separate Sky Clock control continues to set its time-of-day treatment. Fine-pointer desktop users get the decorative cloud-light cursor; it stays off for touch and reduced-motion preferences. The AERIS cloud-at-dawn favicon is `public/favicon.svg`, with a matching `public/apple-touch-icon.png` for iOS home-screen links.
+Fine-pointer desktop users get the decorative cloud-light cursor; it stays off for touch and reduced-motion preferences. The AERIS cloud-at-dawn favicon is `public/favicon.svg`, with a matching `public/apple-touch-icon.png` for iOS home-screen links.
 
-## Cinematic chapter journey
+## Sky Journey V2
 
-The home page follows five scroll chapters: **Dawn**, **Midday**, **Golden Hour**, **Dusk**, and **Night**. One master GSAP timeline maps homepage scroll progress from pre-dawn through sunrise, morning, day, afternoon, golden hour, sunset, twilight, and night. It continuously shifts the sky gradient, sun arc and glow, cloud highlights, horizon haze, star field, and moon; the chapter rail stays at its five accessible stops. The scroll timeline and the user controlled Sky Clock are independent: the Clock continues to set its header indicator and theme preference, while the homepage atmosphere follows scroll. The desktop cursor adds a chapter-colored light trail and ambient spotlight; both are disabled on touch and reduced motion. Use **Reduce effects** in the footer to turn off Lenis, cursor effects, drifting clouds, and image parallax; the choice is saved in this browser. In development, add `?skyDebug=1` to show current timeline progress. The timeline and chapter mapping live in `src/components/SkyTimeline.tsx` and presentation styles live in `src/components/skyTimeline.css` and `src/ui-polish.css`.
+The homepage opens on Sunrise and scrolls through four scenes: Sunrise (05:48), Noon (12:10), Sunset (17:52), and Night (22:30). One sticky stage follows normalized scroll progress from `0` to `1`; the accessible time rail links to each scene. Text is DOM content and moves only vertically as it fades. The rest of the homepage continues on a deep night background.
 
-### Sky rendering, quality tiers, and tuning
+The shared palette and sun keyframes are in [`src/sky/timeline.ts`](./src/sky/timeline.ts). `sample(progress)` clamps progress to `0..1` and smoothly interpolates the sky, text, cloud brightness, stars, and sun path. Scene copy, fade ranges, and rail stop positions are in [`src/sky-journey/scenes.ts`](./src/sky-journey/scenes.ts). During development, `/?p=0.42` freezes the journey at a point; edit `skyKeyframes` and `sunKeyframes` to tune colors and sun position.
 
-`src/sky/timeline.ts` is the shared, smoothly interpolated source for sky colors, foreground colors, sun, clouds, stars, moon, and chapter names. `src/components/SkyTimeline.tsx` maps scroll progress into that model and updates the CSS poster; the lazily loaded Three.js scene in `src/sky/SkyCanvas.tsx` and `src/sky/SkyScene.ts` adds the WebGL layers. The fixed canvas is decorative and `aria-hidden`; headings, captions, navigation, and controls remain ordinary DOM content. Browsers without WebGL and users who enable **Reduce effects** or system reduced motion keep the CSS sky poster.
+The stage first paints a CSS sky, then lazily loads the Three.js canvas. The canvas is decorative and `aria-hidden`; scene headings, copy, rail buttons, and links remain HTML. A static CSS presentation is used when WebGL is unavailable, Reduce effects is enabled, or the operating system requests reduced motion.
 
-`src/sky/quality.ts` chooses an initial tier from viewport/input type, hardware hints, and Save-Data:
+### Rendering quality
 
-| Tier | DPR cap | Cloud layers | Stars | Effects |
-| --- | ---: | ---: | ---: | --- |
-| High | 2 | 4 | 3,000 | Fine-pointer parallax and twinkle |
-| Medium | 1.5 | 3 | 2,000 | Twinkle; no parallax |
-| Low | 1.25 | 2 | 1,200 | No twinkle or parallax; used for phones/Save-Data |
-| Static | — | — | — | No canvas for WebGL failure, Reduce Effects, or system reduced motion |
+| Tier | DPR cap | Stars (tiny / medium / bright) | Clouds across 3 layers |
+| --- | ---: | ---: | ---: |
+| High | 2 | 2500 / 500 / 40 | 6 / 6 / 7 |
+| Medium | 1.5 | 1600 / 380 / 20 | 5 / 5 / 5 |
+| Low | 1.25 | 960 / 224 / 16 | 3 / 3 / 4 |
+| Static | — | — | No WebGL canvas |
 
-If two seconds of frames average above 22 ms, quality steps down once at a time and does not automatically step back up. Rendering pauses while the document is hidden or the canvas is outside the viewport; WebGL context loss is handled by rebuilding the scene after restoration. These are runtime heuristics; use real-device profiling before setting release performance claims.
+The initial tier uses viewport width and hardware memory/core hints. If frame intervals or render time remain above 22 ms over a 45-frame sample, the renderer steps down a tier; it does not automatically step back up. Rendering pauses while the document is hidden. Reduced-motion and Reduce effects modes disable the WebGL presentation; shooting stars are disabled there as well.
 
-To freeze and inspect a timeline point while running the development server, open `/?sky=0.68` (values from `0` to `1`). The model keyframes are in `src/sky/timeline.ts`; sun and moon paths are in `src/sky/sunMoonPath.ts`. To generate the Phase 10 viewport captures, install dependencies and the Playwright Chromium browser once, then run:
+### Assets and screenshots
 
-```sh
-npx playwright install chromium
-npm run sky:shots
-```
+Cloud sprites are `public/3d/clouds/cloud_1.webp` through `cloud_4.webp`. The moon uses `public/3d/moon_color_2k.webp` and `public/3d/moon_bump_2k.webp`; the optional 4K color map is `public/3d/moon_color_4k.webp`. No 8000×4000 moon texture is shipped. The footer credits the moon map to NASA Scientific Visualization Studio (CGI Moon Kit). Local responsive gallery WebP assets are in `public/images/`; they are demo copies and need verified licensing/photographer credits before launch.
 
-The script captures the nine reference progress values at 1920×1080 and 390×844 into the ignored `shots/` folder. Open those files to review legibility, framing, and sky continuity; the script also reports browser console errors and horizontal document overflow. Lighthouse and cross-browser/device audits still need to be run separately.
+Run `npm run check` for lint, TypeScript, and production build. With the Vite server running, use `node scripts/journey-shots.mjs` to save reference images under the ignored `shots/` folder. The script captures the eight timeline points at 1920×1080 and 390×844, checks sunrise and sunset at 360, 390, 768, 1024, 1440, and 1920 px, and exercises continuation, reduced-motion, Reduce effects, rail navigation, and reverse scrolling. The screenshots are browser-environment evidence; verify WebGL visuals on a device/browser that provides WebGL2 before release.

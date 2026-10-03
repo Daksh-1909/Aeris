@@ -5,6 +5,7 @@ import { chromium } from 'playwright';
 
 const moments = [0, .12, .3, .42, .58, .72, .84, 1];
 const viewports = [{ width: 1920, height: 1080 }, { width: 390, height: 844 }];
+const layoutWidths = [360, 390, 768, 1024, 1440, 1920];
 const outputDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'shots');
 await mkdir(outputDir, { recursive: true });
 const browser = await chromium.launch({
@@ -46,6 +47,36 @@ try {
         };
       });
       console.log(JSON.stringify({ requestedProgress: progress, ...proof }));
+    }
+    await page.close();
+  }
+
+  // Responsive layout proof at every width specified by the journey brief.
+  for (const width of layoutWidths) {
+    const page = await browser.newPage({ viewport: { width, height: width <= 390 ? 844 : 900 }, deviceScaleFactor: 1 });
+    for (const progress of [.12, .72]) {
+      await page.goto(`http://127.0.0.1:5173/?p=${progress}`, { waitUntil: 'networkidle' });
+      await page.waitForFunction(() => {
+        const stage = document.querySelector('.journey__stage');
+        return stage?.dataset.webglReady === 'true' || stage?.dataset.webglFallback === 'true';
+      }, undefined, { timeout: 10000 });
+      const proof = await page.evaluate(() => {
+        const stage = document.querySelector('.journey__stage');
+        const title = stage?.querySelector('.journey__scene[aria-hidden="false"] h1');
+        const bounds = title?.getBoundingClientRect();
+        const siteHeader = document.querySelector('.site-header')?.getBoundingClientRect();
+        return {
+          viewportWidth: innerWidth,
+          documentWidth: document.documentElement.scrollWidth,
+          visibleTitle: title?.textContent?.trim() ?? null,
+          headlineBounds: bounds ? [Math.round(bounds.left), Math.round(bounds.right)] : null,
+          headlineVisible: Boolean(bounds && bounds.left >= -1 && bounds.right <= innerWidth + 1),
+          headerBottom: siteHeader ? Math.round(siteHeader.bottom) : null,
+        };
+      });
+      await page.screenshot({ path: join(outputDir, `journey-layout-${progress}-${width}.png`), fullPage: false });
+      console.log(JSON.stringify({ layoutCheck: true, requestedProgress: progress, ...proof }));
+      if (proof.documentWidth !== width || !proof.headlineVisible) throw new Error(`Journey layout failed at ${width}px, p=${progress}`);
     }
     await page.close();
   }

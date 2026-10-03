@@ -38,11 +38,15 @@ The browser/device checks require a browser with responsive emulation and develo
 - With a signed-in account, save a spot, reload, toggle a reminder and remove it. Confirm signed-out users can see times but are asked to sign in to save.
 - Test a high-latitude date/location and confirm missing sun or moon rise/set events show a readable empty value instead of crashing.
 
-## Sky Clock and Daily Sky
+## Sky Journey
 
-- Reload at dawn/day/evening/night and confirm the matching accent appears without a theme flash; use Auto, Day and Night overrides and reload to confirm persistence.
-- Enable reduced motion and confirm sky transitions stop. Check both light and dark system appearance.
-- Reload on the same local date and confirm Daily Sky keeps the same featured photograph; inspect the seven previous-date entries and open each.
+- [ ] Run `npm run check` and `node scripts/journey-shots.mjs` with the Vite dev server running.
+- [ ] Review the eight journey states at 1920×1080 and 390×844, plus sunrise and sunset screenshots at 360, 390, 768, 1024, 1440, and 1920 px.
+- [ ] Confirm headline bounds stay inside the viewport and document width equals viewport width at every responsive width.
+- [ ] Confirm the header is clear, one time rail is present, sunrise is first, sunset text sits on the right on desktop, and the night continuation remains dark.
+- [ ] Check reverse scroll, rail navigation, reduced motion, Reduce effects, and the CSS fallback when WebGL2 is unavailable.
+- [ ] Check the footer NASA moon credit and verify no 8000×4000 moon texture is present in `public/`.
+- [ ] Run a WebGL2 capable browser/device pass for sun, cloud, moon, star and shooting-star rendering; headless CSS-fallback screenshots do not verify those layers.
 
 ## Sky journey final pass
 
@@ -54,15 +58,6 @@ The browser/device checks require a browser with responsive emulation and develo
 - [ ] Keyboard-test the chapter rail, mobile menu, Sky Clock, gallery/lightbox, and visible focus rings. Check with a screen reader that canvas content is decorative and DOM content is in logical order.
 - [ ] Run Lighthouse on a representative mobile profile and record Performance and CLS. Do not infer the target scores from the production build alone.
 - [ ] Repeat representative screenshots and keyboard/reduced-motion checks in Firefox, Safari/iOS, and Chrome Android when those browsers/devices are available.
-
-## Phase 10 implementation record (2026-10-03)
-
-- [x] `npm run sky:shots` captured all 18 combinations of the nine timeline values and 1920×1080 / 390×844 viewports into `shots/` (ignored by Git).
-- [x] Capture checks confirmed the requested phase and simulated time, found no browser console warnings/errors, and found no horizontal document overflow at either viewport.
-- [x] Reviewed dawn, golden hour, and night captures at phone size; corrected the Sky control and hero CTA contrast found in the review.
-- README now documents the shared timeline, Sky Mode relationship, quality tiers, static fallback, runtime tuning, and screenshot workflow.
-- The capture environment cannot reach Google Fonts, so the script serves an empty response for that stylesheet and screenshots use local font fallbacks. Review branded typography in a networked browser.
-- [ ] Lighthouse, assistive-technology review, touch/scroll behavior, reduced-effects interaction, and cross-browser/device checks remain outstanding.
 
 ## Photo requests and admin inbox
 
