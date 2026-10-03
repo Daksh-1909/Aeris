@@ -1,5 +1,10 @@
 /* Phase 0 shell behavior: keep the global header at the top edge. */
 .site-header { top: 0; }
+.site-header .desktop-nav a,
+.site-header .brand,
+.site-header .brand small,
+.site-header .mobile-menu,
+.site-header .mobile-nav a { color: rgb(234 244 247 / .9) !important; }
 :root .demo-mode-banner {
   position: fixed;
   z-index: 40;

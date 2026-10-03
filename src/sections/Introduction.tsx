@@ -36,7 +36,7 @@ export function Introduction() {
     return () => context.revert();
   }, []);
 
-  return <section className="introduction" ref={sectionRef} aria-labelledby="intro-title">
+  return <section className="introduction" id="light-and-landscape" ref={sectionRef} aria-labelledby="intro-title">
     <p className="eyebrow">Moments in the sky</p>
     <div className="intro__layout">
       <div className="intro__copy">

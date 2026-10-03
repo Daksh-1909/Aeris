@@ -1,0 +1,110 @@
+.journey__night-sky {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.journey__nebula,
+.journey__aurora,
+.journey__stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.journey__nebula {
+  mix-blend-mode: screen;
+  transition: opacity 180ms linear;
+}
+
+.journey__nebula-blob {
+  position: absolute;
+  display: block;
+  width: clamp(340px, 48vw, 760px);
+  height: clamp(260px, 42vh, 520px);
+  border-radius: 50%;
+  filter: blur(62px);
+  will-change: transform;
+  animation: nebula-drift 32s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.journey__nebula--active .journey__nebula-blob { animation-play-state: running; }
+
+.journey__nebula-blob--violet {
+  top: 8%; left: -12%;
+  background: radial-gradient(ellipse, rgb(104 73 218 / .42), rgb(104 73 218 / 0) 68%);
+}
+
+.journey__nebula-blob--blue {
+  top: 24%; right: -16%;
+  background: radial-gradient(ellipse, rgb(39 137 218 / .36), rgb(39 137 218 / 0) 68%);
+  animation-delay: -11s;
+}
+
+.journey__nebula-blob--rose {
+  top: 48%; left: 30%;
+  background: radial-gradient(ellipse, rgb(183 76 178 / .30), rgb(183 76 178 / 0) 70%);
+  animation-delay: -21s;
+}
+
+@keyframes nebula-drift {
+  from { transform: translate3d(-2%, -2%, 0) scale(.96); }
+  to { transform: translate3d(3%, 2%, 0) scale(1.06); }
+}
+
+.journey__aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  transition: opacity 180ms linear;
+}
+
+.journey__aurora-art {
+  position: absolute;
+  top: -3%;
+  left: -10%;
+  display: block;
+  width: 120%;
+  height: 75%;
+  overflow: visible;
+  filter: blur(18px);
+  mix-blend-mode: screen;
+}
+
+.journey__aurora-ribbon {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: aurora-wave 12s ease-in-out infinite alternate;
+  animation-play-state: paused;
+  will-change: transform;
+}
+
+.journey__aurora--active .journey__aurora-ribbon { animation-play-state: running; }
+.journey__aurora-ribbon--teal { animation-delay: -4s; }
+.journey__aurora-ribbon--violet { animation-delay: -8s; }
+
+@keyframes aurora-wave {
+  from { translate: -1.5% 0; scale: .99 1; }
+  to { translate: 1.5% 0; scale: 1.01 1.035; }
+}
+
+.journey__stars {
+  display: block;
+  opacity: 0;
+  transition: opacity 180ms linear;
+}
+
+@media (max-width: 767px) {
+  .journey__nebula-blob { filter: blur(42px); }
+  .journey__aurora-art { top: 0; filter: blur(14px); height: 72%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey__nebula-blob,
+  .journey__aurora-ribbon { animation: none; }
+}

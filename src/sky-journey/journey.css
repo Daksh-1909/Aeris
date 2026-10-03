@@ -21,10 +21,41 @@
 
 .journey__sky,
 .journey__horizon,
-.journey__ground {
+.journey__cloud-layer,
+.journey__ground-scene {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.journey__cloud-layer {
+  overflow: hidden;
+  opacity: var(--cloud-opacity, 1);
+}
+
+.journey__cloud-layer--far { z-index: 2; }
+.journey__cloud-layer--mid { z-index: 4; }
+.journey__cloud-layer--near { z-index: 6; }
+
+.journey__cloud {
+  position: absolute;
+  margin: 0;
+  line-height: 0;
+  will-change: transform;
+}
+
+.journey__cloud img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: sepia(var(--cloud-sepia, 0)) saturate(var(--cloud-saturation, 1)) hue-rotate(var(--cloud-hue, 0deg)) brightness(var(--cloud-brightness, 1));
+  animation: cloud-drift 32s ease-in-out infinite alternate;
+  user-select: none;
+}
+
+@keyframes cloud-drift {
+  from { transform: translate3d(var(--cloud-drift-from), 0, 0); }
+  to { transform: translate3d(var(--cloud-drift-to), var(--cloud-drift-y), 0); }
 }
 
 .journey__sky {
@@ -39,11 +70,125 @@
   background: linear-gradient(180deg, transparent, rgb(238 195 145 / .42));
 }
 
-.journey__ground {
-  z-index: 2;
+.journey__ground-scene {
+  z-index: 7;
+}
+
+.journey__ground-art {
+  position: absolute;
   inset: auto 0 0;
-  height: 25%;
-  background: linear-gradient(180deg, #526f54 0%, #263e37 55%, #182c2a 100%);
+  height: 46%;
+  overflow: hidden;
+}
+
+.journey__ground-art svg,
+.journey__bench-art svg,
+.journey__people-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.journey__flower-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.journey__flowers {
+  position: absolute;
+  inset: 0;
+}
+
+.journey__flower {
+  position: absolute;
+  display: block;
+  transform-origin: 50% 100%;
+}
+
+.journey__flower svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: flower-sway 5.4s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+}
+
+@keyframes flower-sway {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(3deg); }
+}
+
+.journey__bench-scene {
+  position: absolute;
+  left: 64%;
+  bottom: 5%;
+  width: clamp(168px, 17vw, 240px);
+  aspect-ratio: 12 / 7;
+  will-change: transform, opacity;
+}
+
+.journey__bench-art,
+.journey__people-art {
+  position: absolute;
+  inset: 0;
+}
+
+.journey__people-art {
+  will-change: opacity;
+}
+
+.journey__orb {
+  position: absolute;
+  z-index: 3;
+  left: var(--orb-x, 62%);
+  top: var(--orb-y, 42%);
+  width: clamp(150px, 19vw, 280px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.journey__sun,
+.journey__moon {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.journey__sun {
+  background: radial-gradient(circle at 38% 34%, #fffce7 0 8%, #fff2bb 19%, color-mix(in srgb, var(--orb-color) 74%, #fff3c4) 42%, var(--orb-color) 72%, #c95038 100%);
+  box-shadow: 0 0 28px 5px color-mix(in srgb, var(--orb-color) 62%, transparent), 0 0 95px 22px color-mix(in srgb, var(--orb-color) 28%, transparent);
+}
+
+.journey__sun::before {
+  content: '';
+  position: absolute;
+  inset: -9%;
+  border: 1px solid color-mix(in srgb, var(--orb-color) 44%, transparent);
+  border-radius: 50%;
+}
+
+.journey__moon {
+  background-image: radial-gradient(circle at 32% 28%, rgb(255 255 255 / .1), rgb(0 0 0 / .08) 55%, rgb(0 0 0 / .34) 100%), url('/3d/moon_color_2k.webp');
+  background-repeat: no-repeat;
+  background-size: 100% 100%, auto 100%;
+  background-position: center, center;
+  box-shadow: 0 0 32px 4px rgb(205 218 255 / .2), inset -13px -8px 22px rgb(0 0 0 / .3);
+}
+
+.journey__moon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: url('/3d/moon_bump_2k.webp') center / auto 100% no-repeat;
+  mix-blend-mode: soft-light;
+  opacity: .25;
+  pointer-events: none;
 }
 
 .journey__ground::before {
@@ -56,20 +201,24 @@
 
 .journey__content {
   position: absolute;
-  z-index: 3;
   inset: 0;
-  padding: clamp(112px, 15vh, 170px) clamp(24px, 7.5vw, 120px) clamp(205px, 29vh, 300px);
+  pointer-events: none;
 }
 
 .journey__scene {
-  width: min(100%, 1000px);
+  position: absolute;
+  z-index: 5;
+  top: clamp(112px, 15vh, 170px);
+  left: clamp(24px, 7.5vw, 120px);
+  width: min(1000px, calc(100% - clamp(48px, 15vw, 240px)));
   color: var(--journey-text);
   text-shadow: 0 2px 24px rgb(10 30 43 / .26);
+  pointer-events: none;
 }
 
-.journey__scene--top-left { margin-right: auto; text-align: left; }
-.journey__scene--center { margin-inline: auto; text-align: center; }
-.journey__scene--right { margin-left: auto; text-align: right; }
+.journey__scene--center { left: 50%; translate: -50% 0; text-align: center; }
+.journey__scene--right { right: clamp(24px, 7.5vw, 120px); left: auto; text-align: right; }
+.journey__scene--behind { z-index: 2; }
 
 .journey__eyebrow {
   margin: 0 0 clamp(18px, 3vh, 32px);
@@ -80,6 +229,7 @@
 .journey__eyebrow span { padding-inline: 6px; opacity: .65; }
 
 .journey__scene h1 {
+  width: 100%;
   max-width: 12ch;
   margin: 0;
   font: 400 clamp(3rem, 9.6vw, 9rem)/.9 'Cormorant Garamond', Georgia, serif;
@@ -91,9 +241,36 @@
 .journey__scene--center h1 { margin-inline: auto; }
 .journey__scene--right h1 { margin-left: auto; }
 
+.journey__overlap-front {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle clamp(75px, 12.5vw, 180px) at var(--orb-x, 62%) var(--orb-y, 42%), #000 0 72%, transparent 94%);
+  mask-image: radial-gradient(circle clamp(75px, 12.5vw, 180px) at var(--orb-x, 62%) var(--orb-y, 42%), #000 0 72%, transparent 94%);
+}
+
+.journey__overlap-front h1 {
+  position: absolute;
+  top: clamp(112px, 15vh, 170px);
+  left: 50%;
+  translate: -50% 0;
+  width: min(1000px, calc(100% - clamp(48px, 15vw, 240px)));
+  max-width: 12ch;
+  margin: 0;
+  color: var(--journey-text);
+  font: 400 clamp(3rem, 9.6vw, 9rem)/.9 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: -.045em;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  text-shadow: 0 2px 24px rgb(10 30 43 / .26);
+}
+
 .journey__copy {
   position: absolute;
-  z-index: 4;
+  z-index: 9;
+  left: clamp(24px, 7.5vw, 120px);
   bottom: clamp(32px, 8vh, 88px);
   display: flex;
   flex-direction: column;
@@ -105,7 +282,7 @@
 }
 
 .journey__copy--left { left: clamp(24px, 7.5vw, 120px); }
-.journey__copy--right { right: clamp(24px, 7.5vw, 120px); align-items: flex-end; text-align: right; }
+.journey__copy--right { right: clamp(24px, 7.5vw, 120px); left: auto; align-items: flex-end; text-align: right; }
 
 .journey__copy p {
   max-width: 34ch;
@@ -131,7 +308,7 @@
 
 .journey__debug {
   position: absolute;
-  z-index: 3;
+  z-index: 10;
   left: 50%;
   bottom: 12px;
   width: min(500px, calc(100% - 32px));
@@ -150,7 +327,7 @@
 
 .journey__moment {
   position: absolute;
-  z-index: 4;
+  z-index: 9;
   right: clamp(24px, 7.5vw, 120px);
   bottom: clamp(32px, 8vh, 88px);
   color: var(--journey-text);
@@ -165,12 +342,18 @@
 
 @media (max-width: 767px) {
   .journey__stage { min-height: 0; }
-  .journey__content { padding: 112px 20px 230px; }
-  .journey__scene--top-left,
-  .journey__scene--right,
-  .journey__scene--center { margin-inline: auto; text-align: center; }
+  .journey__orb { left: 50%; width: clamp(118px, 38vw, 185px); }
+  .journey__scene { top: 112px; right: 20px; left: 20px; width: auto; text-align: center; }
+  .journey__scene--behind { z-index: 5; }
+  .journey__cloud-layer--near { z-index: 4; }
+  .journey__cloud--mobile-hidden { display: none; }
+  .journey__flower--mobile-hidden { display: none; }
+  .journey__bench-scene { left: calc(100% - clamp(122px, 36vw, 138px)); bottom: 0; width: clamp(122px, 36vw, 138px); }
+  .journey__scene--center,
+  .journey__scene--right { right: 20px; left: 20px; translate: 0 0; text-align: center; }
   .journey__scene h1,
   .journey__scene--right h1 { max-width: 11ch; margin-inline: auto; font-size: clamp(2.8rem, 12vw, 5rem); }
+  .journey__overlap-front { display: none; }
   .journey__copy,
   .journey__copy--left,
   .journey__copy--right {
@@ -189,4 +372,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .journey__button { scroll-behavior: auto; }
+  .journey__cloud img { animation: none; }
+  .journey__flower svg { animation: none; }
 }

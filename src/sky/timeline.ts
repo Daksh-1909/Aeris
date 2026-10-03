@@ -25,14 +25,15 @@ export const skyKeyframes: readonly TimelineKeyframe[] = [
 ];
 
 export const sunKeyframes: readonly SunKeyframe[] = [
-  { at: 0, x: 70, y: 88, size: 1, opacity: 0, color: [219, 157, 128] },
-  { at: .12, x: 68, y: 74, size: 1.3, opacity: 1, color: [255, 184, 133] },
-  { at: .30, x: 60, y: 40, size: .9, opacity: 1, color: [255, 223, 177] },
-  { at: .42, x: 50, y: 16, size: .7, opacity: 1, color: [255, 250, 232] },
-  { at: .58, x: 40, y: 40, size: .9, opacity: 1, color: [255, 199, 133] },
-  { at: .72, x: 30, y: 74, size: 1.4, opacity: .92, color: [255, 157, 99] },
-  { at: .80, x: 26, y: 92, size: 1.4, opacity: 0, color: [232, 125, 101] },
-  { at: 1, x: 26, y: 92, size: 1.4, opacity: 0, color: [232, 125, 101] },
+  { at: 0, x: 62, y: 80, size: .78, opacity: .78, color: [255, 176, 102] },
+  { at: .12, x: 62, y: 70, size: 1, opacity: 1, color: [255, 176, 102] },
+  { at: .30, x: 62, y: 42, size: 1, opacity: 1, color: [255, 243, 196] },
+  { at: .45, x: 62, y: 42, size: 1, opacity: 1, color: [255, 243, 196] },
+  { at: .58, x: 62, y: 52, size: 1.02, opacity: 1, color: [255, 199, 133] },
+  { at: .70, x: 62, y: 72, size: 1.18, opacity: 1, color: [255, 106, 42] },
+  { at: .78, x: 62, y: 78, size: 1.2, opacity: 1, color: [255, 106, 42] },
+  { at: .88, x: 62, y: 42, size: 1, opacity: 0, color: [223, 230, 245] },
+  { at: 1, x: 62, y: 42, size: 1, opacity: 0, color: [238, 242, 255] },
 ];
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
@@ -78,6 +79,12 @@ function sampleSun(progress: number): SunSample {
 /** Smoothly interpolates every palette value for normalized journey progress. */
 export function sample(progress: number): TimelineSample {
   const p = clamp01(Number.isFinite(progress) ? progress : 0);
+  const moment = p < .20 ? 'Sunrise'
+    : p < .45 ? 'Morning'
+      : p < .65 ? 'Afternoon'
+        : p < .80 ? 'Sunset'
+          : p < .90 ? 'Dusk'
+            : 'Midnight';
   let left = skyKeyframes[0];
   let right = skyKeyframes[skyKeyframes.length - 1];
   for (let index = 1; index < skyKeyframes.length; index += 1) {
@@ -92,7 +99,7 @@ export function sample(progress: number): TimelineSample {
   const amount = smoothstep(span === 0 ? 0 : clamp01((p - left.at) / span));
   return {
     progress: p,
-    moment: amount < .5 ? left.moment : right.moment,
+    moment,
     top: mixColor(left.top, right.top, amount),
     middle: mixColor(left.middle, right.middle, amount),
     horizon: mixColor(left.horizon, right.horizon, amount),

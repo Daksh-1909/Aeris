@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 140">
+  <!-- Tint with bench and bench-dark. Seat top is at y=78 (people.svg sits on it). Ground line y=132 -->
+  <g fill="var(--bench,#6b4528)">
+    <rect x="22" y="24" width="196" height="9" rx="3"/>
+    <rect x="22" y="38" width="196" height="9" rx="3"/>
+    <rect x="22" y="52" width="196" height="9" rx="3"/>
+    <rect x="12" y="78" width="216" height="9" rx="3"/>
+    <rect x="12" y="90" width="216" height="8" rx="3"/>
+    <rect x="10" y="64" width="30" height="7" rx="3"/>
+    <rect x="200" y="64" width="30" height="7" rx="3"/>
+  </g>
+  <g fill="var(--bench-dark,#3e2814)">
+    <rect x="24" y="20" width="7" height="112" rx="3"/>
+    <rect x="209" y="20" width="7" height="112" rx="3"/>
+    <rect x="18" y="64" width="6" height="40" rx="2"/>
+    <rect x="216" y="64" width="6" height="40" rx="2"/>
+    <path d="M24 100 L14 132 h8 l8-30z M216 100 l10 32 h-8 l-8-30z"/>
+  </g>
+  <ellipse cx="120" cy="133" rx="108" ry="4" fill="#000" opacity=".18"/>
+</svg>
