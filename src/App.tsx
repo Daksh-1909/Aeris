@@ -76,6 +76,7 @@ export default function App() {
 
     const image = page.querySelector('.hero__image');
     const nav = page.querySelector('.site-header');
+    const loader = page.querySelector('.loading-screen');
     const heading = heroCopyRef.current?.querySelector('h1');
     const headingLines = heading?.querySelectorAll('.hero__line-inner');
     const slogan = heroCopyRef.current?.querySelector('.hero__slogan');
@@ -91,9 +92,10 @@ export default function App() {
       .set(image, { scale: 1.08, transformOrigin: '50% 50%' })
       .set(nav, { autoAlpha: 0, y: -8 })
       .set(headingLines, { autoAlpha: 0, yPercent: 110 })
-      .set([slogan, note, explore], { autoAlpha: 0, y: 22 })
+      .set([slogan, note, explore], { autoAlpha: 0, y: 22 });
+    if (loader) timeline.to(loader, { autoAlpha: 0, yPercent: -5, duration: 0.28, ease: 'power2.inOut' }, 0.34);
+    timeline
       .to(image, { scale: 1, duration: 0.78, ease: 'power2.out' }, 0)
-      .to('.loading-screen', { autoAlpha: 0, yPercent: -5, duration: 0.28, ease: 'power2.inOut' }, 0.34)
       .to(nav, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 0.48)
       .to(headingLines, { autoAlpha: 1, yPercent: 0, duration: 0.68, stagger: 0.16, ease: 'power3.out' }, 0.50)
       .to(slogan, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 0.62)

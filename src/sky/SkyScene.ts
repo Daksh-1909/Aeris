@@ -6,6 +6,7 @@ import { createRidges } from './layers/ridges';
 import { createClouds } from './layers/clouds';
 import { createStars } from './layers/stars';
 import { createMoon } from './layers/moon';
+import type { SkyQuality } from './quality';
 
 const vertexShader = `
   varying vec3 vDir;
@@ -73,9 +74,9 @@ function cameraValue(progress: number, property: 'pitch' | 'dolly') {
 
 export type SkyScene = ReturnType<typeof createSkyScene>;
 
-export function createSkyScene(canvas: HTMLCanvasElement) {
+export function createSkyScene(canvas: HTMLCanvasElement, initialQuality: SkyQuality) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, initialQuality.maxDpr));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
@@ -150,17 +151,30 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
   scene.add(skyLight);
   const ridges = createRidges(scene);
   const mist = createMist(scene);
-  const clouds = createClouds(scene);
+  const clouds = createClouds(scene, initialQuality);
   const stars = createStars(scene);
   const moon = createMoon(scene, camera, renderer.capabilities.getMaxAnisotropy());
   let cloudTime = 0;
   const sunPosition = new THREE.Vector3();
   const mouseTarget = new THREE.Vector2();
   const mousePosition = new THREE.Vector2();
+  let quality = initialQuality;
+  const setQuality = (next: SkyQuality) => {
+    quality = next;
+    const dpr = Math.min(window.devicePixelRatio || 1, quality.maxDpr);
+    renderer.setPixelRatio(dpr);
+    stars.setQuality(quality, dpr);
+    clouds.setQuality(quality);
+    if (!quality.mouseParallax) { mouseTarget.set(0, 0); mousePosition.set(0, 0); }
+    resize();
+  };
 
   const resize = (width = window.innerWidth, height = window.innerHeight) => {
     const safeWidth = Math.max(1, width);
     const safeHeight = Math.max(1, height);
+    const dpr = Math.min(window.devicePixelRatio || 1, quality.maxDpr);
+    renderer.setPixelRatio(dpr);
+    stars.setQuality(quality, dpr);
     renderer.setSize(safeWidth, safeHeight, false);
     camera.aspect = safeWidth / safeHeight;
     camera.updateProjectionMatrix();
@@ -222,6 +236,7 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
   };
 
   const setMouseParallax = (x: number, y: number) => {
+    if (!quality.mouseParallax) return;
     mouseTarget.set(THREE.MathUtils.clamp(x, -.6, .6), THREE.MathUtils.clamp(y, -.6, .6));
   };
 
@@ -244,5 +259,6 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
 
   resize();
   update(0);
-  return { update, render, resize, setMouseParallax, dispose };
+  setQuality(initialQuality);
+  return { update, render, resize, setMouseParallax, setQuality, dispose };
 }

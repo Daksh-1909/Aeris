@@ -44,6 +44,26 @@ The browser/device checks require a browser with responsive emulation and develo
 - Enable reduced motion and confirm sky transitions stop. Check both light and dark system appearance.
 - Reload on the same local date and confirm Daily Sky keeps the same featured photograph; inspect the seven previous-date entries and open each.
 
+## Sky journey final pass
+
+- [ ] Run `npm run sky:shots` after installing Playwright Chromium. Review all nine progress states (`0`, `.08`, `.2`, `.38`, `.55`, `.68`, `.78`, `.87`, `1`) at 1920×1080 and 390×844 from `shots/`.
+- [ ] Confirm the screenshot run reports no browser console errors or horizontal document overflow. Check visible text, chapter rail, sky continuity, star and moon appearance, and header framing by eye.
+- [ ] Scroll slowly and quickly in both directions, resize during scroll, reload at a deep URL, and test touch scrolling. Confirm scroll backward reverses the sky naturally.
+- [ ] Enable footer **Reduce effects** and system reduced motion; verify the CSS poster is stable, smooth scrolling/parallax/twinkle stop, and the final night state is available without animation.
+- [ ] In browser devtools, emulate WebGL failure/context loss and confirm the CSS poster remains available and the canvas recovers after restoration.
+- [ ] Keyboard-test the chapter rail, mobile menu, Sky Clock, gallery/lightbox, and visible focus rings. Check with a screen reader that canvas content is decorative and DOM content is in logical order.
+- [ ] Run Lighthouse on a representative mobile profile and record Performance and CLS. Do not infer the target scores from the production build alone.
+- [ ] Repeat representative screenshots and keyboard/reduced-motion checks in Firefox, Safari/iOS, and Chrome Android when those browsers/devices are available.
+
+## Phase 10 implementation record (2026-10-03)
+
+- [x] `npm run sky:shots` captured all 18 combinations of the nine timeline values and 1920×1080 / 390×844 viewports into `shots/` (ignored by Git).
+- [x] Capture checks confirmed the requested phase and simulated time, found no browser console warnings/errors, and found no horizontal document overflow at either viewport.
+- [x] Reviewed dawn, golden hour, and night captures at phone size; corrected the Sky control and hero CTA contrast found in the review.
+- README now documents the shared timeline, Sky Mode relationship, quality tiers, static fallback, runtime tuning, and screenshot workflow.
+- The capture environment cannot reach Google Fonts, so the script serves an empty response for that stylesheet and screenshots use local font fallbacks. Review branded typography in a networked browser.
+- [ ] Lighthouse, assistive-technology review, touch/scroll behavior, reduced-effects interaction, and cross-browser/device checks remain outstanding.
+
 ## Photo requests and admin inbox
 
 - Open a lightbox, use its detail link, and confirm `/photo/:id` shows image, location, time/light, cloud tag, credit and camera-data status.

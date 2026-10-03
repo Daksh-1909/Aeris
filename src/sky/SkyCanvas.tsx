@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { getSkyProgress, subscribeSkyProgress } from './skyProgress';
 import type { SkyScene } from './SkyScene';
+import { detectSkyQuality, lowerSkyQuality } from './quality';
 
 function effectsAllowed() {
   return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -38,6 +39,14 @@ export function SkyCanvas() {
     let unsubscribeProgress: () => void = () => {};
     let ticker: ((time: number, deltaMs: number) => void) | undefined;
     let resizeObserver: ResizeObserver | undefined;
+    let intersectionObserver: IntersectionObserver | undefined;
+    let quality = detectSkyQuality();
+    let inViewport = true;
+    let contextLost = false;
+    let onContextRestored: (() => void) | undefined;
+    let qualityWindowMs = 0;
+    let qualityFrameMs = 0;
+    let qualityFrames = 0;
     let currentProgress = getSkyProgress();
     let introElapsed = 0;
     let introProgress = 0;
@@ -51,21 +60,43 @@ export function SkyCanvas() {
     const resetParallax = () => scene?.setMouseParallax(0, 0);
     const onVisibilityChange = () => {
       isVisible = document.visibilityState === 'visible';
-      if (isVisible && scene) scene.render();
+      if (isVisible && inViewport && !contextLost && scene) scene.render();
+    };
+
+    const onContextLost = (event: Event) => {
+      event.preventDefault();
+      contextLost = true;
     };
 
     const start = async () => {
       try {
         const { createSkyScene } = await import('./SkyScene');
         if (!mounted) return;
-        scene = createSkyScene(canvas);
-        scene.update(currentProgress, introSkipped ? 1 : introProgress);
+        const mountScene = () => {
+          if (!mounted || contextLost) return;
+          scene?.dispose();
+          scene = createSkyScene(canvas, quality);
+          scene.update(currentProgress, introSkipped ? 1 : introProgress);
+          if (isVisible && inViewport) scene.render();
+        };
+        mountScene();
+        onContextRestored = () => {
+          contextLost = false;
+          mountScene();
+        };
+        canvas.addEventListener('webglcontextlost', onContextLost, false);
+        canvas.addEventListener('webglcontextrestored', onContextRestored, false);
         unsubscribeProgress = subscribeSkyProgress((progress) => {
           currentProgress = progress;
           scene?.update(progress, introSkipped ? 1 : introProgress);
         });
         resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(canvas);
+        intersectionObserver = new IntersectionObserver(([entry]) => {
+          inViewport = entry.isIntersecting;
+          if (inViewport && isVisible && !contextLost) scene?.render();
+        });
+        intersectionObserver.observe(canvas);
         window.addEventListener('resize', resize, { passive: true });
         document.addEventListener('visibilitychange', onVisibilityChange);
         if (supportsMouseParallax) {
@@ -74,8 +105,24 @@ export function SkyCanvas() {
           document.documentElement.addEventListener('pointerleave', resetParallax);
         }
         ticker = (_time: number, deltaMs: number) => {
-          if (!isVisible || !scene) return;
+          if (!isVisible || !inViewport || contextLost || !scene) return;
           const dt = Math.min(deltaMs / 1000, .05);
+          qualityWindowMs += deltaMs;
+          qualityFrameMs += deltaMs;
+          qualityFrames += 1;
+          if (qualityWindowMs >= 2000) {
+            const averageFrameMs = qualityFrames ? qualityFrameMs / qualityFrames : 0;
+            if (averageFrameMs > 22) {
+              const reduced = lowerSkyQuality(quality);
+              if (reduced) {
+                quality = reduced;
+                scene.setQuality(quality);
+              }
+            }
+            qualityWindowMs = 0;
+            qualityFrameMs = 0;
+            qualityFrames = 0;
+          }
           if (!introSkipped) {
             if (currentProgress > .015) {
               introSkipped = true;
@@ -91,7 +138,7 @@ export function SkyCanvas() {
           scene.render();
         };
         gsap.ticker.add(ticker);
-        scene.render();
+        scene?.render();
         timeline.dataset.webglReady = 'true';
       } catch {
         timeline.dataset.webglReady = 'false';
@@ -105,8 +152,11 @@ export function SkyCanvas() {
       if (ticker) gsap.ticker.remove(ticker);
       unsubscribeProgress();
       resizeObserver?.disconnect();
+      intersectionObserver?.disconnect();
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      canvas.removeEventListener('webglcontextlost', onContextLost, false);
+      if (onContextRestored) canvas.removeEventListener('webglcontextrestored', onContextRestored, false);
       if (supportsMouseParallax) {
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('blur', resetParallax);

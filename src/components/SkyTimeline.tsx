@@ -36,16 +36,17 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
 
   useLayoutEffect(() => {
     const scene = sceneRef.current;
-    const sun = sunRef.current;
-    const moon = moonRef.current;
-    const scrollRoot = scrollRootRef.current;
-    if (!scene || !sun || !moon || !scrollRoot) return;
+    const sun = sunRef.current ?? scene?.querySelector<HTMLElement>('.sky-timeline__sun');
+    const moon = moonRef.current ?? scene?.querySelector<HTMLElement>('.sky-timeline__moon');
+    const scrollRoot = scrollRootRef.current ?? scene?.closest<HTMLElement>('main');
+    const frozenProgress = progressFromQuery();
+    if (!scene || !sun || !moon) return;
+    if (frozenProgress === null && !scrollRoot) return;
 
     const root = document.documentElement;
     const body = document.body;
     const rootStyle = root.style;
     const bodyStyle = body.style;
-    const frozenProgress = progressFromQuery();
     const debug = import.meta.env.DEV && (frozenProgress !== null || new URLSearchParams(location.search).has('skyDebug'));
     const mode = { value: 'scroll' as 'scroll' | 'clock' };
     const state = { progress: frozenProgress ?? 0 };
@@ -135,7 +136,7 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
     let scrollTrigger: ScrollTrigger | undefined;
     let sizeObserver: ResizeObserver | undefined;
     let refreshFrame = 0;
-    if (frozenProgress === null) {
+    if (frozenProgress === null && scrollRoot) {
       scrollTrigger = ScrollTrigger.create({
         trigger: scrollRoot,
         start: 'top top',
