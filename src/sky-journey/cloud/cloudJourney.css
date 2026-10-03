@@ -1,0 +1,169 @@
+.cloud-journey {
+  position: relative;
+  height: 700vh;
+  background: #03060f;
+}
+
+.cloud-journey__stage {
+  --cloud-journey-sky-top: #03060f;
+  --cloud-journey-sky-bottom: #0a1030;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  isolation: isolate;
+  color: #f4f6ff;
+  background: linear-gradient(180deg, var(--cloud-journey-sky-top), var(--cloud-journey-sky-bottom));
+}
+
+.cloud-journey__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 55%, rgb(161 190 255 / .16), transparent 56%);
+  pointer-events: none;
+}
+
+.cloud-journey__path-art {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cloud-journey__path {
+  fill: none;
+  stroke: rgb(221 232 255 / .34);
+  stroke-width: 2;
+  stroke-dasharray: 2 14;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.cloud-journey__cloud {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: clamp(200px, 26vw, 420px);
+  height: auto;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 22px 42px rgb(0 0 0 / .2));
+  user-select: none;
+}
+
+.cloud-journey__card {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  width: min(520px, 38vw);
+  max-height: 70vh;
+  overflow: auto;
+  padding: clamp(24px, 4vw, 52px);
+  border: 1px solid rgb(242 246 255 / .22);
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgb(13 26 54 / .88), rgb(16 29 61 / .62));
+  box-shadow: 0 24px 80px rgb(0 0 0 / .18);
+  backdrop-filter: blur(14px);
+  transform: translateY(-50%);
+}
+
+.cloud-journey__card--right { right: clamp(28px, 7vw, 112px); }
+.cloud-journey__card--left { left: clamp(28px, 7vw, 112px); }
+
+.cloud-journey__eyebrow {
+  margin: 0 0 18px;
+  color: #c0cee9;
+  font: 500 10px/1.4 Inter, Arial, sans-serif;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.cloud-journey__card h2 {
+  margin: 0;
+  color: #f5f0e7;
+  font: 400 clamp(42px, 6vw, 76px)/.95 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: -.035em;
+}
+
+.cloud-journey__card > p:last-child {
+  max-width: 38ch;
+  margin: 20px 0 0;
+  color: #d6deed;
+  font: 400 clamp(14px, 1.25vw, 17px)/1.65 Inter, Arial, sans-serif;
+}
+
+.cloud-journey__dots {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  right: 24px;
+  display: grid;
+  gap: 13px;
+  transform: translateY(-50%);
+}
+
+.cloud-journey__dots button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid rgb(240 244 255 / .72);
+  border-radius: 50%;
+  background: rgb(240 244 255 / .2);
+  cursor: pointer;
+}
+
+.cloud-journey__dots button.is-active { width: 14px; height: 14px; margin: -2px; background: #f2f5ff; }
+.cloud-journey__dots button:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+
+.cloud-journey__debug {
+  position: absolute;
+  z-index: 5;
+  bottom: 16px;
+  left: 50%;
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: min(640px, calc(100% - 32px));
+  padding: 10px 14px;
+  border: 1px solid rgb(255 255 255 / .2);
+  border-radius: 10px;
+  background: rgb(5 13 29 / .76);
+  color: #f4f6ff;
+  transform: translateX(-50%);
+  font: 11px/1.3 Inter, Arial, sans-serif;
+}
+
+.cloud-journey__debug input { width: 100%; accent-color: #c9d8ff; }
+.cloud-journey__debug output { min-width: 112px; text-align: right; }
+.cloud-journey--status { display: grid; min-height: 45vh; place-items: center; color: #f4f6ff; }
+
+@media (max-width: 767px) {
+  .cloud-journey { height: 600vh; }
+  .cloud-journey__stage { min-height: 0; }
+  .cloud-journey__cloud { width: clamp(150px, 44vw, 220px); }
+  .cloud-journey__card,
+  .cloud-journey__card--left,
+  .cloud-journey__card--right {
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-height: 52vh;
+    padding: 20px 22px;
+    transform: none;
+  }
+  .cloud-journey__card--below { top: auto; bottom: 28px; }
+  .cloud-journey__card:not(.cloud-journey__card--below) { top: 28px; }
+  .cloud-journey__card h2 { font-size: clamp(40px, 12vw, 58px); }
+  .cloud-journey__card > p:last-child { margin-top: 12px; font-size: 14px; }
+  .cloud-journey__eyebrow { margin-bottom: 10px; }
+  .cloud-journey__dots { top: auto; right: 18px; bottom: 20px; display: flex; transform: none; }
+  .cloud-journey__card--below ~ .cloud-journey__dots { top: 18px; bottom: auto; }
+  .cloud-journey__debug { grid-template-columns: auto 1fr; gap: 5px 10px; bottom: 8px; }
+  .cloud-journey__debug output { grid-column: 1 / -1; justify-self: end; }
+}

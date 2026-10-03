@@ -36,7 +36,7 @@
 
 .journey__cloud-layer--far { z-index: 3; }
 .journey__cloud-layer--mid { z-index: 4; }
-.journey__cloud-layer--near { z-index: 6; }
+.journey__cloud-layer--near { z-index: 7; }
 
 .journey__cloud {
   position: absolute;
@@ -72,7 +72,7 @@
 }
 
 .journey__ground-scene {
-  z-index: 7;
+  z-index: 3;
 }
 
 .journey__ground-art {
@@ -98,7 +98,7 @@
 }
 
 .journey__tree {
-  z-index: 3;
+  z-index: 4;
   left: 4%;
   bottom: 3%;
   width: clamp(200px, 20vw, 340px);
@@ -133,6 +133,17 @@
   translate: -50% 0;
   transform: translateY(var(--children-rise, 0));
 }
+
+.journey__picnic {
+  position: absolute;
+  z-index: 4;
+  left: 5%;
+  bottom: 6%;
+  width: clamp(240px, 25vw, 340px);
+  aspect-ratio: 34 / 15;
+}
+
+.journey__picnic svg { display: block; width: 100%; height: 100%; }
 
 .journey__children--hidden * { animation-play-state: paused !important; }
 
@@ -223,7 +234,7 @@
 
 .journey__orb {
   position: absolute;
-  z-index: 3;
+  z-index: 6;
   left: var(--orb-x, 62%);
   top: var(--orb-y, 42%);
   width: clamp(150px, 19vw, 280px);
@@ -300,7 +311,7 @@
 
 .journey__scene--center { left: 50%; translate: -50% 0; text-align: center; }
 .journey__scene--right { right: clamp(24px, 7.5vw, 120px); left: auto; text-align: right; }
-.journey__scene--behind { z-index: 2; }
+.journey__scene--behind { z-index: 5; }
 
 .journey__eyebrow {
   margin: 0 0 clamp(18px, 3vh, 32px);
@@ -433,6 +444,7 @@
   .journey__orb { left: 50%; width: clamp(118px, 38vw, 185px); }
   .journey__tree { left: -6%; width: clamp(150px, 42vw, 220px); }
   .journey__children { left: 44%; bottom: 12%; width: clamp(150px, 46vw, 220px); }
+  .journey__picnic { left: -1%; bottom: 8%; width: clamp(220px, 65vw, 300px); }
   .journey__bird:nth-child(5),
   .journey__bird:nth-child(6),
   .journey__bird:nth-child(7),
