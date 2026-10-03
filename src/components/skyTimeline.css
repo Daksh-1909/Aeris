@@ -1,7 +1,10 @@
 .sky-timeline {
   --sky-top: rgb(7 17 31);
   --sky-middle: rgb(19 36 59);
-  --sky-bottom: rgb(58 67 84);
+  --sky-bottom: rgb(59 73 96);
+  --sky-poster-top: #07111f;
+  --sky-poster-mid: #13243b;
+  --sky-poster-horizon: #3b4960;
   --sky-warmth: rgb(177 112 99);
   --sky-horizon: .16;
   --sky-cloud-opacity: .13;
@@ -15,6 +18,29 @@
   isolation: isolate;
   opacity: .62;
 }
+.sky-timeline__poster-scene { position: absolute; z-index: 1; inset: 0; transition: opacity .4s ease; }
+.sky-timeline[data-webgl-ready='true'] .sky-timeline__poster-scene { opacity: 0; }
+.sky-canvas { position: fixed; z-index: 0; inset: 0; overflow: hidden; opacity: 0; pointer-events: none; transition: opacity .4s ease; }
+.sky-timeline[data-webgl-ready='true'] .sky-canvas { opacity: 1; }
+.sky-canvas__surface { display: block; width: 100%; height: 100%; }
+.sky-timeline__debug { z-index: 2; }
+.sky-timeline__poster {
+  position: absolute;
+  inset: 0;
+  opacity: .09;
+  background-image: url('/images/photo-1470770841072-f978cf4d019e-1600.webp');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: screen;
+}
+.sky-timeline[data-poster='sunrise'] .sky-timeline__poster,
+.sky-timeline[data-poster='morning'] .sky-timeline__poster { background-image: url('/images/photo-1470252649378-9c29740c9fa8-1600.webp'); }
+.sky-timeline[data-poster='day'] .sky-timeline__poster,
+.sky-timeline[data-poster='afternoon'] .sky-timeline__poster { background-image: url('/images/photo-1464822759023-fed622ff2c3b-1600.webp'); }
+.sky-timeline[data-poster='golden-hour'] .sky-timeline__poster,
+.sky-timeline[data-poster='sunset'] .sky-timeline__poster { background-image: url('/images/photo-1472120435266-53107fd0c44a-1600.webp'); }
+.sky-timeline[data-poster='twilight'] .sky-timeline__poster,
+.sky-timeline[data-poster='night'] .sky-timeline__poster { background-image: url('/images/photo-1499346030926-9a72daac6c63-1600.webp'); }
 .sky-timeline::before {
   content: '';
   position: absolute;

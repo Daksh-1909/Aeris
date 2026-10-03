@@ -1,41 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { setSkyMode } from '../../sky/skyMode';
+import { skyPhaseProgress } from '../../sky/timeline';
 import './skyClock.css';
 
-type Override = 'auto' | 'day' | 'night';
-type SkyState = 'dawn' | 'day' | 'golden' | 'dusk' | 'night';
+type Override = 'auto' | 'dawn' | 'day' | 'golden' | 'dusk' | 'night';
 const storageKey = 'aeris:sky-mode';
-function stateAt(date: Date): SkyState {
-  const hour = date.getHours();
-  if (hour < 5 || hour >= 21) return 'night';
-  if (hour < 7) return 'dawn';
-  if (hour < 16) return 'day';
-  if (hour < 19) return 'golden';
-  return 'dusk';
-}
 function readOverride(): Override {
   try {
     const value = localStorage.getItem(storageKey);
-    return value === 'day' || value === 'night' ? value : 'auto';
+    return value === 'dawn' || value === 'day' || value === 'golden' || value === 'dusk' || value === 'night' ? value : 'auto';
   } catch { return 'auto'; }
 }
-function applySky(override: Override, date = new Date()) {
-  const state = override === 'auto' ? stateAt(date) : override;
-  document.documentElement.dataset.skyState = state;
-}
-
 export function SkyClock() {
   const [override, setOverride] = useState<Override>(readOverride);
-  const [now, setNow] = useState(() => new Date());
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    applySky(override, now);
+    setSkyMode(override === 'auto' ? { mode: 'scroll' } : { mode: 'clock', progress: skyPhaseProgress[override] });
     try { if (override === 'auto') localStorage.removeItem(storageKey); else localStorage.setItem(storageKey, override); } catch { /* Storage can be disabled. */ }
-  }, [override, now]);
+  }, [override]);
+  const indicator = override === 'auto' ? 'Scroll' : override === 'golden' ? 'Golden' : override[0].toUpperCase() + override.slice(1);
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
-  const state = override === 'auto' ? stateAt(now) : override;
-  const hour = now.getHours();
-  const indicator = override === 'auto' && ((hour >= 5 && hour < 8) || (hour >= 16 && hour < 19)) ? 'Golden hour now' : state === 'night' ? 'Night sky' : state === 'dawn' ? 'First light' : state === 'dusk' ? 'Blue hour' : 'Daylight';
-  return <div className="sky-clock-control"><a href="/planner" aria-label={indicator + ', open the Shoot Planner'}>{indicator}</a><label><span className="visually-hidden">Sky theme</span><select aria-label="Sky Clock theme" title="Sky Clock theme" value={override} onChange={(event) => setOverride(event.target.value as Override)}><option value="auto">Auto</option><option value="day">Day</option><option value="night">Night</option></select></label></div>;
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setOpen(false); triggerRef.current?.focus(); }
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [open]);
+  return <div className="sky-clock-control">
+    <button ref={triggerRef} className="sky-clock-pill" type="button" aria-controls="sky-phase-options" aria-expanded={open} onClick={() => setOpen((value) => !value)}>Sky <span>{indicator}</span><ChevronDown size={13} aria-hidden="true" /></button>
+    {override !== 'auto' && <button className="sky-clock-back" type="button" onClick={() => setOverride('auto')}>Back to scroll</button>}
+    {open && <div id="sky-phase-options" className="sky-clock-popover" role="group" aria-label="Choose sky phase">{(['auto', 'dawn', 'day', 'golden', 'dusk', 'night'] as const).map((phase) => <button key={phase} type="button" aria-pressed={override === phase} onClick={() => { setOverride(phase); setOpen(false); triggerRef.current?.focus(); }}>{phase === 'auto' ? 'Auto · scroll' : phase === 'golden' ? 'Golden' : phase[0].toUpperCase() + phase.slice(1)}</button>)}</div>}
+  </div>;
 }

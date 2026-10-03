@@ -1,0 +1,11 @@
+/* Phase 0: keep the fixed home header below the measured demo notice. */
+.site-header { top: var(--banner-h, 0px); }
+.demo-mode-banner { min-height: 32px; padding: 5px 48px 5px 14px; position: sticky; display: flex; align-items: center; justify-content: center; }
+.demo-mode-banner button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 20px; line-height: 1; cursor: pointer; }
+.demo-mode-banner button:hover { background: rgb(0 0 0 / .08); }
+.demo-mode-banner + .member-shell .member-top { top: var(--banner-h, 32px); }
+.hero::before { content: none; }
+.hero__copy { left: 50%; right: auto; width: min(92%, 1200px); translate: -50% -50%; }
+@media (max-width: 760px) {
+  .hero__copy { left: 50%; right: auto; width: min(92%, 1200px); padding-inline: 2px; }
+}
