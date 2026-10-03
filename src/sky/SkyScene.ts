@@ -143,7 +143,8 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     sunDir.y = Math.sin(THREE.MathUtils.lerp(sunElevation, Math.max(sunElevation, .025), intro));
     sunDir.normalize();
     uniforms.uSunDir.value.copy(sunDir);
-    uniforms.uGlow.value = sky.glow;
+    // A touch more horizon haze at load, thinning away through the sunrise intro.
+    uniforms.uGlow.value = sky.glow + (1 - intro) * .18;
     uniforms.uExposure.value = sky.exposure;
 
     const sunPosition = sunDir.clone().multiplyScalar(700);
@@ -169,7 +170,8 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     skyLight.color.copy(uniforms.uTop.value);
     skyLight.groundColor.copy(uniforms.uBottom.value);
 
-    const pitch = THREE.MathUtils.degToRad(17.5 + intro * 7);
+    const daylight = Math.sin(Math.PI * THREE.MathUtils.clamp((progress - .08) / .7, 0, 1));
+    const pitch = THREE.MathUtils.degToRad(17.5 + intro * 2.5 + daylight * 6);
     camera.position.y = THREE.MathUtils.lerp(-1.1, -.25, intro);
     camera.lookAt(0, camera.position.y + Math.tan(pitch) * 900, -900);
   };

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { BufferAttribute, BufferGeometry, CanvasTexture, PerspectiveCamera, Points, PointsMaterial, Scene, WebGLRenderer } from 'three';
+import gsap from 'gsap';
 
 /** Small, low-resolution Three.js atmosphere. The hero works normally if WebGL is unavailable. */
 export default function AtmosphereCanvas() {
@@ -58,25 +59,31 @@ export default function AtmosphereCanvas() {
     observer.observe(canvas);
     resize();
 
-    let animationFrame = 0;
+    let tickerActive = false;
     let lastFrame = 0;
     let pageVisible = document.visibilityState !== 'hidden';
     let effectsEnabled = document.documentElement.dataset.reduceEffects !== 'true';
     let heroVisible = !('IntersectionObserver' in window);
     const startAnimation = () => {
-      if (effectsEnabled && pageVisible && heroVisible && !animationFrame) animationFrame = window.requestAnimationFrame(animate);
+      if (effectsEnabled && pageVisible && heroVisible && !tickerActive) {
+        tickerActive = true;
+        lastFrame = 0;
+        gsap.ticker.add(animate);
+        renderer.render(scene, camera);
+      }
     };
     const stopAnimation = () => {
-      if (animationFrame) window.cancelAnimationFrame(animationFrame);
-      animationFrame = 0;
+      if (!tickerActive) return;
+      tickerActive = false;
+      gsap.ticker.remove(animate);
     };
     const animate = (time: number) => {
-      animationFrame = 0;
-      if (!pageVisible || !heroVisible) return;
-      if (time - lastFrame >= 1000 / 30) {
-        lastFrame = time;
-        particles.rotation.y = Math.sin(time * 0.00008) * 0.09;
-        particles.rotation.x = Math.cos(time * 0.00006) * 0.025;
+      if (!effectsEnabled || !pageVisible || !heroVisible) { stopAnimation(); return; }
+      const now = time * 1000;
+      if (now - lastFrame >= 1000 / 30) {
+        lastFrame = now;
+        particles.rotation.y = Math.sin(now * 0.00008) * 0.09;
+        particles.rotation.x = Math.cos(now * 0.00006) * 0.025;
         renderer.render(scene, camera);
       }
       startAnimation();
