@@ -6,6 +6,7 @@ import { createClouds } from './clouds';
 import { createLandscape } from './landscape';
 import { createMoon } from './moon';
 import { createStars } from './stars';
+import { getJourneyQuality, lowerJourneyQuality, qualityLimits, type JourneyQuality } from './quality';
 
 const vertexShader = /* glsl */`
   varying vec3 vDirection;
@@ -115,8 +116,15 @@ export default function JourneyCanvas() {
     let moon: ReturnType<typeof createMoon> | undefined;
     let resizeObserver: ResizeObserver | undefined;
     let unsubscribe: () => void = () => {};
+    let contextLost = false;
 
     try {
+      let reduceEffects = false;
+      try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || reduceEffects) {
+        stage.dataset.webglFallback = 'static';
+        return undefined;
+      }
       const context = canvas.getContext('webgl2', { alpha: false, antialias: true, powerPreference: 'high-performance' });
       const contextUsable = Boolean(context && !context.isContextLost() && context.getContextAttributes());
       if (!context || !contextUsable) {
@@ -127,6 +135,10 @@ export default function JourneyCanvas() {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1;
+      let quality: JourneyQuality = getJourneyQuality(stage.clientWidth);
+      let qualityFrames = 0;
+      let slowFrames = 0;
+      stage.dataset.quality = quality;
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, 1, .1, 1200);
@@ -184,12 +196,20 @@ export default function JourneyCanvas() {
       clouds = createClouds(scene);
       stars = createStars(scene);
       moon = createMoon(scene);
+      clouds.setQuality(quality);
+      stars.setQuality(quality);
 
       const resize = () => {
         if (!renderer) return;
         const width = Math.max(1, stage.clientWidth);
         const height = Math.max(1, stage.clientHeight);
-        const dprCap = width <= 760 ? 1.5 : 2;
+        if (width <= 760 && quality !== 'low') {
+          quality = 'low';
+          stage.dataset.quality = quality;
+          clouds?.setQuality(quality);
+          stars?.setQuality(quality);
+        }
+        const dprCap = qualityLimits(quality).dpr;
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, dprCap));
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
@@ -209,13 +229,14 @@ export default function JourneyCanvas() {
       let dampedPointerX = 0;
       let dampedPointerY = 0;
       const onPointerMove = (event: PointerEvent) => {
-        if (widthIsMobile()) return;
+        if (widthIsMobile() || quality === 'low') return;
         pointerX = (event.clientX / Math.max(window.innerWidth, 1) - .5) * 2;
         pointerY = (event.clientY / Math.max(window.innerHeight, 1) - .5) * 2;
       };
       const widthIsMobile = () => stage.clientWidth <= 760;
       window.addEventListener('pointermove', onPointerMove, { passive: true });
-      const update = (progress: number) => {
+      const update = (progress: number, deltaSeconds = 1 / 60) => {
+        if (contextLost || document.visibilityState === 'hidden') return;
         const sky = sample(progress);
         skyMaterial?.uniforms.uTop.value.copy(linearColor(sky.top));
         skyMaterial?.uniforms.uMiddle.value.copy(linearColor(sky.middle));
@@ -229,30 +250,64 @@ export default function JourneyCanvas() {
         camera.position.x += (dampedPointerX * .6 - camera.position.x) * .08;
         camera.position.z += ((progress - .5) * 6 - camera.position.z) * .08;
         if (coreMaterial && tightMaterial && wideMaterial) updateSun(progress, elapsed, camera, sunGroup, coreMaterial, tightMaterial, wideMaterial);
-        if (document.visibilityState !== 'hidden') renderer?.render(scene, camera);
+        const start = performance.now();
+        renderer?.render(scene, camera);
+        const frameTime = Math.max(deltaSeconds, (performance.now() - start) / 1000);
+        qualityFrames += 1;
+        if (frameTime > .022) slowFrames += 1;
+        if (qualityFrames >= 45) {
+          if (slowFrames >= 30 && quality !== 'low') {
+            quality = lowerJourneyQuality(quality);
+            stage.dataset.quality = quality;
+            renderer?.setPixelRatio(Math.min(window.devicePixelRatio || 1, qualityLimits(quality).dpr));
+            clouds?.setQuality(quality);
+            stars?.setQuality(quality);
+          }
+          qualityFrames = 0;
+          slowFrames = 0;
+        }
       };
 
       update(Number.parseFloat(stage.style.getPropertyValue('--journey-progress')) || 0);
       delete stage.dataset.webglFallback;
       stage.dataset.webglReady = 'true';
       unsubscribe = subscribeScrollFrames((_scroll, deltaSeconds) => {
+        if (document.visibilityState === 'hidden') return;
         elapsed += deltaSeconds;
         dampedPointerX += (pointerX - dampedPointerX) * .05;
         dampedPointerY += (pointerY - dampedPointerY) * .05;
         const progress = Number.parseFloat(stage.style.getPropertyValue('--journey-progress'));
-        update(Number.isFinite(progress) ? progress : 0);
+        update(Number.isFinite(progress) ? progress : 0, deltaSeconds);
       });
 
       const onVisibility = () => {
         if (document.visibilityState === 'visible') {
           const progress = Number.parseFloat(stage.style.getPropertyValue('--journey-progress'));
-          update(Number.isFinite(progress) ? progress : 0);
+          update(Number.isFinite(progress) ? progress : 0, 0);
         }
       };
+      const onContextLost = (event: Event) => {
+        event.preventDefault();
+        contextLost = true;
+        delete stage.dataset.webglReady;
+        stage.dataset.webglFallback = 'context-lost';
+      };
+      const onContextRestored = () => {
+        contextLost = false;
+        renderer?.resetState();
+        const progress = Number.parseFloat(stage.style.getPropertyValue('--journey-progress'));
+        update(Number.isFinite(progress) ? progress : 0, 0);
+        delete stage.dataset.webglFallback;
+        stage.dataset.webglReady = 'true';
+      };
       document.addEventListener('visibilitychange', onVisibility);
+      canvas.addEventListener('webglcontextlost', onContextLost, false);
+      canvas.addEventListener('webglcontextrestored', onContextRestored, false);
 
       return () => {
         document.removeEventListener('visibilitychange', onVisibility);
+        canvas.removeEventListener('webglcontextlost', onContextLost);
+        canvas.removeEventListener('webglcontextrestored', onContextRestored);
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('resize', resize);
         resizeObserver?.disconnect();

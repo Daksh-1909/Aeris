@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { qualityLimits, type JourneyQuality } from './quality';
 
 const starVertex = /* glsl */`
   attribute float aPhase;
@@ -107,6 +108,14 @@ export function createStars(scene: THREE.Scene) {
   try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
   const shootingStarsEnabled = !reduceMotion && !reduceEffects;
 
+  function setQuality(quality: JourneyQuality) {
+    const limits = qualityLimits(quality).stars;
+    [tiny, medium, bright].forEach((points, index) => {
+      const available = points.geometry.attributes.position.count;
+      points.geometry.setDrawRange(0, Math.min(available, limits[index]));
+    });
+  }
+
   function update(progress: number, elapsed: number) {
     const nightBlend = THREE.MathUtils.smoothstep(progress, .78, .96);
     const dawnBlend = THREE.MathUtils.smoothstep(progress, 0, .12);
@@ -143,5 +152,5 @@ export function createStars(scene: THREE.Scene) {
     streak.geometry.dispose();
     streakMaterial.dispose();
   }
-  return { update, dispose };
+  return { update, setQuality, dispose };
 }

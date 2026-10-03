@@ -31,9 +31,42 @@ export function SkyJourney() {
   const [loadWebGL, setLoadWebGL] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setLoadWebGL(true), 120);
-    return () => window.clearTimeout(timer);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const canUseWebGL = () => {
+      let reduceEffects = false;
+      try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
+      return !reduceMotion.matches && !reduceEffects;
+    };
+    let timer = 0;
+    const scheduleLoad = () => {
+      window.clearTimeout(timer);
+      if (canUseWebGL()) timer = window.setTimeout(() => setLoadWebGL(true), 120);
+      else setLoadWebGL(false);
+    };
+    scheduleLoad();
+    const onReduceEffects = (event: Event) => {
+      if ((event as CustomEvent<boolean>).detail) setLoadWebGL(false);
+      else scheduleLoad();
+    };
+    window.addEventListener('aeris:reduce-effects-change', onReduceEffects);
+    reduceMotion.addEventListener('change', scheduleLoad);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('aeris:reduce-effects-change', onReduceEffects);
+      reduceMotion.removeEventListener('change', scheduleLoad);
+    };
   }, []);
+
+  useEffect(() => {
+    const stage = trackRef.current?.querySelector<HTMLElement>('.journey__stage');
+    if (!stage) return;
+    stage.dataset.renderMode = loadWebGL ? 'webgl' : 'static';
+    if (loadWebGL) delete stage.dataset.webglFallback;
+    else {
+      stage.dataset.webglFallback = 'static';
+      delete stage.dataset.webglReady;
+    }
+  }, [loadWebGL]);
 
   useEffect(() => {
     const track = trackRef.current;

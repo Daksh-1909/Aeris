@@ -66,6 +66,32 @@ try {
     await page.close();
   }
 
+  const reducedMotionPage = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  await reducedMotionPage.goto('http://127.0.0.1:5173/?p=0.42', { waitUntil: 'networkidle' });
+  await reducedMotionPage.waitForFunction(() => document.querySelector('.journey__stage')?.dataset.renderMode === 'static');
+  const staticProof = await reducedMotionPage.evaluate(() => ({
+    renderMode: document.querySelector('.journey__stage')?.getAttribute('data-render-mode'),
+    canvasCount: document.querySelectorAll('.journey__canvas').length,
+    documentWidth: document.documentElement.scrollWidth,
+  }));
+  await reducedMotionPage.screenshot({ path: join(outputDir, 'journey-static-reduced-motion-390.png'), fullPage: false });
+  console.log(JSON.stringify({ reducedMotion: staticProof }));
+  await reducedMotionPage.close();
+
+  const reducedEffectsPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await reducedEffectsPage.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
+  await reducedEffectsPage.waitForFunction(() => document.querySelector('.journey__stage')?.dataset.renderMode === 'webgl');
+  await reducedEffectsPage.locator('.footer-effects-toggle').click();
+  await reducedEffectsPage.waitForFunction(() => document.querySelector('.journey__stage')?.dataset.renderMode === 'static');
+  const reducedEffectsProof = await reducedEffectsPage.evaluate(() => ({
+    renderMode: document.querySelector('.journey__stage')?.getAttribute('data-render-mode'),
+    canvasCount: document.querySelectorAll('.journey__canvas').length,
+    reduceEffects: document.documentElement.dataset.reduceEffects,
+  }));
+  await reducedEffectsPage.screenshot({ path: join(outputDir, 'journey-static-reduced-effects-390.png'), fullPage: false });
+  console.log(JSON.stringify({ reducedEffects: reducedEffectsProof }));
+  await reducedEffectsPage.close();
+
   const journeyPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await journeyPage.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
   await journeyPage.locator('.journey__rail [data-stop-id="noon"]').click();

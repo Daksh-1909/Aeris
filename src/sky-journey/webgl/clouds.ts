@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { sample, type RGB } from '../../sky/timeline';
+import { qualityLimits, type JourneyQuality } from './quality';
 
 type Cloud = { sprite: THREE.Sprite; baseX: number; baseY: number; width: number; phase: number; textureIndex: number };
 const CLOUD_TEXTURES = [1, 2, 3, 4].map((index) => `/3d/clouds/cloud_${index}.webp`);
@@ -28,7 +29,7 @@ export function createClouds(scene: THREE.Scene) {
     });
   });
   const mobile = window.matchMedia('(max-width: 760px)').matches;
-  const counts = mobile ? [3, 3, 4] : [6, 6, 7];
+  const counts = mobile ? [3, 3, 4] : qualityLimits('high').clouds;
   const depths = [-200, -350, -550];
   const factors = [1, .6, .3];
   depths.forEach((depth, layerIndex) => {
@@ -74,6 +75,12 @@ export function createClouds(scene: THREE.Scene) {
       });
     });
   }
+  function setQuality(quality: JourneyQuality) {
+    const targets = mobile ? [3, 3, 4] : qualityLimits(quality).clouds;
+    layers.forEach((layer, layerIndex) => layer.clouds.forEach((cloud, index) => {
+      cloud.sprite.visible = index < targets[layerIndex];
+    }));
+  }
   function dispose() {
     layers.forEach(({ group, clouds }) => {
       clouds.forEach(({ sprite }) => (sprite.material as THREE.Material).dispose());
@@ -81,5 +88,5 @@ export function createClouds(scene: THREE.Scene) {
     });
     textures.forEach((texture) => texture?.dispose());
   }
-  return { resize, update, dispose };
+  return { resize, update, setQuality, dispose };
 }
