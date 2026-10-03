@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { sunDirection } from './sunMoonPath';
 import { sample, type RGB } from './timeline';
+import { createMist } from './layers/mist';
+import { createRidges } from './layers/ridges';
+import { createClouds } from './layers/clouds';
 
 const vertexShader = `
   varying vec3 vDir;
@@ -46,6 +49,26 @@ function setColorFromRGB(target: THREE.Color, [r, g, b]: RGB) {
   target.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace);
 }
 
+const cameraKeys = [
+  { at: 0, pitch: 17.5, dolly: 0 },
+  { at: .08, pitch: 17.5, dolly: 0 },
+  { at: .38, pitch: 23.5, dolly: -3 },
+  { at: .78, pitch: 17.5, dolly: 0 },
+  { at: .87, pitch: 19, dolly: -.5 },
+  { at: 1, pitch: 23.5, dolly: -2 },
+];
+
+function cameraValue(progress: number, property: 'pitch' | 'dolly') {
+  let left = cameraKeys[0];
+  let right = cameraKeys[cameraKeys.length - 1];
+  for (let index = 1; index < cameraKeys.length; index += 1) {
+    if (progress <= cameraKeys[index].at) { left = cameraKeys[index - 1]; right = cameraKeys[index]; break; }
+  }
+  const linear = THREE.MathUtils.clamp((progress - left.at) / (right.at - left.at), 0, 1);
+  const amount = THREE.MathUtils.smoothstep(linear, 0, 1);
+  return THREE.MathUtils.lerp(left[property], right[property], amount);
+}
+
 export type SkyScene = ReturnType<typeof createSkyScene>;
 
 export function createSkyScene(canvas: HTMLCanvasElement) {
@@ -77,6 +100,7 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     depthTest: false,
   });
   const dome = new THREE.Mesh(geometry, material);
+  dome.renderOrder = -10;
   scene.add(dome);
 
   const sunGeometry = new THREE.SphereGeometry(14, 32, 24);
@@ -122,6 +146,13 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
   scene.add(sunLight, sunLight.target);
   const skyLight = new THREE.HemisphereLight(0xffffff, 0x3b4960, .35);
   scene.add(skyLight);
+  const ridges = createRidges(scene);
+  const mist = createMist(scene);
+  const clouds = createClouds(scene);
+  let cloudTime = 0;
+  const sunPosition = new THREE.Vector3();
+  const mouseTarget = new THREE.Vector2();
+  const mousePosition = new THREE.Vector2();
 
   const resize = (width = window.innerWidth, height = window.innerHeight) => {
     const safeWidth = Math.max(1, width);
@@ -131,7 +162,7 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     camera.updateProjectionMatrix();
   };
 
-  const update = (progress: number, introProgress = 1) => {
+  const update = (progress: number, introProgress = 1, dt = 0) => {
     const sky = sample(progress);
     setColorFromRGB(uniforms.uTop.value, sky.top);
     setColorFromRGB(uniforms.uMid.value, sky.middle);
@@ -147,7 +178,7 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     uniforms.uGlow.value = sky.glow + (1 - intro) * .18;
     uniforms.uExposure.value = sky.exposure;
 
-    const sunPosition = sunDir.clone().multiplyScalar(700);
+    sunPosition.copy(sunDir).multiplyScalar(700);
     sunCore.position.copy(sunPosition);
     tightGlow.position.copy(sunPosition);
     wideGlow.position.copy(sunPosition);
@@ -169,11 +200,20 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     sunLight.intensity = sunAlpha * 1.15;
     skyLight.color.copy(uniforms.uTop.value);
     skyLight.groundColor.copy(uniforms.uBottom.value);
+    ridges.update(sky, sunDir);
+    mist.update(sky);
+    cloudTime += Math.max(0, dt);
+    clouds.update(sky, sunDir, cloudTime);
 
-    const daylight = Math.sin(Math.PI * THREE.MathUtils.clamp((progress - .08) / .7, 0, 1));
-    const pitch = THREE.MathUtils.degToRad(17.5 + intro * 2.5 + daylight * 6);
-    camera.position.y = THREE.MathUtils.lerp(-1.1, -.25, intro);
-    camera.lookAt(0, camera.position.y + Math.tan(pitch) * 900, -900);
+    const damping = 1 - Math.exp(-8 * Math.max(0, dt));
+    mousePosition.lerp(mouseTarget, damping);
+    const pitch = THREE.MathUtils.degToRad(cameraValue(progress, 'pitch') + intro * 2.5);
+    camera.position.set(mousePosition.x, THREE.MathUtils.lerp(-1.1, -.25, intro) + mousePosition.y, cameraValue(progress, 'dolly'));
+    camera.lookAt(0, camera.position.y + Math.tan(pitch) * 900, camera.position.z - 900);
+  };
+
+  const setMouseParallax = (x: number, y: number) => {
+    mouseTarget.set(THREE.MathUtils.clamp(x, -.6, .6), THREE.MathUtils.clamp(y, -.6, .6));
   };
 
   const render = () => renderer.render(scene, camera);
@@ -185,10 +225,13 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     tightGlow.material.dispose();
     wideGlow.material.dispose();
     glowTexture.dispose();
+    ridges.dispose();
+    mist.dispose();
+    clouds.dispose();
     renderer.dispose();
   };
 
   resize();
   update(0);
-  return { update, render, resize, dispose };
+  return { update, render, resize, setMouseParallax, dispose };
 }

@@ -43,7 +43,12 @@ export function SkyCanvas() {
     let introProgress = 0;
     let introSkipped = currentProgress > .015;
     let isVisible = document.visibilityState === 'visible';
+    const supportsMouseParallax = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const resize = () => scene?.resize(window.innerWidth, window.innerHeight);
+    const onPointerMove = (event: PointerEvent) => {
+      scene?.setMouseParallax((event.clientX / window.innerWidth - .5) * 1.2, (.5 - event.clientY / window.innerHeight) * 1.2);
+    };
+    const resetParallax = () => scene?.setMouseParallax(0, 0);
     const onVisibilityChange = () => {
       isVisible = document.visibilityState === 'visible';
       if (isVisible && scene) scene.render();
@@ -63,6 +68,11 @@ export function SkyCanvas() {
         resizeObserver.observe(canvas);
         window.addEventListener('resize', resize, { passive: true });
         document.addEventListener('visibilitychange', onVisibilityChange);
+        if (supportsMouseParallax) {
+          window.addEventListener('pointermove', onPointerMove, { passive: true });
+          window.addEventListener('blur', resetParallax);
+          document.documentElement.addEventListener('pointerleave', resetParallax);
+        }
         ticker = (_time: number, deltaMs: number) => {
           if (!isVisible || !scene) return;
           const dt = Math.min(deltaMs / 1000, .05);
@@ -77,7 +87,7 @@ export function SkyCanvas() {
               if (introElapsed >= 2.5) introSkipped = true;
             }
           }
-          scene.update(currentProgress, introSkipped ? 1 : introProgress);
+          scene.update(currentProgress, introSkipped ? 1 : introProgress, dt);
           scene.render();
         };
         gsap.ticker.add(ticker);
@@ -97,6 +107,11 @@ export function SkyCanvas() {
       resizeObserver?.disconnect();
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (supportsMouseParallax) {
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('blur', resetParallax);
+        document.documentElement.removeEventListener('pointerleave', resetParallax);
+      }
       scene?.dispose();
       timeline.dataset.webglReady = 'false';
     };
