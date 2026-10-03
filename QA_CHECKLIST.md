@@ -48,17 +48,6 @@ The browser/device checks require a browser with responsive emulation and develo
 - [ ] Check the footer NASA moon credit and verify no 8000×4000 moon texture is present in `public/`.
 - [ ] Run a WebGL2 capable browser/device pass for sun, cloud, moon, star and shooting-star rendering; headless CSS-fallback screenshots do not verify those layers.
 
-## Sky journey final pass
-
-- [ ] Run `npm run sky:shots` after installing Playwright Chromium. Review all nine progress states (`0`, `.08`, `.2`, `.38`, `.55`, `.68`, `.78`, `.87`, `1`) at 1920×1080 and 390×844 from `shots/`.
-- [ ] Confirm the screenshot run reports no browser console errors or horizontal document overflow. Check visible text, chapter rail, sky continuity, star and moon appearance, and header framing by eye.
-- [ ] Scroll slowly and quickly in both directions, resize during scroll, reload at a deep URL, and test touch scrolling. Confirm scroll backward reverses the sky naturally.
-- [ ] Enable footer **Reduce effects** and system reduced motion; verify the CSS poster is stable, smooth scrolling/parallax/twinkle stop, and the final night state is available without animation.
-- [ ] In browser devtools, emulate WebGL failure/context loss and confirm the CSS poster remains available and the canvas recovers after restoration.
-- [ ] Keyboard-test the chapter rail, mobile menu, Sky Clock, gallery/lightbox, and visible focus rings. Check with a screen reader that canvas content is decorative and DOM content is in logical order.
-- [ ] Run Lighthouse on a representative mobile profile and record Performance and CLS. Do not infer the target scores from the production build alone.
-- [ ] Repeat representative screenshots and keyboard/reduced-motion checks in Firefox, Safari/iOS, and Chrome Android when those browsers/devices are available.
-
 ## Photo requests and admin inbox
 
 - Open a lightbox, use its detail link, and confirm `/photo/:id` shows image, location, time/light, cloud tag, credit and camera-data status.

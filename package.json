@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "check": "npm run lint && npm run build",
-    "sky:shots": "node scripts/sky-shots.mjs",
+    "sky:shots": "node scripts/journey-shots.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

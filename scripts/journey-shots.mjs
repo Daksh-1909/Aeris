@@ -72,11 +72,12 @@ try {
           headlineBounds: bounds ? [Math.round(bounds.left), Math.round(bounds.right)] : null,
           headlineVisible: Boolean(bounds && bounds.left >= -1 && bounds.right <= innerWidth + 1),
           headerBottom: siteHeader ? Math.round(siteHeader.bottom) : null,
+          headerClear: Boolean(bounds && siteHeader && bounds.top >= siteHeader.bottom),
         };
       });
       await page.screenshot({ path: join(outputDir, `journey-layout-${progress}-${width}.png`), fullPage: false });
       console.log(JSON.stringify({ layoutCheck: true, requestedProgress: progress, ...proof }));
-      if (proof.documentWidth !== width || !proof.headlineVisible) throw new Error(`Journey layout failed at ${width}px, p=${progress}`);
+      if (proof.documentWidth !== width || !proof.headlineVisible || !proof.headerClear) throw new Error(`Journey layout failed at ${width}px, p=${progress}`);
     }
     await page.close();
   }
