@@ -63,6 +63,15 @@
   background: radial-gradient(ellipse at 50% 82%, rgb(255 255 255 / .13), transparent 48%);
 }
 
+.journey__sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/3d/scene/pattern_sky.svg') center / 240px 240px repeat;
+  opacity: .10;
+  mix-blend-mode: screen;
+}
+
 .journey__horizon {
   z-index: 1;
   inset: auto 0 20%;
@@ -81,12 +90,13 @@
   overflow: hidden;
 }
 
-.journey__ground-art svg,
-.journey__bench-art svg,
-.journey__people-art svg {
+.journey__ground-art img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: fill;
 }
 
 .journey__flower-sprite {
