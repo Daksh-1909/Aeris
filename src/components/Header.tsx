@@ -6,24 +6,19 @@ import type { GalleryCategory } from '../types/gallery';
 
 export function Header({ category, onNavigate }: { category: GalleryCategory; onNavigate: (category: GalleryCategory) => void }) {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNavRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    let previousY = window.scrollY;
     const update = () => {
       const currentY = window.scrollY;
       setScrolled(currentY > 24);
-      if (!menuOpen) setHidden(currentY > 140 && currentY > previousY + 2);
-      if (currentY < 60 || currentY < previousY - 2) setHidden(false);
-      previousY = currentY;
     };
     update();
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);
-  }, [menuOpen]);
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -70,7 +65,7 @@ export function Header({ category, onNavigate }: { category: GalleryCategory; on
     closeMenu();
   };
 
-  return <header className={`site-header${scrolled ? ' site-header--scrolled' : ''}${menuOpen ? ' site-header--open' : ''}${hidden ? ' site-header--hidden' : ''}`}>
+  return <header className={`site-header${scrolled ? ' site-header--scrolled' : ''}${menuOpen ? ' site-header--open' : ''}`}>
     <div className="site-header__bar">
       <Brand />
       <nav className="desktop-nav" aria-label="Main navigation">

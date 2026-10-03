@@ -1,4 +1,4 @@
-/* Shared shell behavior retained from Phase 0. */
+/* Phase 0 shell behavior: keep the global header at the top edge. */
 .site-header { top: 0; }
 :root .demo-mode-banner {
   position: fixed;

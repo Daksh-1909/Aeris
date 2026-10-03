@@ -24,11 +24,11 @@ export function subscribeScrollFrames(listener: (scroll: number, deltaSeconds: n
   };
 }
 
-export function scrollToPosition(position: number) {
+export function scrollToPosition(position: number, immediate = false) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let reduceEffects = false;
   try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
-  if (reduceMotion || reduceEffects) {
+  if (immediate || reduceMotion || reduceEffects) {
     if (activeLenis) activeLenis.scrollTo(position, { immediate: true });
     else window.scrollTo({ top: position, behavior: 'auto' });
   } else if (activeLenis) activeLenis.scrollTo(position, { duration: 1.1 });

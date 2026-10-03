@@ -17,14 +17,11 @@ export type TimelineSample = Omit<TimelineKeyframe, 'at'> & { progress: number; 
 
 /** Palette stops from AERIS_SKY_JOURNEY_V2.md. Rendering layers share this sample. */
 export const skyKeyframes: readonly TimelineKeyframe[] = [
-  { at: 0, moment: 'Pre-dawn', top: [7, 17, 31], middle: [19, 36, 59], horizon: [59, 73, 96], text: [234, 244, 247], stars: .5, cloudBrightness: .25 },
-  { at: .12, moment: 'Sunrise', top: [24, 42, 69], middle: [199, 126, 103], horizon: [241, 183, 126], text: [234, 244, 247], stars: .05, cloudBrightness: .7 },
-  { at: .30, moment: 'Morning', top: [63, 127, 176], middle: [156, 199, 221], horizon: [243, 210, 168], text: [11, 26, 36], stars: 0, cloudBrightness: .95 },
-  { at: .42, moment: 'Noon', top: [95, 163, 206], middle: [169, 213, 232], horizon: [221, 238, 243], text: [11, 26, 36], stars: 0, cloudBrightness: 1 },
-  { at: .58, moment: 'Golden hour', top: [88, 124, 155], middle: [217, 149, 97], horizon: [242, 181, 111], text: [234, 244, 247], stars: 0, cloudBrightness: .9 },
-  { at: .72, moment: 'Sunset', top: [74, 54, 84], middle: [183, 95, 93], horizon: [229, 138, 98], text: [234, 244, 247], stars: 0, cloudBrightness: .6 },
-  { at: .84, moment: 'Twilight', top: [20, 26, 58], middle: [52, 55, 107], horizon: [122, 79, 120], text: [234, 244, 247], stars: .5, cloudBrightness: .2 },
-  { at: 1, moment: 'Night', top: [3, 7, 18], middle: [7, 19, 41], horizon: [11, 24, 50], text: [234, 244, 247], stars: 1, cloudBrightness: .1 },
+  { at: 0, moment: 'Sunrise', top: [11, 21, 48], middle: [30, 47, 77], horizon: [244, 167, 122], text: [255, 248, 233], stars: .25, cloudBrightness: .25 },
+  { at: .30, moment: 'Noon', top: [47, 127, 224], middle: [105, 177, 236], horizon: [191, 227, 255], text: [11, 26, 36], stars: 0, cloudBrightness: 1 },
+  { at: .70, moment: 'Sunset', top: [58, 42, 106], middle: [184, 83, 110], horizon: [255, 122, 61], text: [255, 248, 233], stars: 0, cloudBrightness: .72 },
+  { at: .85, moment: 'Dusk', top: [10, 16, 48], middle: [24, 27, 74], horizon: [42, 34, 96], text: [234, 244, 247], stars: .55, cloudBrightness: .2 },
+  { at: 1, moment: 'Midnight', top: [3, 6, 15], middle: [5, 12, 35], horizon: [10, 16, 48], text: [234, 244, 247], stars: 1, cloudBrightness: .05 },
 ];
 
 export const sunKeyframes: readonly SunKeyframe[] = [
