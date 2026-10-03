@@ -4,6 +4,8 @@ import { subscribeScrollFrames } from '../../animations/scroll';
 import { sample, type RGB } from '../../sky/timeline';
 import { createClouds } from './clouds';
 import { createLandscape } from './landscape';
+import { createMoon } from './moon';
+import { createStars } from './stars';
 
 const vertexShader = /* glsl */`
   varying vec3 vDirection;
@@ -109,6 +111,8 @@ export default function JourneyCanvas() {
     let glowTexture: THREE.CanvasTexture | undefined;
     let clouds: ReturnType<typeof createClouds> | undefined;
     let landscape: ReturnType<typeof createLandscape> | undefined;
+    let stars: ReturnType<typeof createStars> | undefined;
+    let moon: ReturnType<typeof createMoon> | undefined;
     let resizeObserver: ResizeObserver | undefined;
     let unsubscribe: () => void = () => {};
 
@@ -178,6 +182,8 @@ export default function JourneyCanvas() {
 
       landscape = createLandscape(scene);
       clouds = createClouds(scene);
+      stars = createStars(scene);
+      moon = createMoon(scene);
 
       const resize = () => {
         if (!renderer) return;
@@ -190,6 +196,7 @@ export default function JourneyCanvas() {
         camera.updateProjectionMatrix();
         landscape?.resize(width, height, camera);
         clouds?.resize(width, height, camera);
+        moon?.resize(width, height, camera);
       };
       resize();
       resizeObserver = new ResizeObserver(resize);
@@ -215,6 +222,8 @@ export default function JourneyCanvas() {
         skyMaterial?.uniforms.uHorizon.value.copy(linearColor(sky.horizon));
         landscape?.update(sky.horizon, sky.middle, progress);
         clouds?.update(progress, elapsed);
+        stars?.update(progress, elapsed);
+        moon?.update(progress, elapsed, camera);
         const targetPitch = (progress - .5) * THREE.MathUtils.degToRad(10);
         camera.rotation.x += (targetPitch - dampedPointerY * .012 - camera.rotation.x) * .08;
         camera.position.x += (dampedPointerX * .6 - camera.position.x) * .08;
@@ -250,6 +259,8 @@ export default function JourneyCanvas() {
         unsubscribe();
         clouds?.dispose();
         landscape?.dispose();
+        stars?.dispose();
+        moon?.dispose();
         stage.removeAttribute('data-webgl-ready');
         skyGeometry?.dispose();
         skyMaterial?.dispose();
@@ -269,6 +280,8 @@ export default function JourneyCanvas() {
       unsubscribe();
       clouds?.dispose();
       landscape?.dispose();
+      stars?.dispose();
+      moon?.dispose();
       skyGeometry?.dispose();
       skyMaterial?.dispose();
       sunGeometry?.dispose();
