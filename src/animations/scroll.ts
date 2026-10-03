@@ -4,6 +4,36 @@ import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger);
 let activeLenis: Lenis | null = null;
+const scrollFrameListeners = new Set<(scroll: number, deltaSeconds: number) => void>();
+let previousTick = 0;
+
+function notifyScrollFrame(scroll: number, deltaSeconds: number) {
+  scrollFrameListeners.forEach((listener) => listener(scroll, deltaSeconds));
+}
+
+export function subscribeScrollFrames(listener: (scroll: number, deltaSeconds: number) => void) {
+  scrollFrameListeners.add(listener);
+  const onNativeScroll = () => {
+    if (activeLenis) return;
+    listener(window.scrollY, 1 / 60);
+  };
+  if (!activeLenis) window.addEventListener('scroll', onNativeScroll, { passive: true });
+  return () => {
+    scrollFrameListeners.delete(listener);
+    window.removeEventListener('scroll', onNativeScroll);
+  };
+}
+
+export function scrollToPosition(position: number) {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let reduceEffects = false;
+  try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
+  if (reduceMotion || reduceEffects) {
+    if (activeLenis) activeLenis.scrollTo(position, { immediate: true });
+    else window.scrollTo({ top: position, behavior: 'auto' });
+  } else if (activeLenis) activeLenis.scrollTo(position, { duration: 1.1 });
+  else window.scrollTo({ top: position, behavior: 'smooth' });
+}
 
 export function setScrollEffectsReduced(reduced: boolean) {
   if (reduced) activeLenis?.stop();
@@ -53,7 +83,13 @@ export function startScrollExperience() {
     anchors: { offset: -80 },
   });
   activeLenis = lenis;
-  const tick = (time: number) => lenis.raf(time * 1000);
+  const tick = (time: number) => {
+    const now = time * 1000;
+    const deltaSeconds = previousTick ? Math.min((now - previousTick) / 1000, .1) : 1 / 60;
+    previousTick = now;
+    lenis.raf(now);
+    notifyScrollFrame(lenis.scroll, deltaSeconds);
+  };
   const update = () => ScrollTrigger.update();
 
   lenis.on('scroll', update);
@@ -64,6 +100,7 @@ export function startScrollExperience() {
     lenis.off('scroll', update);
     gsap.ticker.remove(tick);
     lenis.destroy();
+    previousTick = 0;
     if (activeLenis === lenis) activeLenis = null;
     ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   };

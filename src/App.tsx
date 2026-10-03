@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { CustomCursor } from './components/CustomCursor';
-import { Hero } from './sections/Hero';
+import { SkyJourney } from './sky-journey/SkyJourney';
 import { Introduction } from './sections/Introduction';
 import { WhatIsAeris } from './sections/WhatIsAeris';
 import { SkySection } from './sections/SkySection';
@@ -53,7 +53,7 @@ export default function App() {
       <CustomCursor />
       <Header category={category} onNavigate={setCategory} />
       <main id="main-content" tabIndex={-1}>
-        <Hero />
+        <SkyJourney />
         <Introduction />
         <WhatIsAeris />
         <SkySection onOpen={openLightbox} />
