@@ -73,9 +73,10 @@ export function revealOnScroll(target: gsap.TweenTarget, options: RevealOptions 
 /** Start Lenis and keep its scroll position in sync with GSAP ScrollTrigger. */
 export function startScrollExperience() {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileViewport = window.matchMedia('(max-width: 760px)').matches;
   let reduceEffects = false;
   try { reduceEffects = localStorage.getItem('aeris:reduce-effects') === 'true'; } catch { /* Storage can be disabled. */ }
-  if (reduceMotion.matches || reduceEffects) return () => undefined;
+  if (reduceMotion.matches || reduceEffects || mobileViewport) return () => undefined;
 
   const lenis = new Lenis({
     duration: 0.72,

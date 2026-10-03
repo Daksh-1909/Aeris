@@ -418,6 +418,9 @@ body { background-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .hero__scroll-cue svg { animation: none; } }
 html[data-reduce-effects='true'] .hero__scroll-cue svg { animation: none; }
 .cloud-studies__controls { display: flex; align-items: center; gap: 12px; }
+.cloud-studies__controls > button { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; padding: 0; border: 1px solid rgb(237 242 243 / .38); border-radius: 50%; background: transparent; color: var(--cloud-50); cursor: pointer; }
+.cloud-studies__controls > button:hover { background: rgb(255 255 255 / .1); }
+.cloud-studies__controls > button:focus-visible { outline: 2px solid #d5c7ac; outline-offset: 3px; }
 .cloud-studies__atlas-link { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; color: var(--chapter-accent); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
 .golden-hour { min-height: 100svh; display: grid; grid-template-columns: minmax(250px, .78fr) minmax(0, 1.22fr); align-items: start; gap: clamp(36px, 8vw, 120px); padding: 18vh 11.1% 16vh; color: var(--cloud-50); }
 .golden-hour__copy { position: sticky; top: 21vh; max-width: 430px; padding-top: 8vh; }

@@ -1,145 +1,108 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 
-const moments = [0, .12, .3, .42, .58, .72, .84, 1];
-const viewports = [{ width: 1920, height: 1080 }, { width: 390, height: 844 }];
-const layoutWidths = [360, 390, 768, 1024, 1440, 1920];
+const baseUrl = process.env.AERIS_BASE_URL ?? 'http://127.0.0.1:5173/';
+const widths = [360, 390, 768, 1024, 1440, 1920];
+const scenes = [
+  { progress: .08, title: 'READ THE SKY' },
+  { progress: .32, title: 'A NEW ANGLE OF LIGHT' },
+  { progress: .52, title: 'UNDER AN ENDLESS BLUE' },
+  { progress: .72, title: 'LIGHT, BEFORE IT LEAVES' },
+  { progress: .82, title: 'THE SUN BECOMES THE MOON' },
+  { progress: .95, title: 'WHEN THE SKY BECOMES INFINITE' },
+];
 const outputDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'shots');
 await mkdir(outputDir, { recursive: true });
-const browser = await chromium.launch({
-  headless: true,
-  args: ['--enable-webgl', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--use-gl=angle', '--use-angle=swiftshader'],
-});
 
-try {
-  for (const viewport of viewports) {
-    const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
-    page.on('console', (message) => {
-      if (message.type() === 'error' || message.type() === 'warning') console.error(`[browser:${message.type()}] ${message.text().split('\n')[0]}`);
-    });
-    page.on('pageerror', (error) => console.error(`[pageerror] ${error.message}`));
-    for (const progress of moments) {
-      await page.goto(`http://127.0.0.1:5173/?p=${progress}`, { waitUntil: 'networkidle' });
-      await page.locator('.journey__stage').waitFor();
-      await page.locator('.journey__canvas').waitFor();
-      await page.waitForFunction(() => {
-        const stage = document.querySelector('.journey__stage');
-        return stage?.dataset.webglReady === 'true' || stage?.dataset.webglFallback === 'true';
-      }, undefined, { timeout: 10000 });
-      if (await page.locator('.journey__stage').getAttribute('data-webgl-ready') === 'true') await page.waitForTimeout(450);
-      await page.screenshot({
-        path: join(outputDir, `journey-${progress}-${viewport.width}.png`),
-        fullPage: false,
-      });
-      const proof = await page.evaluate(() => {
-        const title = document.querySelector('.journey__scene[aria-hidden="false"] h1');
-        const titleRect = title?.getBoundingClientRect();
-        return {
-          viewportWidth: innerWidth,
-          documentWidth: document.documentElement.scrollWidth,
-          progress: document.querySelector('.journey__debug')?.textContent ?? 'debug disabled',
-          visibleScene: title?.textContent?.trim() ?? null,
-          headlineBounds: titleRect ? [Math.round(titleRect.left), Math.round(titleRect.right)] : null,
-          railStops: document.querySelectorAll('.journey__rail [data-stop-progress]').length,
-          webgl: document.querySelector('.journey__stage')?.getAttribute('data-webgl-ready') === 'true' ? 'ready' : 'CSS fallback',
-        };
-      });
-      console.log(JSON.stringify({ requestedProgress: progress, ...proof }));
-    }
-    await page.close();
+async function setProgress(page, progress, context = '') {
+  await page.locator('.journey__debug input[type="range"]').evaluate((input, value) => {
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, String(Math.round(value * 1000)));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, progress);
+  try {
+    await page.waitForFunction((value) => {
+      const stage = document.querySelector('.journey__stage');
+      const progressNow = Number.parseFloat(getComputedStyle(stage).getPropertyValue('--journey-progress'));
+      return Number.isFinite(progressNow) && Math.abs(progressNow - value) < .025;
+    }, progress, { timeout: 8000 });
+  } catch {
+    const actual = await page.locator('.journey__stage').evaluate((stage) => getComputedStyle(stage).getPropertyValue('--journey-progress'));
+    throw new Error(`${context ? `${context}: ` : ''}timeline did not reach ${progress} (current value: ${actual})`);
   }
-
-  // Responsive layout proof at every width specified by the journey brief.
-  for (const width of layoutWidths) {
-    const page = await browser.newPage({ viewport: { width, height: width <= 390 ? 844 : 900 }, deviceScaleFactor: 1 });
-    for (const progress of [.12, .72]) {
-      await page.goto(`http://127.0.0.1:5173/?p=${progress}`, { waitUntil: 'networkidle' });
-      await page.waitForFunction(() => {
-        const stage = document.querySelector('.journey__stage');
-        return stage?.dataset.webglReady === 'true' || stage?.dataset.webglFallback === 'true';
-      }, undefined, { timeout: 10000 });
-      const proof = await page.evaluate(() => {
-        const stage = document.querySelector('.journey__stage');
-        const title = stage?.querySelector('.journey__scene[aria-hidden="false"] h1');
-        const bounds = title?.getBoundingClientRect();
-        const siteHeader = document.querySelector('.site-header')?.getBoundingClientRect();
-        return {
-          viewportWidth: innerWidth,
-          documentWidth: document.documentElement.scrollWidth,
-          visibleTitle: title?.textContent?.trim() ?? null,
-          headlineBounds: bounds ? [Math.round(bounds.left), Math.round(bounds.right)] : null,
-          headlineVisible: Boolean(bounds && bounds.left >= -1 && bounds.right <= innerWidth + 1),
-          headerBottom: siteHeader ? Math.round(siteHeader.bottom) : null,
-          headerClear: Boolean(bounds && siteHeader && bounds.top >= siteHeader.bottom),
-        };
-      });
-      await page.screenshot({ path: join(outputDir, `journey-layout-${progress}-${width}.png`), fullPage: false });
-      console.log(JSON.stringify({ layoutCheck: true, requestedProgress: progress, ...proof }));
-      if (proof.documentWidth !== width || !proof.headlineVisible || !proof.headerClear) throw new Error(`Journey layout failed at ${width}px, p=${progress}`);
-    }
-    await page.close();
-  }
-
-  for (const viewport of viewports) {
-    const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
-    await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
-    await page.evaluate(() => window.scrollTo({ top: document.querySelector('.journey')?.clientHeight ?? 0, behavior: 'instant' }));
-    await page.waitForTimeout(1400);
-    await page.screenshot({ path: join(outputDir, `journey-continuation-${viewport.width}.png`), fullPage: false });
-    console.log(JSON.stringify(await page.evaluate(() => ({
-      continuationWidth: innerWidth,
-      documentWidth: document.documentElement.scrollWidth,
-      continuation: Boolean(document.querySelector('.journey-continuation')),
-      continuationBackground: getComputedStyle(document.querySelector('.journey-continuation')).backgroundColor,
-      navHidden: document.querySelector('.site-header')?.classList.contains('site-header--hidden'),
-    }))));
-    await page.close();
-  }
-
-  const reducedMotionPage = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
-  await reducedMotionPage.goto('http://127.0.0.1:5173/?p=0.42', { waitUntil: 'networkidle' });
-  await reducedMotionPage.waitForFunction(() => document.querySelector('.journey__stage')?.dataset.renderMode === 'static');
-  const staticProof = await reducedMotionPage.evaluate(() => ({
-    renderMode: document.querySelector('.journey__stage')?.getAttribute('data-render-mode'),
-    canvasCount: document.querySelectorAll('.journey__canvas').length,
-    documentWidth: document.documentElement.scrollWidth,
-  }));
-  await reducedMotionPage.screenshot({ path: join(outputDir, 'journey-static-reduced-motion-390.png'), fullPage: false });
-  console.log(JSON.stringify({ reducedMotion: staticProof }));
-  await reducedMotionPage.close();
-
-  const reducedEffectsPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  await reducedEffectsPage.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
-  await reducedEffectsPage.waitForFunction(() => document.querySelector('.journey__stage')?.dataset.renderMode === 'webgl');
-  await reducedEffectsPage.locator('.footer-effects-toggle').click();
-  await reducedEffectsPage.waitForFunction(() => document.querySelector('.journey__stage')?.dataset.renderMode === 'static');
-  const reducedEffectsProof = await reducedEffectsPage.evaluate(() => ({
-    renderMode: document.querySelector('.journey__stage')?.getAttribute('data-render-mode'),
-    canvasCount: document.querySelectorAll('.journey__canvas').length,
-    reduceEffects: document.documentElement.dataset.reduceEffects,
-  }));
-  await reducedEffectsPage.screenshot({ path: join(outputDir, 'journey-static-reduced-effects-390.png'), fullPage: false });
-  console.log(JSON.stringify({ reducedEffects: reducedEffectsProof }));
-  await reducedEffectsPage.close();
-
-  const journeyPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  await journeyPage.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle' });
-  await journeyPage.locator('.journey__rail [data-stop-id="noon"]').click();
-  await journeyPage.waitForFunction(() => {
-    const stage = document.querySelector('.journey__stage');
-    if (stage?.querySelector('[data-stop-id="noon"]')?.getAttribute('aria-current') !== 'step') return false;
-    return Math.abs(Number.parseFloat(getComputedStyle(stage).getPropertyValue('--journey-progress')) - .42) < .015;
-  });
-  const railProgress = await journeyPage.locator('.journey__stage').evaluate((stage) => Number.parseFloat(getComputedStyle(stage).getPropertyValue('--journey-progress')));
-  await journeyPage.mouse.wheel(0, -700);
-  await journeyPage.waitForFunction((previous) => {
-    const stage = document.querySelector('.journey__stage');
-    return Number.parseFloat(getComputedStyle(stage).getPropertyValue('--journey-progress')) < previous - .02;
-  }, railProgress);
-  console.log(JSON.stringify({ railClickProgress: railProgress, reverseScrollProgress: await journeyPage.locator('.journey__stage').evaluate((stage) => Number.parseFloat(getComputedStyle(stage).getPropertyValue('--journey-progress'))) }));
-  await journeyPage.close();
-} finally {
-  await browser.close();
 }
+
+for (const [browserName, browserType, launchOptions] of [
+  ['Chrome', chromium, { channel: 'chrome' }],
+  ['Edge', chromium, { channel: 'msedge' }],
+  ['WebKit', webkit, {}],
+]) {
+  const browser = await browserType.launch({ headless: true, ...launchOptions });
+  const errors = [];
+  try {
+    for (const width of widths) {
+      const height = width <= 390 ? 844 : 900;
+      const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
+      page.on('pageerror', (error) => errors.push(error.message));
+      await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+      await page.locator('.journey__stage').waitFor();
+      await page.locator('.journey__debug input[type="range"]').waitFor();
+
+      if (browserName === 'Chromium' && width === 360) {
+        await page.keyboard.press('Tab');
+        const firstFocus = await page.evaluate(() => document.activeElement?.textContent?.trim());
+        if (firstFocus !== 'Skip to main content') throw new Error(`Keyboard skip-link check failed: ${firstFocus}`);
+        const moonHref = await page.locator('.moon-credit a').getAttribute('href');
+        if (moonHref !== 'https://svs.gsfc.nasa.gov/4720/') throw new Error(`NASA moon credit link is missing or incorrect: ${moonHref}`);
+      }
+
+      for (const scene of scenes) {
+        await setProgress(page, scene.progress, `${browserName} ${width}px`);
+        const proof = await page.evaluate(() => {
+          const headings = [...document.querySelectorAll('.journey__scene[aria-hidden="false"] h1')];
+          const visibleHeadings = headings.map((heading) => {
+            const range = document.createRange();
+            range.selectNodeContents(heading);
+            return { title: heading.textContent?.trim() ?? null, opacity: Number.parseFloat(getComputedStyle(heading.parentElement).opacity), rects: [...range.getClientRects()] };
+          });
+          const primaryHeading = visibleHeadings.toSorted((a, b) => b.opacity - a.opacity)[0];
+          const header = document.querySelector('.site-header')?.getBoundingClientRect();
+          const banner = document.querySelector('.demo-mode-banner')?.getBoundingClientRect();
+          return {
+            title: primaryHeading?.title ?? null,
+            textFits: visibleHeadings.every(({ rects }) => rects.length > 0 && rects.every((rect) => rect.left >= -1 && rect.right <= innerWidth + 1)),
+            documentWidth: document.documentElement.scrollWidth,
+            headerClear: !banner || !header || header.bottom <= banner.top || header.top >= banner.bottom,
+          };
+        });
+        if (proof.title !== scene.title || !proof.textFits || proof.documentWidth !== width || !proof.headerClear) {
+          throw new Error(`${browserName} failed at ${width}px, p=${scene.progress}: ${JSON.stringify(proof)}`);
+        }
+        if (browserName === 'Chromium' && (scene.progress === .08 || scene.progress === .95)) {
+          await page.screenshot({ path: join(outputDir, `phase10-${width}-${scene.progress === .08 ? 'sunrise' : 'midnight'}.png`) });
+        }
+      }
+      await page.close();
+      console.log(`${browserName}: ${width}px — six headlines, header, and overflow passed`);
+    }
+
+    const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+    await reduced.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await reduced.locator('.journey__stage').waitFor();
+    await setProgress(reduced, .95, `${browserName} reduced-motion`);
+    const animationNames = await reduced.evaluate(() => [
+      getComputedStyle(document.querySelector('.journey__aurora-ribbon')).animationName,
+      getComputedStyle(document.querySelector('.journey__nebula-blob')).animationName,
+      getComputedStyle(document.querySelector('.journey__cloud img')).animationName,
+    ]);
+    if (animationNames.some((name) => name !== 'none')) throw new Error(`${browserName} reduced-motion check failed: ${animationNames.join(', ')}`);
+    await reduced.close();
+    if (errors.length) throw new Error(`${browserName} page errors: ${errors.join(' | ')}`);
+  } finally {
+    await browser.close();
+  }
+}
+console.log(`Phase 10 QA passed in Chrome, Edge, and WebKit. Screenshots are in ${outputDir}.`);

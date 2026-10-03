@@ -15,9 +15,12 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const progressRef = useRef(progress);
   const opacityRef = useRef(opacity);
-  progressRef.current = progress;
-  opacityRef.current = opacity;
   const active = opacity > 0;
+
+  useEffect(() => {
+    progressRef.current = progress;
+    opacityRef.current = opacity;
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -29,6 +32,8 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
     let height = 0;
     let pixelRatio = 1;
     let frameId = 0;
+    let isIntersecting = false;
+    let pageVisible = document.visibilityState === 'visible';
     let nextShotAt = 0;
     let shootingStar: { start: number; x: number; y: number; length: number; duration: number } | null = null;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -57,7 +62,14 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
     observer.observe(canvas);
     resize();
 
+    const schedule = () => {
+      if (!reducedMotion && isIntersecting && pageVisible && opacityRef.current > 0 && frameId === 0) {
+        frameId = requestAnimationFrame(draw);
+      }
+    };
+
     const draw = (time: number) => {
+      frameId = 0;
       context.clearRect(0, 0, width, height);
       const progressNow = progressRef.current;
       const rotation = (progressNow - .8) * .12;
@@ -114,14 +126,38 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
         }
       }
       context.globalAlpha = 1;
-      if (!reducedMotion && opacityRef.current > 0) frameId = requestAnimationFrame(draw);
+      schedule();
     };
 
-    if (reducedMotion) draw(0);
-    else frameId = requestAnimationFrame(draw);
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isIntersecting = entry.isIntersecting;
+      if (!isIntersecting) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+      } else if (reducedMotion) {
+        draw(0);
+      } else {
+        schedule();
+      }
+    });
+    visibilityObserver.observe(canvas);
+    const handleVisibility = () => {
+      pageVisible = document.visibilityState === 'visible';
+      if (!pageVisible) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+      } else if (isIntersecting && reducedMotion) {
+        draw(0);
+      } else {
+        schedule();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
     return () => {
       cancelAnimationFrame(frameId);
       observer.disconnect();
+      visibilityObserver.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [active]);
 

@@ -1,91 +1,57 @@
 # AERIS — Read the Sky
 
-AERIS is a sky journal and shooting companion. It helps people look at sky photography, learn what clouds and light can tell them, and plan to go make photographs of their own. The three jobs are **Look** (experience the gallery), **Learn** (understand the sky), and **Go** (plan a shoot).
+AERIS is an editorial sky journal for looking at sky photography, learning about light and weather, and planning a time to photograph the sky. The homepage follows one scroll-driven scene from sunrise through noon and sunset into midnight, then continues into the photo journal and supporting tools.
 
-## Project structure
+## Get started
 
-```text
-src/
-  animations/       Reusable GSAP and scroll utilities
-  components/       Shared interface and image components
-  data/             Editorial gallery records and image URL helpers
-  hooks/            Shared gallery loading state
-  sections/         Page-level content sections
-  services/         Gallery data access boundary
-  types/            Shared TypeScript models and handlers
-  sky/              Shared sky palette and scroll timeline
-  sky-journey/       Journey scenes, sticky stage, and Three.js layers
-  App.tsx           Page composition and top-level UI state
-  index.css         Global styles and responsive visual system
-```
-
-## Frontend and backend boundary
-
-The gallery is served by the Vite frontend. When Supabase is not configured, member features run in clearly labeled Demo Mode and stay in this browser. Demo Mode uses derived password hashes, but it is not a secure account system; recovery, verification, and inquiry delivery are unavailable. Set the Supabase URL and publishable key to enable Supabase Auth plus remote member storage. The database, inquiry Edge Function and setup steps are in [BACKEND_SETUP.md](./BACKEND_SETUP.md). Do not use local demo accounts for real users or sensitive data.
-
-## Member experience routes
-
-- `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`
-- `/dashboard`, `/favorites`, `/collections`, `/search`, `/notifications`
-- `/profile/:username`, `/contact`
-- `/welcome` (first-signup setup; skippable)
-- `/photo/:id` (shareable detail and print/licensing inquiry)
-- `/admin/inquiries` (Supabase admin role required; enforced by RLS)
-- `/atlas`, `/atlas/:type` (offline cloud field guide and identifier)
-- `/planner` (local sun/moon times, city search, geolocation, saved shoot spots)
-
-Member profiles, favorites, viewed history, notifications, and collections persist in this browser's local storage in Demo Mode. Contact submissions show an honest “message not sent” status in Demo Mode. Configure the trusted inquiry backend before collecting real requests.
-
-## Source organization
-
-```text
-src/
-  components/       Shared interface, route experience, and error boundary
-  services/         Gallery access and browser-local member data adapter
-  data/             Editorial photo records
-  sections/         Home page editorial sections
-  types/            Shared gallery types
-```
-
-## Development
+Requirements: Node.js 20 or later and npm.
 
 ```sh
 npm install
 npm run dev
 ```
 
-Production build: `npm run build`
-Quality check (lint and production build): `npm run check`
+Open the local URL printed by Vite. The development page includes a **Scrub sky** slider for previewing the journey. Build and check the project with:
 
-Use [QA_CHECKLIST.md](./QA_CHECKLIST.md) for desktop, mobile, keyboard, animation, and image checks.
+```sh
+npm run check
+```
 
-TypeScript is configured in strict mode; `npm run build` runs the type check before bundling.
+`npm run check` runs ESLint and a strict TypeScript plus Vite production build. Use `npm run preview` after `npm run build` to serve the production output locally.
 
-Gallery photography is served from local responsive WebP files in `public/images/`, with 480, 960, and 1600 pixel variants and `srcset` selection. These are self-hosted Unsplash demo copies, not AERIS-owned photographs; replace them with studio-owned or separately licensed photographs and verified photographer credits before launch.
+## Homepage
 
-Fine-pointer desktop users get the decorative cloud-light cursor; it stays off for touch and reduced-motion preferences. The AERIS cloud-at-dawn favicon is `public/favicon.svg`, with a matching `public/apple-touch-icon.png` for iOS home-screen links.
+The journey in `src/sky-journey/SkyJourney.tsx` uses one normalized progress value to update the sky palette, orb, cloud layers, ground scene, six headline beats, stars, nebula, and aurora. The sun and moon are CSS layers at the same position. Grass, flowers, the bench, and seated silhouettes are built from local SVG scene assets. The night stars are drawn on a canvas; that canvas pauses when it is offscreen or the document is hidden.
 
-## Sky Journey V2
+The homepage continues through the “What’s above” handoff, editorial photo and sky sections, a closing call to action, gallery collections, and the footer. Section composition is in `src/App.tsx`; shared sky colors and their time-of-day interpolation are in `src/sky/timeline.ts`.
 
-The homepage opens on Sunrise and scrolls through four scenes: Sunrise (05:48), Noon (12:10), Sunset (17:52), and Night (22:30). One sticky stage follows normalized scroll progress from `0` to `1`; the accessible time rail links to each scene. Text is DOM content and moves only vertically as it fades. The rest of the homepage continues on a deep night background.
+Desktop scrolling uses Lenis and GSAP ScrollTrigger. Narrow viewports use native scrolling. System reduced-motion preference and the footer’s **Reduce effects** control disable motion effects. The app remains usable with the keyboard; decorative sky layers are hidden from assistive technology.
 
-The shared palette and sun keyframes are in [`src/sky/timeline.ts`](./src/sky/timeline.ts). `sample(progress)` clamps progress to `0..1` and smoothly interpolates the sky, text, cloud brightness, stars, and sun path. Scene copy, fade ranges, and rail stop positions are in [`src/sky-journey/scenes.ts`](./src/sky-journey/scenes.ts). During development, `/?p=0.42` freezes the journey at a point; edit `skyKeyframes` and `sunKeyframes` to tune colors and sun position.
+## Routes and data
 
-The stage first paints a CSS sky, then lazily loads the Three.js canvas. The canvas is decorative and `aria-hidden`; scene headings, copy, rail buttons, and links remain HTML. A static CSS presentation is used when WebGL is unavailable, Reduce effects is enabled, or the operating system requests reduced motion.
+The site includes the homepage, photo journal, gallery, cloud atlas (`/atlas`), shoot planner (`/planner`), sign-in and registration, member collections, favorites, profiles, and contact flows. Demo mode stores member data in this browser and clearly reports that contact messages are not sent. Configure Supabase with the project’s environment variables and follow [BACKEND_SETUP.md](./BACKEND_SETUP.md) before enabling cloud accounts or accepting real inquiries.
 
-### Rendering quality
+Editorial photos and image URL helpers live in `src/data/` and `public/images/`. The bundled gallery photos are demo copies; replace them with studio-owned or properly licensed work and verified photographer credits before a public launch.
 
-| Tier | DPR cap | Stars (tiny / medium / bright) | Clouds across 3 layers |
-| --- | ---: | ---: | ---: |
-| High | 2 | 2500 / 500 / 40 | 6 / 6 / 7 |
-| Medium | 1.5 | 1600 / 380 / 20 | 5 / 5 / 5 |
-| Low | 1.25 | 960 / 224 / 16 | 3 / 3 / 4 |
-| Static | — | — | No WebGL canvas |
+## Assets and credits
 
-The initial tier uses viewport width and hardware memory/core hints. If frame intervals or render time remain above 22 ms over a 45-frame sample, the renderer steps down a tier; it does not automatically step back up. Rendering pauses while the document is hidden. Reduced-motion and Reduce effects modes disable the WebGL presentation; shooting stars are disabled there as well.
+- Moon surface map: [NASA Scientific Visualization Studio, CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/). The site credit is in the footer.
+- Cloud sprites and sky-scene SVGs: `public/3d/`.
+- Gallery photos: `public/images/`.
+- Fonts: Cormorant Garamond and Inter, loaded from Google Fonts.
 
-### Assets and screenshots
+## Quality checks and screenshots
 
-Cloud sprites are `public/3d/clouds/cloud_1.webp` through `cloud_4.webp`. The moon uses `public/3d/moon_color_2k.webp` and `public/3d/moon_bump_2k.webp`; the optional 4K color map is `public/3d/moon_color_4k.webp`. No 8000×4000 moon texture is shipped. The footer credits the moon map to NASA Scientific Visualization Studio (CGI Moon Kit). Local responsive gallery WebP assets are in `public/images/`; they are demo copies and need verified licensing/photographer credits before launch.
+The Phase 10 QA script tests all six brief widths (360, 390, 768, 1024, 1440, and 1920 px) in Chrome, Edge, and WebKit. It checks page errors, visible headline bounds, document overflow, the header’s position relative to the demo notice, reduced motion, keyboard skip-link access, and the moon credit. Screenshots go to the ignored `shots/` directory.
 
-Run `npm run check` for lint, TypeScript, and production build. With the Vite server running, use `node scripts/journey-shots.mjs` to save reference images under the ignored `shots/` folder. The script captures the eight timeline points at 1920×1080 and 390×844, checks sunrise and sunset at 360, 390, 768, 1024, 1440, and 1920 px, and exercises continuation, reduced-motion, Reduce effects, rail navigation, and reverse scrolling. The screenshots are browser-environment evidence; verify WebGL visuals on a device/browser that provides WebGL2 before release.
+```sh
+npm run qa:phase10
+```
+
+Start the Vite dev server on `http://127.0.0.1:5173/` before running the script. Install Playwright browsers once if needed:
+
+```sh
+npx playwright install chromium webkit
+```
+
+For a quick production pass, run `npm run build`, then `npm run preview`. Responsive layouts, reduced-motion mode, keyboard access, color contrast, and mobile performance have also been checked during implementation.
