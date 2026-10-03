@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, Heart } from 'lucide-react';
 import { imageSrcSet, imageUrl } from '../data/gallery';
+import { galleryFacets } from '../data/galleryFacets';
 import type { OpenPhotograph, Photograph } from '../types/gallery';
 import { ImageReveal } from './ImageReveal';
 import { isFavorite, toggleFavorite } from '../services/memberStore';
@@ -23,6 +24,9 @@ export function GalleryImage({ photo, photos, onOpen, className = '', imageWidth
   const [favorite, setFavorite] = useState(() => isFavorite(photo.id));
   useEffect(() => { const sync = () => setFavorite(isFavorite(photo.id)); window.addEventListener('aeris:member-change', sync); return () => window.removeEventListener('aeris:member-change', sync); }, [photo.id]);
   const responsiveWidths = [320, 640, 960, 1200, 1600, 2000, 2200].filter((width) => width < imageWidth).concat(imageWidth);
+  const timeOfDay = galleryFacets[photo.id]?.timeOfDay ?? 'day';
+  const timeLabel = timeOfDay.replace('-', ' ');
+  const cloudLabel = photo.cloudType.replaceAll('-', ' ');
   return <div
     className={`gallery-image ${parallax ? 'gallery-image--parallax ' : ''}${className}`}
     data-cursor="view"
@@ -33,7 +37,7 @@ export function GalleryImage({ photo, photos, onOpen, className = '', imageWidth
       <span className="gallery-image__shade" />
     </span>
     {index && <span className="gallery-image__index">{index} <i /> {photo.category}</span>}
-    {metadata && <span className="gallery-image__meta"><span><small>{photo.location} · {photo.year}{photo.metadata ? ` · ${photo.metadata}` : ''}</small><strong>{photo.title}</strong></span><ArrowUpRight className="gallery-image__arrow" size={18} /></span>}
+    {metadata && <span className="gallery-image__meta"><span><small>{photo.location} · {photo.year}{photo.metadata ? ` · ${photo.metadata}` : ''}</small><span className="gallery-image__capture">{timeLabel}<i aria-hidden="true" />{photo.location}<i aria-hidden="true" />{cloudLabel}</span><strong>{photo.title}</strong></span><ArrowUpRight className="gallery-image__arrow" size={18} /></span>}
     <button className="gallery-image__open" onClick={() => onOpen(photo, photos)} aria-label={`View ${photo.title}, ${photo.location}`} />
     <button className="gallery-image__favorite" aria-label={favorite ? `Remove ${photo.title} from favorites` : `Add ${photo.title} to favorites`} aria-pressed={favorite} onClick={(event) => { event.stopPropagation(); toggleFavorite(photo.id); setFavorite(isFavorite(photo.id)); }}><Heart size={17} fill={favorite ? 'currentColor' : 'none'}/></button>
   </div>;

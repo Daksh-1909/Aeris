@@ -4,6 +4,8 @@ import { sample, type RGB } from './timeline';
 import { createMist } from './layers/mist';
 import { createRidges } from './layers/ridges';
 import { createClouds } from './layers/clouds';
+import { createStars } from './layers/stars';
+import { createMoon } from './layers/moon';
 
 const vertexShader = `
   varying vec3 vDir;
@@ -149,6 +151,8 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
   const ridges = createRidges(scene);
   const mist = createMist(scene);
   const clouds = createClouds(scene);
+  const stars = createStars(scene);
+  const moon = createMoon(scene, camera, renderer.capabilities.getMaxAnisotropy());
   let cloudTime = 0;
   const sunPosition = new THREE.Vector3();
   const mouseTarget = new THREE.Vector2();
@@ -195,6 +199,9 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     wideGlow.material.color.copy(tightGlow.material.color);
     tightGlow.material.opacity = sky.glow * fade * .48;
     wideGlow.material.opacity = sky.glow * fade * .2;
+    const afterglow = THREE.MathUtils.smoothstep(progress, .58, .76)
+      * (1 - THREE.MathUtils.smoothstep(progress, .84, .96));
+    wideGlow.scale.setScalar(528 + afterglow * 110);
     sunLight.position.copy(sunDir).multiplyScalar(1000);
     sunLight.color.copy(tightGlow.material.color);
     sunLight.intensity = sunAlpha * 1.15;
@@ -204,6 +211,8 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     mist.update(sky);
     cloudTime += Math.max(0, dt);
     clouds.update(sky, sunDir, cloudTime);
+    stars.update(sky, sunDir, cloudTime);
+    moon.update(sky, cloudTime);
 
     const damping = 1 - Math.exp(-8 * Math.max(0, dt));
     mousePosition.lerp(mouseTarget, damping);
@@ -228,6 +237,8 @@ export function createSkyScene(canvas: HTMLCanvasElement) {
     ridges.dispose();
     mist.dispose();
     clouds.dispose();
+    stars.dispose();
+    moon.dispose();
     renderer.dispose();
   };
 

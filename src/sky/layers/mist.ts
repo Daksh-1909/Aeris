@@ -51,7 +51,8 @@ export function createMist(scene: THREE.Scene) {
   const update = (sky: SkySample) => {
     setColor(uniforms.uTint.value, sky.cloudTint);
     const sunrise = 1 - THREE.MathUtils.clamp(Math.abs(sky.progress - .08) / .2, 0, 1);
-    uniforms.uDensity.value = .1 + sky.glow * .22 + sunrise * .28;
+    const afterglow = 1 - THREE.MathUtils.clamp(Math.abs(sky.progress - .79) / .15, 0, 1);
+    uniforms.uDensity.value = .1 + sky.glow * .22 + sunrise * .28 + afterglow * .12;
   };
   const dispose = () => { geometry.dispose(); material.dispose(); };
   update(sample(0));

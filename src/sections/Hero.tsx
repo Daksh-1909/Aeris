@@ -21,8 +21,9 @@ export function Hero({ copyRef }: { copyRef: RefObject<HTMLDivElement | null> })
     {heroImageFailed && <span className="hero__image-fallback" aria-hidden="true">Photograph unavailable</span>}
     <div className="hero__veil" />
     {showAtmosphere && <div className="hero-atmosphere" aria-hidden="true"><Suspense fallback={null}><AtmosphereCanvas /></Suspense></div>}
-    <div className="hero__copy" ref={copyRef}><p className="eyebrow">A sky journal and shooting companion</p><h1>READ<br /><em>THE SKY</em></h1><p className="hero__slogan">Look closer. Learn the light. Go make a photograph.</p><p className="hero__note">Understand the clouds above you<br />and find a reason to step outside.</p><div className="hero__actions"><a className="hero__explore" href="#collection">Explore <ArrowDown size={14} /></a><a className="hero__planner" href="/planner">Plan a shoot <ArrowUpRight size={14} /></a></div></div>
+    <div className="hero__copy" ref={copyRef}><p className="eyebrow">A sky journal and shooting companion</p><h1><span className="hero__line"><span className="hero__line-inner">Read</span></span><span className="hero__line"><span className="hero__line-inner"><em>the sky.</em></span></span></h1><p className="hero__slogan">Look closer. Learn the light. Go make a photograph.</p><p className="hero__note">Understand the clouds above you<br />and find a reason to step outside.</p><div className="hero__actions"><a className="hero__explore" href="#collection">Explore the sky <ArrowDown size={14} /></a><a className="hero__planner" href="/planner">Plan a shoot <ArrowUpRight size={14} /></a></div></div>
     <div className="hero__bottom"><span>Independent photography · Est. 2018</span><span>45° 26′ N &nbsp; 12° 20′ E</span></div>
+    <a className="hero__scroll-cue" href="#what-is-aeris">Scroll to explore <ArrowDown size={13} aria-hidden="true" /></a>
     <span className="hero__index">01 <i /> 06</span>
   </section>;
 }

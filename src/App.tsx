@@ -77,10 +77,11 @@ export default function App() {
     const image = page.querySelector('.hero__image');
     const nav = page.querySelector('.site-header');
     const heading = heroCopyRef.current?.querySelector('h1');
+    const headingLines = heading?.querySelectorAll('.hero__line-inner');
     const slogan = heroCopyRef.current?.querySelector('.hero__slogan');
     const note = heroCopyRef.current?.querySelector('.hero__note');
     const explore = heroCopyRef.current?.querySelector('.hero__actions');
-    if (!image || !nav || !heading || !slogan || !note || !explore) {
+    if (!image || !nav || !heading || !headingLines?.length || !slogan || !note || !explore) {
       setIsLoading(false);
       return;
     }
@@ -89,11 +90,12 @@ export default function App() {
     timeline
       .set(image, { scale: 1.08, transformOrigin: '50% 50%' })
       .set(nav, { autoAlpha: 0, y: -8 })
-      .set([heading, slogan, note, explore], { autoAlpha: 0, y: 22 })
+      .set(headingLines, { autoAlpha: 0, yPercent: 110 })
+      .set([slogan, note, explore], { autoAlpha: 0, y: 22 })
       .to(image, { scale: 1, duration: 0.78, ease: 'power2.out' }, 0)
       .to('.loading-screen', { autoAlpha: 0, yPercent: -5, duration: 0.28, ease: 'power2.inOut' }, 0.34)
       .to(nav, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 0.48)
-      .to(heading, { autoAlpha: 1, y: 0, duration: 0.24, ease: 'power2.out' }, 0.50)
+      .to(headingLines, { autoAlpha: 1, yPercent: 0, duration: 0.68, stagger: 0.16, ease: 'power3.out' }, 0.50)
       .to(slogan, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 0.62)
       .to(note, { autoAlpha: 1, y: 0, duration: 0.15, ease: 'power2.out' }, 0.66)
       .to(explore, { autoAlpha: 1, y: 0, duration: 0.15, ease: 'power2.out' }, 0.69);
@@ -107,7 +109,8 @@ export default function App() {
     const image = root.querySelector<HTMLElement>('.hero__image');
     const copy = heroCopyRef.current;
     const veil = root.querySelector<HTMLElement>('.hero__veil');
-    if (!hero || !image || !copy || !veil || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const scrollCue = root.querySelector<HTMLElement>('.hero__scroll-cue');
+    if (!hero || !image || !copy || !veil || !scrollCue || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const context = gsap.context(() => {
       gsap.timeline({
@@ -115,7 +118,8 @@ export default function App() {
       })
         .to(image, { scale: 0.97, ease: 'none' }, 0)
         .to(copy, { y: -64, autoAlpha: 0.38, ease: 'none' }, 0)
-        .to(veil, { opacity: 0.62, ease: 'none' }, 0);
+        .to(veil, { opacity: 0.62, ease: 'none' }, 0)
+        .to(scrollCue, { autoAlpha: 0, y: -8, ease: 'none' }, 0);
     }, root);
     return () => context.revert();
   }, []);

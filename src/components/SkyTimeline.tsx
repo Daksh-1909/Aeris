@@ -12,6 +12,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 const rgb = (color: readonly number[]) => `rgb(${color.map(Math.round).join(' ')})`;
 const cssTuple = (color: readonly number[]) => color.map(Math.round).join(', ');
+const ease01 = (value: number) => {
+  const t = Math.max(0, Math.min(1, value));
+  return t * t * (3 - 2 * t);
+};
 const progressFromQuery = () => {
   if (!import.meta.env.DEV) return null;
   const params = new URLSearchParams(location.search);
@@ -26,6 +30,9 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
   const sunRef = useRef<HTMLDivElement>(null);
   const moonRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
+  const hudTimeRef = useRef<HTMLTimeElement>(null);
+  const hudElevationRef = useRef<HTMLOutputElement>(null);
+  const hudPhaseRef = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
     const scene = sceneRef.current;
@@ -65,6 +72,8 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
       rootStyle.setProperty('--sky-cloud-opacity', sky.clouds.toFixed(3));
       rootStyle.setProperty('--sky-star-opacity', sky.stars.toFixed(3));
       rootStyle.setProperty('--sky-exposure', sky.exposure.toFixed(3));
+      const goldenWash = ease01((progress - .55) / .16) * (1 - ease01((progress - .78) / .16));
+      rootStyle.setProperty('--sky-photo-wash', (goldenWash * .24).toFixed(3));
       scene.style.setProperty('--sky-poster-top', top);
       scene.style.setProperty('--sky-poster-mid', middle);
       scene.style.setProperty('--sky-poster-horizon', horizon);
@@ -89,6 +98,16 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
       bodyStyle.setProperty('--cursor-b', secondary);
       body.dataset.skyPhase = sky.phase.toLowerCase().replaceAll(' ', '-');
       root.dataset.skyState = sky.chapter;
+      const simulatedMinutes = Math.round(5 * 60 + 48 + sky.progress * (23 * 60 + 40 - (5 * 60 + 48)));
+      const hours = String(Math.floor(simulatedMinutes / 60)).padStart(2, '0');
+      const minutes = String(simulatedMinutes % 60).padStart(2, '0');
+      const currentTime = `${hours}:${minutes}`;
+      if (hudTimeRef.current) {
+        hudTimeRef.current.textContent = currentTime;
+        hudTimeRef.current.dateTime = currentTime;
+      }
+      if (hudElevationRef.current) hudElevationRef.current.value = `${Math.round(Math.asin(sunDirection(sky.progress).y) * 180 / Math.PI)}°`;
+      if (hudPhaseRef.current) hudPhaseRef.current.textContent = sky.phase;
       if (body.dataset.chapter !== sky.chapter) {
         body.dataset.chapter = sky.chapter;
         body.querySelectorAll<HTMLElement>('[data-chapter-link]').forEach((link) => {
@@ -165,7 +184,7 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
       window.cancelAnimationFrame(refreshFrame);
       scrollTrigger?.kill();
       rootStyle.removeProperty('background-image');
-      ['--sky-top', '--sky-middle', '--sky-bottom', '--sky-warmth', '--sky-accent', '--sky-horizon', '--sky-cloud-opacity', '--sky-star-opacity', '--sky-exposure'].forEach((property) => rootStyle.removeProperty(property));
+      ['--sky-top', '--sky-middle', '--sky-bottom', '--sky-warmth', '--sky-accent', '--sky-horizon', '--sky-cloud-opacity', '--sky-star-opacity', '--sky-exposure', '--sky-photo-wash'].forEach((property) => rootStyle.removeProperty(property));
       ['--chapter-glow', '--chapter-accent', '--cursor-a', '--cursor-b'].forEach((property) => bodyStyle.removeProperty(property));
       delete root.dataset.skyState;
       delete body.dataset.chapter;
@@ -174,17 +193,24 @@ export function SkyTimeline({ scrollRootRef }: { scrollRootRef: RefObject<HTMLEl
   }, [scrollRootRef]);
 
   const showDebug = import.meta.env.DEV && (new URLSearchParams(location.search).has('sky') || new URLSearchParams(location.search).has('skyDebug'));
-  return <div ref={sceneRef} className="sky-timeline" aria-hidden="true">
-    <div className="sky-timeline__poster-scene">
-      <div className="sky-timeline__poster" />
-      <div className="sky-timeline__cloud sky-timeline__cloud--far" />
-      <div className="sky-timeline__cloud sky-timeline__cloud--near" />
-      <div className="sky-timeline__horizon" />
-      <div ref={sunRef} className="sky-timeline__sun" />
-      <div className="sky-timeline__stars" />
-      <div ref={moonRef} className="sky-timeline__moon" />
+  return <>
+    <div ref={sceneRef} className="sky-timeline" aria-hidden="true">
+      <div className="sky-timeline__poster-scene">
+        <div className="sky-timeline__poster" />
+        <div className="sky-timeline__cloud sky-timeline__cloud--far" />
+        <div className="sky-timeline__cloud sky-timeline__cloud--near" />
+        <div className="sky-timeline__horizon" />
+        <div ref={sunRef} className="sky-timeline__sun" />
+        <div className="sky-timeline__stars" />
+        <div ref={moonRef} className="sky-timeline__moon" />
+      </div>
+      <SkyCanvas />
+      {showDebug && <span ref={progressRef} className="sky-timeline__debug" />}
     </div>
-    <SkyCanvas />
-    {showDebug && <span ref={progressRef} className="sky-timeline__debug" />}
-  </div>;
+    <aside className="sky-hud" aria-label="Current simulated sky conditions">
+      <span><small>Local light</small><time ref={hudTimeRef} dateTime="05:48">05:48</time></span>
+      <span><small>Sun elevation</small><output ref={hudElevationRef}>−7°</output></span>
+      <span><small>Sky phase</small><strong ref={hudPhaseRef}>Pre-dawn</strong></span>
+    </aside>
+  </>;
 }
