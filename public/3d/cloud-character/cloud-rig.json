@@ -1,0 +1,427 @@
+{
+ "version": 1,
+ "viewBox": [
+  400,
+  260
+ ],
+ "note": "Every shape has 7 circles [cx,cy,r] in the SAME ORDER plus a base rounded-rect [x,y,w,h,rx]. Morph = linear interpolation of the numbers between two shapes.",
+ "shapes": {
+  "cumulus": {
+   "label": "Cumulus (puffy)",
+   "checkpoint": 1,
+   "circles": [
+    [
+     95,
+     160,
+     48
+    ],
+    [
+     150,
+     115,
+     58
+    ],
+    [
+     215,
+     90,
+     68
+    ],
+    [
+     275,
+     125,
+     55
+    ],
+    [
+     310,
+     165,
+     46
+    ],
+    [
+     170,
+     175,
+     45
+    ],
+    [
+     250,
+     178,
+     45
+    ]
+   ],
+   "base": [
+    70,
+    150,
+    260,
+    64,
+    32
+   ],
+   "face": {
+    "cx": 205,
+    "cy": 155,
+    "eyeDx": 36,
+    "eyeY": -6,
+    "mouthY": 24,
+    "mouthW": 28,
+    "eyeR": 9
+   }
+  },
+  "stratus": {
+   "label": "Stratus (wide, flat)",
+   "checkpoint": 2,
+   "circles": [
+    [
+     60,
+     175,
+     32
+    ],
+    [
+     120,
+     145,
+     38
+    ],
+    [
+     200,
+     130,
+     44
+    ],
+    [
+     280,
+     145,
+     38
+    ],
+    [
+     345,
+     172,
+     32
+    ],
+    [
+     160,
+     175,
+     34
+    ],
+    [
+     240,
+     176,
+     34
+    ]
+   ],
+   "base": [
+    30,
+    150,
+    340,
+    56,
+    28
+   ],
+   "face": {
+    "cx": 200,
+    "cy": 165,
+    "eyeDx": 40,
+    "eyeY": -5,
+    "mouthY": 22,
+    "mouthW": 28,
+    "eyeR": 8.5
+   }
+  },
+  "tower": {
+   "label": "Cumulonimbus tower (tall)",
+   "checkpoint": 3,
+   "circles": [
+    [
+     130,
+     185,
+     30
+    ],
+    [
+     150,
+     130,
+     46
+    ],
+    [
+     205,
+     75,
+     62
+    ],
+    [
+     255,
+     135,
+     46
+    ],
+    [
+     275,
+     185,
+     30
+    ],
+    [
+     205,
+     150,
+     52
+    ],
+    [
+     205,
+     105,
+     52
+    ]
+   ],
+   "base": [
+    110,
+    170,
+    180,
+    48,
+    24
+   ],
+   "face": {
+    "cx": 205,
+    "cy": 140,
+    "eyeDx": 30,
+    "eyeY": -6,
+    "mouthY": 24,
+    "mouthW": 24,
+    "eyeR": 8.5
+   }
+  },
+  "comet": {
+   "label": "Comet cloud (tail to the left)",
+   "checkpoint": 4,
+   "circles": [
+    [
+     70,
+     192,
+     18
+    ],
+    [
+     110,
+     180,
+     26
+    ],
+    [
+     165,
+     160,
+     36
+    ],
+    [
+     290,
+     130,
+     48
+    ],
+    [
+     335,
+     170,
+     34
+    ],
+    [
+     230,
+     160,
+     34
+    ],
+    [
+     265,
+     185,
+     32
+    ]
+   ],
+   "base": [
+    130,
+    165,
+    200,
+    44,
+    22
+   ],
+   "face": {
+    "cx": 285,
+    "cy": 155,
+    "eyeDx": 30,
+    "eyeY": -7,
+    "mouthY": 21,
+    "mouthW": 22,
+    "eyeR": 8
+   }
+  }
+ },
+ "expressions": {
+  "calm": {
+   "eyeScaleY": 1.0,
+   "mouthCurve": 14,
+   "mouthWidthK": 1.0,
+   "stroke": 4.5,
+   "tears": 0
+  },
+  "wide": {
+   "eyeScaleY": 1.0,
+   "eyeRK": 1.2,
+   "mouthCurve": 8,
+   "mouthWidthK": 0.8,
+   "stroke": 4.5,
+   "tears": 0
+  },
+  "proud": {
+   "eyeScaleY": 0.55,
+   "mouthCurve": 22,
+   "mouthWidthK": 1.15,
+   "stroke": 5,
+   "tears": 0
+  },
+  "awake": {
+   "eyeScaleY": 1.0,
+   "mouthCurve": 12,
+   "mouthWidthK": 0.9,
+   "stroke": 4.5,
+   "tears": 0
+  },
+  "happy": {
+   "eyeScaleY": 0.45,
+   "mouthCurve": 24,
+   "mouthWidthK": 1.2,
+   "stroke": 5,
+   "tears": 0
+  },
+  "laugh": {
+   "eyeScaleY": 0.3,
+   "mouthCurve": 30,
+   "mouthWidthK": 1.3,
+   "stroke": 5.5,
+   "tears": 2
+  },
+  "sleep": {
+   "eyeScaleY": 0.08,
+   "mouthCurve": 3,
+   "mouthWidthK": 0.45,
+   "stroke": 4,
+   "tears": 0
+  },
+  "blink": {
+   "eyeScaleY": 0.08,
+   "keepMouth": true
+  }
+ },
+ "checkpoints": [
+  {
+   "id": 1,
+   "shape": "cumulus",
+   "expression": "calm",
+   "content": "sky"
+  },
+  {
+   "id": 2,
+   "shape": "stratus",
+   "expression": "wide",
+   "content": "nature"
+  },
+  {
+   "id": 3,
+   "shape": "tower",
+   "expression": "proud",
+   "content": "numbers"
+  },
+  {
+   "id": 4,
+   "shape": "comet",
+   "expression": "awake",
+   "content": "contact"
+  }
+ ],
+ "activities": [
+  {
+   "from": "start",
+   "to": 1,
+   "name": "blink",
+   "loops": 2
+  },
+  {
+   "from": 1,
+   "to": 2,
+   "name": "happy"
+  },
+  {
+   "from": 2,
+   "to": 3,
+   "name": "laugh",
+   "tears": 2
+  },
+  {
+   "from": 3,
+   "to": 4,
+   "name": "sleep",
+   "zzz": 3
+  }
+ ],
+ "paths": {
+  "desktop": {
+   "viewBox": [
+    1440,
+    900
+   ],
+   "points": [
+    [
+     -260,
+     640
+    ],
+    [
+     380,
+     330
+    ],
+    [
+     1060,
+     560
+    ],
+    [
+     400,
+     650
+    ],
+    [
+     1040,
+     320
+    ],
+    [
+     1700,
+     200
+    ]
+   ],
+   "d": "M -260 640 C -153 588 160 343 380 330 C 600 317 1057 507 1060 560 C 1063 613 403 690 400 650 C 397 610 823 395 1040 320 C 1257 245 1590 220 1700 200",
+   "checkpointFractions": [
+    0.203,
+    0.411,
+    0.604,
+    0.809
+   ],
+   "approxLength": 3525
+  },
+  "mobile": {
+   "viewBox": [
+    390,
+    900
+   ],
+   "points": [
+    [
+     195,
+     -120
+    ],
+    [
+     120,
+     250
+    ],
+    [
+     270,
+     430
+    ],
+    [
+     120,
+     610
+    ],
+    [
+     260,
+     760
+    ],
+    [
+     195,
+     1000
+    ]
+   ],
+   "d": "M 195 -120 C 182 -58 108 158 120 250 C 132 342 270 370 270 430 C 270 490 122 555 120 610 C 118 665 248 695 260 760 C 272 825 206 960 195 1000",
+   "checkpointFractions": [
+    0.286,
+    0.469,
+    0.651,
+    0.811
+   ],
+   "approxLength": 1324
+  }
+ }
+}

@@ -1,5 +1,12 @@
 /* Phase 0 shell behavior: keep the global header at the top edge. */
 .site-header { top: 0; }
+@media (min-width: 761px) {
+  header.site-header {
+    background: linear-gradient(180deg, rgb(4 10 21 / .84), rgb(4 10 21 / .62)) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
 .site-header .desktop-nav a,
 .site-header .brand,
 .site-header .brand small,
