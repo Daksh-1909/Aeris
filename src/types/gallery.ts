@@ -1,5 +1,5 @@
 export type GalleryCategory = 'All' | 'Sky' | 'Cloud' | 'Nature' | 'Featured';
-export type CloudType = 'cumulus' | 'stratus' | 'cirrus' | 'cumulonimbus' | 'altocumulus' | 'stratocumulus' | 'nimbostratus' | 'lenticular' | 'mammatus' | 'clear';
+export type CloudType = 'cumulus' | 'stratus' | 'cirrus' | 'cumulonimbus' | 'altocumulus' | 'stratocumulus' | 'nimbostratus' | 'altostratus' | 'cirrocumulus' | 'cirrostratus' | 'lenticular' | 'mammatus' | 'clear';
 
 export interface Photograph {
   id: string;

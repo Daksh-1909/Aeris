@@ -17,12 +17,16 @@
 .planner-message{color:var(--gold-300);font-size:13px}
 .planner-current{margin-top:40px;padding:25px;background:var(--sky-900);border:1px solid var(--sky-600)}
 .planner-current>.eyebrow{color:var(--mist-400);font-size: 12px;letter-spacing:.12em}
-.day-timeline{position:relative;height:25px;overflow:hidden;background:#222723;margin:28px 0;border-radius:3px}
-.day-timeline__zone{position:absolute;top:0;bottom:0}
-.day-timeline__zone--night{background:#22283c}
-.day-timeline__zone--blue{background:#677b91}
-.day-timeline__zone--golden{background:#d49b57}
-.day-timeline__zone--day{background:#d9c98e}
+.planner-date{display:grid;gap:8px;max-width:260px;color:#dedbd3;font-size:12px;letter-spacing:.07em}
+.planner-date input{min-height:44px}
+.day-timeline{position:relative;height:180px;overflow:hidden;background:#17202a;margin:28px 0 38px;border-radius:5px}
+.day-timeline__bands{position:absolute;inset:0;pointer-events:none}
+.day-timeline__band{position:absolute;top:0;bottom:0;opacity:.45}
+.day-timeline__band--blue{background:#667d9d}
+.day-timeline__band--golden{background:#c08f51}
+.day-timeline svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.day-timeline svg path{fill:none;stroke:#f0d4a0;stroke-width:4;vector-effect:non-scaling-stroke}
+.day-timeline__labels{position:absolute;right:0;bottom:7px;left:0;display:flex;justify-content:space-between;padding:0 10px;color:#c7d0df;font:11px Inter,Arial,sans-serif}
 .planner-events{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 25px}
 .planner-event{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid #414641}
 .planner-event span{font-size: 12px;color:var(--mist-400);letter-spacing:.08em;text-transform:uppercase}

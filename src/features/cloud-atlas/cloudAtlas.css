@@ -1,6 +1,7 @@
 .cloud-atlas{width:min(1180px,90vw);min-height:calc(100vh - 76px);margin:auto;padding:76px 0 100px;color:var(--cloud-50)}
 .cloud-atlas>h1{font:300 clamp(58px,10vw,112px)/.9 'Cormorant Garamond',serif;letter-spacing:-.045em;margin:18px 0 24px}
 .cloud-atlas__lede{max-width:670px;color:var(--mist-400);font:17px/1.7 Inter,Arial,sans-serif}
+.cloud-atlas__common{margin:0;color:var(--gold-300);font:italic 18px 'Cormorant Garamond',Georgia,serif}
 .cloud-atlas__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:54px 0 90px}
 .cloud-atlas__type{display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:25px;border:1px solid var(--sky-600);border-radius:14px;background:var(--surface-2,var(--sky-900));box-shadow:0 22px 50px -34px var(--photo-tone,#91a9c4);transition:background .2s,border-color .2s;overflow:hidden}
 .cloud-atlas__type img{width:calc(100% + 50px);max-width:none;height:190px;margin:-25px -25px 20px;object-fit:cover}

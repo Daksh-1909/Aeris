@@ -1,6 +1,7 @@
-﻿import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, FormEvent, ReactNode } from 'react';
-import { ArrowLeft, Bell, Heart, LogOut, Plus, Search, Trash2, UserRound } from 'lucide-react';
+import * as SunCalc from 'suncalc';
+import { ArrowLeft, Heart, LogOut, Plus, Search, Trash2, UserRound } from 'lucide-react';
 import { photographs, imageUrl } from '../data/gallery';
 import { handleSkyImageFallback } from './imageFallback';
 import { EditorialReveal } from './EditorialReveal';
@@ -9,6 +10,7 @@ import { addCollection, addNotice, currentProfile, deleteCollection, findLocalPr
 import { cachedSupabaseProfile, loadSupabaseMemberData, loadSupabaseProfile, requestSupabasePasswordReset, signInWithSupabase, signOutSupabase, signUpWithSupabase, updateSupabasePassword } from '../services/supabaseMemberService';
 import { isSupabaseConfigured, supabase } from '../services/supabaseClient';
 import type { Photograph } from '../types/gallery';
+import { loadShootSpots, type ShootSpot } from '../services/shootSpotService';
 import { ContactForm } from './ContactForm';
 import './member.css';
 
@@ -95,6 +97,39 @@ function SearchFilters({ cloud, setCloud, time, setTime, season, setSeason, mood
   return <><div className="member-search-filters"><label>Cloud type<select value={cloud} onChange={(event)=>setCloud(event.target.value)}><option value="all">All clouds</option>{cloudTypes.map((value)=><option key={value} value={value}>{value}</option>)}</select></label><label>Time of day<select value={time} onChange={(event)=>setTime(event.target.value)}><option value="all">Any light</option>{['dawn','morning','day','golden-hour','dusk'].map((value)=><option key={value} value={value}>{value.replace('-', ' ')}</option>)}</select></label><label>Season<select value={season} onChange={(event)=>setSeason(event.target.value)}><option value="all">All seasons</option>{['spring','summer','autumn','winter'].map((value)=><option key={value} value={value}>{value}</option>)}</select></label><label>Mood / color<select value={mood} onChange={(event)=>setMood(event.target.value)}><option value="all">Any mood</option>{['soft','cool','warm','dramatic','green','open'].map((value)=><option key={value} value={value}>{value}</option>)}</select></label><label>Location<select value={place} onChange={(event)=>setPlace(event.target.value)}><option value="all">All locations</option>{locations.map((value)=><option key={value} value={value}>{value}</option>)}</select></label></div>{active.some(([,value])=>value!=='all')&&<div className="member-filter-chips" aria-label="Active filters">{active.filter(([,value])=>value!=='all').map(([label,value,setter])=><button type="button" key={label} onClick={()=>setter('all')}>{label}: {value} ×</button>)}<button type="button" onClick={clearAll}>Clear filters</button></div>}</>;
 }
 
+function dashboardOffset(timezone: string, date: Date) {
+  const label = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'longOffset' }).formatToParts(date).find((part) => part.type === 'timeZoneName')?.value ?? 'GMT+00:00';
+  const match = label.match(/GMT([+-])(\d{2}):(\d{2})/);
+  return match ? (match[1] === '-' ? -1 : 1) * (Number(match[2]) * 60 + Number(match[3])) : 0;
+}
+
+function MemberDashboard({ profile, data, toggle }: { profile: MemberProfile; data: ReturnType<typeof memberData>; toggle: (photo: Photograph) => void; }) {
+  const [spots, setSpots] = useState<ShootSpot[]>([]);
+  const [spotError, setSpotError] = useState(false);
+  useEffect(() => {
+    let current = true;
+    void loadShootSpots(profile.email).then((value) => { if (current) setSpots(value); }).catch(() => { if (current) setSpotError(true); });
+    return () => { current = false; };
+  }, [profile.email]);
+  const spot = spots[0];
+  const now = new Date();
+  const times = spot ? SunCalc.getTimes(now, spot.lat, spot.lng, 0, dashboardOffset(spot.timezone, now)) : null;
+  const clock = (value: Date | null | undefined) => value && Number.isFinite(value.getTime()) ? new Intl.DateTimeFormat(undefined, { timeZone: spot?.timezone ?? 'UTC', hour: 'numeric', minute: '2-digit' }).format(value) : 'No event today';
+  const daylight = times?.sunrise && times.sunset ? `${Math.floor((times.sunset.getTime() - times.sunrise.getTime()) / 3600000)} h ${String(Math.round(((times.sunset.getTime() - times.sunrise.getTime()) % 3600000) / 60000)).padStart(2, '0')} min` : times?.alwaysUp ? 'Sun above the horizon all day' : times?.alwaysDown ? 'Sun below the horizon all day' : 'No daylight interval';
+  return <div className="member-dashboard">
+    <aside className="member-dashboard__rail"><span className="eyebrow">YOUR JOURNAL</span><nav aria-label="Journal sections"><Link to="/dashboard" aria-current="page">Overview</Link><Link to="/planner">Light planner</Link><Link to="/atlas">Cloud atlas</Link><Link to="/favorites">Favorites</Link><Link to="/collections">Collections</Link></nav></aside>
+    <div className="member-dashboard__workspace"><header className="member-dashboard__topbar"><span>Good day, {profile.name.split(' ')[0]}.</span><Link to="/profile/me">Your profile</Link></header>
+      <div className="member-dashboard__grid">
+        <section className="member-panel member-dashboard__light"><p className="eyebrow">TODAY’S LIGHT</p><h2>{spot ? spot.name : 'Choose a place to begin'}</h2>{spot ? <><p>{new Intl.DateTimeFormat(undefined, { timeZone: spot.timezone, dateStyle: 'full' }).format(now)} · {spot.timezone}</p><dl><div><dt>Sunrise</dt><dd>{clock(times?.sunrise)}</dd></div><div><dt>Golden hour</dt><dd>{clock(times?.goldenHour)}</dd></div><div><dt>Sunset</dt><dd>{clock(times?.sunset)}</dd></div><div><dt>Daylight</dt><dd>{daylight}</dd></div></dl><Link to="/planner">Open your light planner →</Link></> : <><p>{spotError ? 'Saved places could not be loaded.' : 'Save a shoot spot to see its calculated sun times here.'}</p><Link to="/planner">Set a place in the planner →</Link></>}</section>
+        <section className="member-panel"><h2>Your collections</h2><p>{data.collections.length} saved collections</p>{data.collections.length ? data.collections.slice(0, 3).map((collection) => <p key={collection.id}>{collection.name} · {collection.photoIds.length} photographs</p>) : <p>No saved collections yet.</p>}<Link to="/collections">Open collections →</Link></section>
+        <section className="member-panel"><h2>Saved photographs</h2><p>{data.favorites.length} favorites · {data.viewed.length} recently viewed</p><Link to="/favorites">Visit favorites →</Link></section>
+        <section className="member-panel"><h2>Your profile</h2><p>{profile.name}</p><p>{profile.email}</p><Link to="/profile/me">View your profile →</Link></section>
+      </div>
+      <div className="member-toolbar"><h2>Recently viewed</h2><Link to="/search">Discover more →</Link></div><div className="member-gallery">{data.viewed.map((id) => { const photo = photographs.find((item) => item.id === id); return photo ? <PhotoTile key={id} photo={photo} /> : null; })}</div>
+      <div className="member-toolbar"><h2>From the collection</h2><Link to="/search">Explore the journal →</Link></div><div className="member-gallery">{photographs.filter((photo) => !data.favorites.includes(photo.id)).slice(0, 3).map((photo) => <PhotoTile key={photo.id} photo={photo} action={<button onClick={() => toggle(photo)}><Heart size={15} /> Save</button>} />)}</div>
+    </div>
+  </div>;
+}
 function MemberPage({ route, profile, data, refresh }: { route: string; profile: MemberProfile; data: ReturnType<typeof memberData>; refresh: () => void; }) {
   const [query, setQuery]=useState(() => new URLSearchParams(location.search).get('q') ?? ''); const [debouncedQuery, setDebouncedQuery]=useState(query);
   const [cloudFilter, setCloudFilter]=useState(() => new URLSearchParams(location.search).get('cloud') ?? 'all');
@@ -123,7 +158,7 @@ function MemberPage({ route, profile, data, refresh }: { route: string; profile:
   const profileLabel=viewedProfile?.name??(section.startsWith('/profile/')? `@${decodeURIComponent(section.slice('/profile/'.length))}`:profile.name);
   const title=section==='/welcome'? 'Welcome to AERIS':section.startsWith('/atlas')? 'Cloud Atlas':section.startsWith('/photo/')? 'Photograph details':section==='/admin/inquiries'? 'Inquiry inbox':section==='/planner'? 'Shoot Planner':section==='/favorites'? 'Saved photographs':section==='/collections'? 'Your collections':section==='/search'? 'Find a moment':section==='/contact'? 'Start a conversation':section==='/notifications'? 'Notifications':section.startsWith('/profile/')? profileLabel:'Your journal';
   return <main id="main-content" className="member-content"><p className="eyebrow">AERIS / MEMBER JOURNAL</p><h1>{title}</h1>
-    {section==='/dashboard'&&<><div className="member-grid"><section className="member-panel"><div className="member-avatar" aria-label={`${profile.name} profile image`}>{profile.name.slice(0, 1).toUpperCase()}</div><h2>{profile.name}</h2><p>{profile.email}</p><small>Member since {new Date(profile.joinedAt).toLocaleDateString()}</small><Link to="/profile/me">View profile</Link></section><section className="member-panel"><Heart /><h2>Your activity</h2><p>{data.viewed.length} photos viewed · {data.collections.length} collections · {data.favorites.length} favorites</p><Link to="/favorites">Explore your saved photographs →</Link></section><section className="member-panel"><Bell /><h2>Notifications</h2><Link to="/notifications">View notification center →</Link><label className="member-check"><input type="checkbox" checked={profile.notifications} onChange={(e) => { updateProfile({ notifications: e.target.checked }); refresh(); }} /> Receive journal updates</label>{data.notices.slice(0, 2).map((item) => <p key={item}>{item}</p>)}</section><section className="member-panel"><h2>Preferences</h2><label>Theme <select value={profile.theme} onChange={(e) => { updateProfile({ theme: e.target.value as 'dark'|'light' }); refresh(); }}><option value="dark">Dark</option><option value="light">Light</option></select></label><label>Profile visibility <select value={profile.privacy} onChange={(e) => { updateProfile({ privacy: e.target.value as 'private'|'public' }); refresh(); }}><option value="private">Private</option><option value="public">Public</option></select></label></section></div><div className="member-toolbar"><h2>Recently viewed</h2><Link to="/search">Discover more →</Link></div><div className="member-gallery">{data.viewed.map((id) => { const photo=photographs.find((p) => p.id===id); return photo? <PhotoTile key={id} photo={photo} />:null; })}</div><div className="member-toolbar"><h2>Recommended for you</h2><Link to="/favorites">Based on your saved moments →</Link></div><div className="member-gallery">{photographs.filter((photo) => !data.favorites.includes(photo.id)&&(!data.favorites.length||photographs.find((item) => item.id===data.favorites[0])?.category===photo.category)).slice(0, 3).map((photo) => <PhotoTile key={photo.id} photo={photo} action={<button onClick={() => toggle(photo)}><Heart size={15} /> Save</button>} />)}</div></>}
+    {section==='/dashboard'&&<MemberDashboard profile={profile} data={data} toggle={toggle} />}
     {section.startsWith('/atlas')&&<Suspense fallback={<p role="status">Opening the Cloud Atlas…</p>}><CloudAtlasPage pathname={section} /></Suspense>}
     {section==='/planner'&&<Suspense fallback={<p role="status">Calculating today’s light…</p>}><PlannerPage profile={profile.email ? profile : null} /></Suspense>}
     {section.startsWith('/photo/')&&<Suspense fallback={<p role="status">Opening photograph…</p>}><PhotoDetailPage photo={photographs.find((photo) => photo.id===decodeURIComponent(section.slice('/photo/'.length)))??null} /></Suspense>}

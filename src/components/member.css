@@ -101,6 +101,22 @@
   margin: 42px 0;
 }
 
+.member-dashboard{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:720px;border:1px solid #ffffff12;background:var(--sky-950)}
+.member-dashboard__rail{padding:28px 18px;border-right:1px solid #ffffff14;background:var(--surface-2,#101a20)}
+.member-dashboard__rail>.eyebrow{padding:0 12px;color:var(--mist-400);font-size:11px;letter-spacing:.15em}
+.member-dashboard__rail nav{display:grid;gap:6px;margin-top:26px}
+.member-dashboard__rail nav a{min-height:44px;display:flex;align-items:center;padding:0 12px;border-left:1px solid transparent;color:var(--mist-400);font-size:13px;text-decoration:none}
+.member-dashboard__rail nav a[aria-current=page]{border-left-color:var(--gold-300);color:var(--cloud-50);background:#ffffff08}
+.member-dashboard__workspace{min-width:0;max-width:1280px;width:100%;margin-inline:auto;padding:0 28px 36px}
+.member-dashboard__topbar{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff14;font-size:13px}
+.member-dashboard__grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;margin-top:24px}
+.member-dashboard__grid>.member-panel{grid-column:span 6;margin:0;border-radius:14px;background:var(--surface-2,#101a20)}
+.member-dashboard__grid>.member-dashboard__light{grid-column:span 12}
+.member-dashboard__light dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
+.member-dashboard__light dl div{padding:14px;border-top:1px solid #ffffff1a}
+.member-dashboard__light dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mist-400)}
+.member-dashboard__light dd{margin:8px 0 0;font:400 23px 'Cormorant Garamond',Georgia,serif}
+
 .member-panel {
   padding: 28px;
   background: rgba(255,255,255,.045);
@@ -409,6 +425,12 @@
 }
 
 @media (max-width:760px) {
+  .member-dashboard{grid-template-columns:1fr;min-height:0}
+  .member-dashboard__rail{padding:14px;border-right:0;border-bottom:1px solid #ffffff14}
+  .member-dashboard__rail nav{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}
+  .member-dashboard__workspace{padding:0 14px 24px}
+  .member-dashboard__grid>.member-panel,.member-dashboard__grid>.member-dashboard__light{grid-column:1/-1}
+  .member-dashboard__light dl{grid-template-columns:repeat(2,minmax(0,1fr))}
   .member-top {
     padding: 14px 5vw;
     min-height: 68px;
