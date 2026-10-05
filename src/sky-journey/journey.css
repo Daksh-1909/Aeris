@@ -78,11 +78,21 @@
   will-change: transform;
 }
 
+.journey__cloud::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--cloud-tint);
+  opacity: var(--cloud-tint-opacity, 0);
+  -webkit-mask: var(--cloud-mask) center / 100% 100% no-repeat;
+  mask: var(--cloud-mask) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
 .journey__cloud img {
   display: block;
   width: 100%;
   height: auto;
-  filter: sepia(var(--cloud-sepia, 0)) saturate(var(--cloud-saturation, 1)) hue-rotate(var(--cloud-hue, 0deg)) brightness(var(--cloud-brightness, 1));
   animation: cloud-drift 32s ease-in-out infinite alternate;
   user-select: none;
 }

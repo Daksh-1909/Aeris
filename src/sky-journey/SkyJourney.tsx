@@ -131,10 +131,7 @@ export function SkyJourney() {
       const sunset = smoothstep(clamp01((frame.progress - .48) / .20)) * (1 - smoothstep(clamp01((frame.progress - .73) / .12)));
       const nightFade = 1 - smoothstep(clamp01((frame.progress - .78) / .17));
       stage.style.setProperty('--cloud-opacity', (nightFade * (.38 + .62 * frame.cloudBrightness)).toFixed(3));
-      stage.style.setProperty('--cloud-sepia', (.38 * sunrise + .42 * sunset).toFixed(3));
-      stage.style.setProperty('--cloud-hue', `${(330 * sunrise + 16 * sunset).toFixed(1)}deg`);
-      stage.style.setProperty('--cloud-saturation', (1 + .35 * (sunrise + sunset)).toFixed(3));
-      stage.style.setProperty('--cloud-brightness', (1 + .10 * frame.cloudBrightness).toFixed(3));
+      stage.style.setProperty('--cloud-tint-opacity', (.24 * sunrise + .3 * sunset).toFixed(3));
       stage.style.setProperty('--orb-y', `${orbYForViewport(frame.progress).toFixed(2)}%`);
       stage.style.setProperty('--beat-scrim', (.38 - .26 * smoothstep(clamp01((frame.progress - .70) / .20))).toFixed(3));
       stage.dataset.moment = frame.moment;
@@ -193,7 +190,12 @@ export function SkyJourney() {
           opacity: cloud.opacity,
           transform: `translate3d(${(progress - .5) * cloud.parallaxX}vw, ${(progress - .5) * cloud.parallaxY}vh, 0)`,
         }}>
-          <img src={cloud.src} alt="" draggable={false} style={{
+          <img src={cloud.src} alt="" draggable={false} loading="lazy" decoding="async"
+            width={cloud.src.includes('far_1') ? 432 : cloud.src.includes('far_2') ? 615 : 640}
+            height={cloud.src.includes('far_1') ? 423 : cloud.src.includes('far_2') ? 476 : cloud.src.includes('mid_1') ? 462 : cloud.src.includes('mid_2') ? 516 : cloud.src.includes('near_1') ? 457 : 563}
+            style={{
+            '--cloud-mask': `url("${cloud.src}")`,
+            '--cloud-tint': cloud.depth === 'far' ? '#d7e4ef' : cloud.depth === 'mid' ? '#f0c7a6' : '#f2ad82',
             animationDuration: `${cloud.duration}s`,
             animationDelay: `-${cloud.phase}s`,
             '--cloud-drift-from': `${cloud.driftPx * -.5}px`,
@@ -279,6 +281,7 @@ function LayerDebug({ stageRef, progress, setProgress }: { stageRef: RefObject<H
     stage?.style.setProperty('--sky-horizon', rgb(frame.horizon));
     stage?.style.setProperty('--journey-text', rgb(frame.text));
     stage?.style.setProperty('--cloud-opacity', (smoothstep(clamp01((.78 - next) / .17)) * (.38 + .62 * frame.cloudBrightness)).toFixed(3));
+    stage?.style.setProperty('--cloud-tint-opacity', (.24 * (1 - smoothstep(clamp01(next / .30))) + .3 * smoothstep(clamp01((next - .48) / .20)) * (1 - smoothstep(clamp01((next - .73) / .12)))).toFixed(3));
     stage?.style.setProperty('--orb-y', `${orbYForViewport(next).toFixed(2)}%`);
     stage?.style.setProperty('--beat-scrim', (.38 - .26 * smoothstep(clamp01((next - .70) / .20))).toFixed(3));
   };
