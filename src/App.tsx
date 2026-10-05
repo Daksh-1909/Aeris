@@ -1,32 +1,10 @@
-import { useEffect } from 'react';
-import { Header } from './components/Header';
-import { CustomCursor } from './components/CustomCursor';
-import { SkyJourney } from './sky-journey/SkyJourney';
-import { CloudJourney } from './sky-journey/cloud/CloudJourney';
-import { CloudAssetDebugPage } from './sky-journey/cloud/CloudAssetDebugPage';
-import { Footer } from './sections/Footer';
-import { startScrollExperience } from './animations/scroll';
-
 export default function App() {
-  const cloudDebugMode = import.meta.env.DEV && new URLSearchParams(window.location.search).has('cloud-debug');
-
-  useEffect(() => {
-    if (cloudDebugMode) return;
-    return startScrollExperience();
-  }, [cloudDebugMode]);
-
-  if (cloudDebugMode) return <CloudAssetDebugPage />;
-
   return (
-    <div className="page--ready">
-      <a className="skip-link" href="#main-content">Skip to main content</a>
-      <CustomCursor />
-      <Header />
-      <main id="main-content" tabIndex={-1}>
-        <SkyJourney />
-        <CloudJourney />
-      </main>
-      <Footer />
-    </div>
+    <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#0f172a', color: '#e2e8f0', fontFamily: 'Arial, sans-serif' }}>
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ margin: 0, fontSize: 'clamp(2rem, 4vw, 3rem)' }}>Frontend removed</h1>
+        <p style={{ margin: '0.75rem 0 0', opacity: 0.8 }}>Build your own frontend from scratch.</p>
+      </div>
+    </main>
   );
 }
