@@ -10,7 +10,7 @@ import { GroundScene } from './GroundScene';
 import { NightSky } from './NightSky';
 import './journey.css';
 
-const layerDebug = import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === 'layers';
+const layerDebug = new URLSearchParams(window.location.search).get('debug') === 'layers';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -375,36 +375,47 @@ const debugLayers = [
 ] as const;
 
 function LayerDebug({ stageRef, progress, setProgress }: { stageRef: RefObject<HTMLDivElement | null>; progress: number; setProgress: (value: number) => void }) {
-  const [, refresh] = useState(0);
-  useEffect(() => { refresh((value) => value + 1); }, []);
-  const stage = stageRef.current;
-  const bounds = stage?.getBoundingClientRect();
-  const items = stage && bounds ? debugLayers.flatMap(([name, selector]) => [...document.querySelectorAll<HTMLElement>(selector)]
-    .filter((element) => element.getClientRects().length && Number(getComputedStyle(element).opacity) > 0.01)
-    .map((element) => {
-      const rect = element.getBoundingClientRect();
-      const plane = element.dataset.layer ? element : element.closest<HTMLElement>('[data-layer]') ?? element;
-      const z = getComputedStyle(plane).zIndex;
-      const contexts: string[] = [];
-      let node: HTMLElement | null = element;
-      while (node && node !== stage.parentElement) {
-        const s = getComputedStyle(node);
-        const reasons = [s.transform !== 'none' && 'transform', s.filter !== 'none' && 'filter', Number(s.opacity) < 1 && 'opacity', s.isolation === 'isolate' && 'isolation', s.willChange !== 'auto' && `will-change:${s.willChange}`, s.mixBlendMode !== 'normal' && 'mix-blend-mode', (s.position !== 'static' && s.zIndex !== 'auto') && `z-index:${s.zIndex}`].filter(Boolean);
-        if (reasons.length) contexts.push(`${node.className || node.tagName}: ${reasons.join(', ')}`);
-        node = node.parentElement;
-      }
-      return { name, rect, z, contexts, layer: plane.dataset.layer };
-    })) : [];
+  const [snapshot, setSnapshot] = useState<{ items: { name: string; left: number; top: number; width: number; height: number; z: string; contexts: string[]; layer?: string }[]; horizon: string }>({ items: [], horizon: '' });
+  useEffect(() => {
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const stage = stageRef.current;
+        const bounds = stage?.getBoundingClientRect();
+        if (!stage || !bounds) return;
+        const items = debugLayers.flatMap(([name, selector]) => [...document.querySelectorAll<HTMLElement>(selector)]
+          .filter((element) => element.getClientRects().length && Number(getComputedStyle(element).opacity) > 0.01)
+          .map((element) => {
+            const rect = element.getBoundingClientRect();
+            const plane = element.dataset.layer ? element : element.closest<HTMLElement>('[data-layer]') ?? element;
+            const contexts: string[] = [];
+            let node: HTMLElement | null = element;
+            while (node && node !== stage.parentElement) {
+              const style = getComputedStyle(node);
+              const reasons = [style.transform !== 'none' && 'transform', style.filter !== 'none' && 'filter', Number(style.opacity) < 1 && 'opacity', style.isolation === 'isolate' && 'isolation', style.willChange !== 'auto' && `will-change:${style.willChange}`, style.mixBlendMode !== 'normal' && 'mix-blend-mode', (style.position !== 'static' && style.zIndex !== 'auto') && `z-index:${style.zIndex}`].filter(Boolean);
+              if (reasons.length) contexts.push(`${node.className || node.tagName}: ${reasons.join(', ')}`);
+              node = node.parentElement;
+            }
+            return { name, left: rect.left - bounds.left, top: rect.top - bounds.top, width: rect.width, height: rect.height, z: getComputedStyle(plane).zIndex, contexts, layer: plane.dataset.layer };
+          }));
+        setSnapshot({ items, horizon: getComputedStyle(stage).getPropertyValue('--horizon-y').trim() });
+      });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', measure); };
+  }, [stageRef, progress]);
   const setDebugProgress = (value: number) => {
     const next = clamp01(value);
     setProgress(next);
-    stage?.dispatchEvent(new CustomEvent('aeris:debug-progress', { detail: next }));
+    stageRef.current?.dispatchEvent(new CustomEvent('aeris:debug-progress', { detail: next }));
   };
   return <div className="journey__plane journey__plane--grain journey__layer-debug" aria-label="Layer debug overlay" data-layer="grain" data-progress={progress.toFixed(2)}>
-    {items.map(({ name, rect, z, contexts, layer }, index) => <div key={`${name}-${index}`} className="journey__layer-debug-box" style={{ left: rect.left - (bounds?.left ?? 0), top: rect.top - (bounds?.top ?? 0), width: rect.width, height: rect.height, '--debug-color': `hsl(${index * 47 % 360} 100% 65%)` } as CSSProperties}>
+    {snapshot.items.map(({ name, left, top, width, height, z, contexts, layer }, index) => <div key={`${name}-${index}`} className="journey__layer-debug-box" style={{ left, top, width, height, '--debug-color': `hsl(${index * 47 % 360} 100% 65%)` } as CSSProperties}>
       <span>{name} · {layer || 'no data-layer'} · z:{z}<br />{contexts.join(' ← ') || 'no local stacking context'}</span>
     </div>)}
-    <div className="journey__layer-debug-horizon"><span>horizon line · {stage ? getComputedStyle(stage).getPropertyValue('--horizon-y').trim() : 'loading'}</span></div>
+    <div className="journey__layer-debug-horizon"><span>horizon line · {snapshot.horizon || 'loading'}</span></div>
     <label className="journey__layer-debug-control">debug progress {progress.toFixed(2)}<input aria-label="Layer debug progress" type="range" min="0" max="100" value={Math.round(progress * 100)} onChange={(event) => setDebugProgress(Number(event.currentTarget.value) / 100)} /></label>
   </div>;
 }

@@ -467,6 +467,8 @@
 
 .journey__debug label { white-space: nowrap; }
 .journey__debug input { width: 100%; accent-color: #efd09c; }
+.journey__debug input { min-height: 44px; }
+#journey-progress { min-height: 44px; }
 .journey__debug output { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .journey__layer-debug { pointer-events: none; overflow: hidden; font: 12px/1.3 Inter, Arial, sans-serif; }
@@ -522,12 +524,7 @@
   .journey__tree-art #canopy,
   .journey__children * { animation: none !important; }
   .journey__bird { animation: none; }
+  .journey__birds,
+  .journey__children { display: none !important; }
 }
 
-@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  .journey__bird { display: block; }
-  .journey__bird:nth-child(5),
-  .journey__bird:nth-child(6),
-  .journey__bird:nth-child(7),
-  .journey__bird:nth-child(10) { display: none; }
-}

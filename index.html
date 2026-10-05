@@ -15,7 +15,9 @@
     <meta property="og:description" content="Look closer. Learn the light. Plan your next sky photograph." />
     <title>AERIS — Read the Sky</title>
     <style>
-      #no-js-cloud-journey { padding: 48px 7vw; color: #f4f6ff; background: linear-gradient(180deg,#03060f,#0a1030 35%,#0f4a45 62%,#3b2370 82%,#7a3d6a); font: 16px/1.6 Inter,Arial,sans-serif }
+      #no-js-cloud-journey { padding: 32px 7vw 48px; color: #f4f6ff; background: linear-gradient(180deg,#03060f,#0a1030 35%,#0f4a45 62%,#3b2370 82%,#7a3d6a); font: 16px/1.6 Inter,Arial,sans-serif }
+      #no-js-cloud-journey nav { display:flex; flex-wrap:wrap; gap:12px 24px; margin-bottom:48px }
+      #no-js-cloud-journey nav a, #no-js-cloud-journey footer a { min-height:44px; display:inline-flex; align-items:center }
       #no-js-cloud-journey h1 { font: 400 clamp(42px,7vw,76px)/1 Georgia,serif }
       #no-js-cloud-journey article { display: grid; grid-template-columns: minmax(160px,.7fr) minmax(0,1.5fr); align-items: center; gap: 5vw; max-width: 1100px; margin: 0 auto 48px; padding: 28px; border: 1px solid #ffffff38; border-radius: 24px; background: #0d1a36e8 }
       #no-js-cloud-journey article:nth-of-type(even) img { order: 2 }
@@ -28,12 +30,14 @@
     <div id="root"></div>
     <noscript>
       <main id="no-js-cloud-journey">
-        <p>AERIS · A journal of light, cloud and weather</p>
+        <nav aria-label="AERIS"><a href="/">AERIS · Read the Sky</a><a href="/atlas">Cloud atlas</a><a href="/planner">Shoot planner</a><a href="/journal">Photo journal</a></nav>
+        <p>A journal of light, cloud and weather</p>
         <h1>A journey through the sky</h1>
         <article><img src="/3d/cloud-character/cloud_cumulus.svg" alt="" /><div><p>AERIS · 01 / 04</p><h2>Sky</h2><p>A changing canvas above us.</p><p>A living collection of light, weather, and the small moments that make us look up.</p><p><a href="/atlas">Explore the Cloud Atlas →</a></p></div></article>
         <article><img src="/3d/cloud-character/cloud_stratus.svg" alt="" /><div><p>AERIS · 02 / 04</p><h2>Nature</h2><p>Where the sky meets the earth.</p><p>A slower rhythm, written into the land.</p></div></article>
-        <article><img src="/3d/cloud-character/cloud_tower.svg" alt="" /><div><p>AERIS · 03 / 04</p><h2>Numbers</h2><p>A collection at a glance.</p><p>10 moments collected · 4 ways to explore · 3 years in the field.</p><p><a href="mailto:hello@aeris.studio">Request the full archive →</a></p></div></article>
+        <article><img src="/3d/cloud-character/cloud_tower.svg" alt="" /><div><p>AERIS · 03 / 04</p><h2>Numbers</h2><p>A collection at a glance.</p><p>Explore the changing light, learn to read the clouds, and keep a journal of the skies you find.</p><p><a href="/journal">Visit the photo journal →</a></p></div></article>
         <article><img src="/3d/cloud-character/cloud_comet.svg" alt="" /><div><p>AERIS · 04 / 04</p><h2>Contact</h2><p>Stay for the last light, then keep looking as the night gathers around the horizon.</p><p><a href="/planner">Plan your golden hour →</a></p></div></article>
+        <footer><p>Keep looking up. Every sky has another story.</p><a href="mailto:hello@aeris.studio">Contact AERIS</a></footer>
       </main>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
