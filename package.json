@@ -11,6 +11,7 @@
     "sky:shots": "node scripts/journey-shots.mjs",
     "qa:phase10": "node scripts/journey-shots.mjs",
     "qa:layers": "node scripts/qa-layers.mjs",
+    "qa:contrast": "node scripts/qa-contrast.mjs",
     "qa:perf": "npm run build && node scripts/qa-perf.mjs",
     "preview": "vite preview"
   },

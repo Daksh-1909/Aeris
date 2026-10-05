@@ -21,7 +21,7 @@ npm run check
 
 ## Homepage
 
-The journey in `src/sky-journey/SkyJourney.tsx` uses one normalized progress value to update the sky palette, orb, cloud layers, ground scene, six headline beats, stars, nebula, and aurora. The sun and moon are CSS layers at the same position. Grass, flowers, the bench, and seated silhouettes are built from local SVG scene assets. The night stars are drawn on a canvas; that canvas pauses when it is offscreen or the document is hidden.
+The journey in `src/sky-journey/SkyJourney.tsx` uses one normalized progress value to update the sky palette, orb, cloud layers, ground scene, six headline beats, stars, nebula, and aurora. The sun and moon are CSS layers at the same position. Grass, the foreground tree, playing children, dawn birds, the bench, and night visitors are built from local scene assets. The night stars are drawn on a canvas; that canvas pauses when it is offscreen or the document is hidden.
 
 The homepage continues through the “What’s above” handoff, editorial photo and sky sections, a closing call to action, gallery collections, and the footer. Section composition is in `src/App.tsx`; shared sky colors and their time-of-day interpolation are in `src/sky/timeline.ts`.
 
@@ -36,9 +36,9 @@ Editorial photos and image URL helpers live in `src/data/` and `public/images/`.
 ## Assets and credits
 
 - Moon surface map: [NASA Scientific Visualization Studio, CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/). The site credit is in the footer.
-- Cloud sprites and sky-scene SVGs: `public/3d/`.
+- Cloud sprites, sky-scene SVGs, and the 128 px grain tile: `public/3d/`.
 - Gallery photos: `public/images/`.
-- Fonts: Cormorant Garamond and Inter, loaded from Google Fonts.
+- Fonts: self-hosted Cormorant Garamond and Inter webfonts, licensed under the SIL Open Font License in `public/fonts/`.
 
 ## Quality checks and screenshots
 
@@ -54,4 +54,4 @@ Start the Vite dev server on `http://127.0.0.1:5173/` before running the script.
 npx playwright install chromium webkit
 ```
 
-For a quick production pass, run `npm run build`, then `npm run preview`. Responsive layouts, reduced-motion mode, keyboard access, color contrast, and mobile performance have also been checked during implementation.
+For a quick production pass, run `npm run build`, then `npm run preview`. The phase QA commands are `npm run qa:layers`, `npm run qa:contrast`, and `npm run qa:perf`. Start the Vite development server on port 5173 before running the first two; they save screenshots under the ignored `shots/` directory. `qa:contrast` also checks that both local fonts load and that no Google Fonts request occurs.

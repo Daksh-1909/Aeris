@@ -3,8 +3,6 @@
 @media (min-width: 761px) {
   header.site-header {
     background: linear-gradient(180deg, rgb(4 10 21 / .84), rgb(4 10 21 / .62)) !important;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
   }
 }
 .site-header .desktop-nav a,
@@ -28,8 +26,7 @@
   background: rgb(10 19 30 / .88);
   color: #eaf4f7;
   text-align: center;
-  font: 500 11px/1.4 Inter, Arial, sans-serif;
-  backdrop-filter: blur(14px);
+  font: 500 12px/1.4 Inter, Arial, sans-serif;
 }
 :root .demo-mode-banner button {
   position: absolute;
@@ -51,4 +48,4 @@
 :root .demo-mode-banner button:hover { background: rgb(255 255 255 / .12); }
 .demo-mode-banner + .member-shell .member-top { top: 0; }
 
-@media (max-width: 380px) { .demo-mode-banner { font-size: 10px; } }
+@media (max-width: 380px) { .demo-mode-banner { font-size: 12px; } }

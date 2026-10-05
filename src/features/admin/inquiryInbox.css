@@ -1,11 +1,11 @@
-﻿.inquiry-inbox{width:min(1050px,90vw);margin:0 auto;padding:55px 0 90px}
+.inquiry-inbox{width:min(1050px,90vw);margin:0 auto;padding:55px 0 90px}
 .inquiry-inbox>h2{font:300 clamp(46px,7vw,78px)/.95 'Cormorant Garamond',serif;margin:18px 0 32px}
-.inquiry-inbox__filter,.inquiry-inbox article>label{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--mist-400)}
+.inquiry-inbox__filter,.inquiry-inbox article>label{display:flex;align-items:center;gap:12px;font-size: 12px;color:var(--mist-400)}
 .inquiry-inbox select{min-height:44px;padding:9px 12px;background:var(--sky-900);color:var(--cloud-50);border:1px solid var(--sky-600)}
 .inquiry-inbox__list{margin-top:25px}
 .inquiry-inbox__list article,.inquiry-inbox__empty{padding:23px;margin:15px 0;border:1px solid var(--sky-600);background:var(--sky-900)}
 .inquiry-inbox__head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
-.inquiry-inbox__head span,.inquiry-inbox__head time{font-size:10px;color:var(--mist-400);text-transform:uppercase;letter-spacing:.08em}
+.inquiry-inbox__head span,.inquiry-inbox__head time{font-size: 12px;color:var(--mist-400);text-transform:uppercase;letter-spacing:.08em}
 .inquiry-inbox__head h3{font:400 28px 'Cormorant Garamond',serif;margin:8px 0}
 .inquiry-inbox__head a{color:var(--gold-300);font-size:12px}
 .inquiry-inbox__list article>p{font-size:12px;line-height:1.7;color:#dedbd3}
