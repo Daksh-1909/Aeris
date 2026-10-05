@@ -29,7 +29,7 @@ function seededRandom(seed: number) {
 
 const cloudLayers = [
   { depth: 'far', count: 5, mobileCount: 2, topMin: 8, topMax: 25, sizeMin: 13, sizeMax: 20, minPx: 128, maxPx: 320, parallax: 7, drift: 9, opacity: .50 },
-  { depth: 'mid', count: 4, mobileCount: 2, topMin: 42, topMax: 57, sizeMin: 19, sizeMax: 29, minPx: 144, maxPx: 450, parallax: 13, drift: 15, opacity: .72 },
+  { depth: 'mid', count: 4, mobileCount: 2, topMin: 42, topMax: 57, sizeMin: 19, sizeMax: 29, minPx: 144, maxPx: 450, parallax: 6, drift: 15, opacity: .72 },
   { depth: 'near', count: 2, mobileCount: 1, topMin: 58, topMax: 68, sizeMin: 29, sizeMax: 41, minPx: 164, maxPx: 620, parallax: 20, drift: 22, opacity: .72 },
 ] as const;
 
@@ -44,7 +44,7 @@ export const cloudPlacements: readonly CloudPlacement[] = cloudLayers.flatMap((l
       id,
       depth: layer.depth,
       src: `/3d/clouds/cloud_${layer.depth}_${Math.floor(random() * 2) + 1}.webp`,
-      left: between(layer.depth === 'far' ? 58 : 52, layer.depth === 'near' ? 76 : 84),
+      left: between(80, 92),
       top: between(layer.topMin, layer.topMax),
       sizeVw: between(layer.sizeMin, layer.sizeMax),
       minPx: layer.minPx,

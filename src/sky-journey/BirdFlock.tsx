@@ -14,7 +14,6 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 export function BirdFlock({ progress }: { progress: number }) {
   const active = progress < .26;
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const [clock, setClock] = useState(0);
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -23,11 +22,6 @@ export function BirdFlock({ progress }: { progress: number }) {
     return () => query.removeEventListener('change', onChange);
   }, []);
 
-  useEffect(() => {
-    if (!active || reducedMotion) return;
-    const interval = window.setInterval(() => setClock((value) => value + 120), 120);
-    return () => window.clearInterval(interval);
-  }, [active, reducedMotion]);
 
   const fadeIn = smoothstep(clamp01(progress / .04));
   const fadeOut = 1 - smoothstep(clamp01((progress - .20) / .06));
@@ -43,12 +37,9 @@ export function BirdFlock({ progress }: { progress: number }) {
       const birdTravel = bird.far ? travel * .7 : travel;
       const left = reducedMotion ? 20 : x + 120 * (bird.far ? birdTravel - travel : 0);
       const top = reducedMotion ? 36 : y;
-      const glide = [3, 6, 8].includes(index) && clock % 3000 < 600;
-      const step = Math.floor(clock / (bird.far ? 240 : 120)) + frameOffsets[index];
-      const frame = reducedMotion || glide ? 'bird-mid' : frames[step % frames.length];
+      const frame = reducedMotion ? 'bird-mid' : frames[frameOffsets[index]! % frames.length];
       const size = `calc(${leadSize} * ${bird.scale})`;
-      const bob = Math.sin(clock * .0016 + index * .9) * (reducedMotion ? 0 : 6);
-      const style = { left: `calc(${left}% + ${bird.x * leadPixels}px)`, top: `calc(${top}% + ${bird.y * leadPixels + bob}px)`, width: size } as CSSProperties;
+      const style = { left: `calc(${left}% + ${bird.x * leadPixels}px)`, top: `calc(${top}% + ${bird.y * leadPixels}px)`, width: size } as CSSProperties;
       return <svg key={index} className="journey__bird" viewBox="0 0 44 24" style={style} focusable="false">
         <use href={`/3d/scene/birds.svg#${frame}`} />
       </svg>;

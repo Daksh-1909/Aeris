@@ -12,6 +12,9 @@
   background: #8bb8d0;
 }
 
+.cloud-journey { content-visibility: auto; contain-intrinsic-size: 5600px; }
+.site-footer { content-visibility: auto; contain-intrinsic-size: 640px; }
+
 .journey__stage {
   --sky-top: #0b1530;
   --sky-middle: #1e2f4d;
@@ -26,7 +29,7 @@
   isolation: isolate;
   contain: layout paint style;
   color: var(--journey-text);
-  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-middle) 55%, var(--sky-horizon) 100%);
+  background: #070a12;
   --orb-x: 68%;
   --horizon-y: 74%;
   --beat-x: 6%;
@@ -62,6 +65,13 @@
   pointer-events: none;
 }
 
+.journey__sky-layer { position: absolute; inset: 0; opacity: 0; }
+.journey__sky-layer--sunrise { background: linear-gradient(180deg,#0b1530 0%,#1e2f4d 55%,#f4a77a 100%); }
+.journey__sky-layer--noon { background: linear-gradient(180deg,#2f7fe0 0%,#69b1ec 55%,#bfe3ff 100%); }
+.journey__sky-layer--sunset { background: linear-gradient(180deg,#3a2a6a 0%,#b8536e 55%,#ff7a3d 100%); }
+.journey__sky-layer--dusk { background: linear-gradient(180deg,#0a1030 0%,#181b4a 55%,#2a2260 100%); }
+.journey__sky-layer--midnight { background: linear-gradient(180deg,#03060f 0%,#050c23 55%,#0a1030 100%); }
+
 .journey__cloud-layer--far,
 .journey__cloud-layer--mid,
 .journey__cloud-layer--near {
@@ -69,13 +79,13 @@
   overflow: hidden;
   opacity: var(--cloud-opacity, 1);
   inset: 0;
+  will-change: transform;
 }
 
 .journey__cloud {
   position: absolute;
   margin: 0;
   line-height: 0;
-  will-change: transform;
 }
 
 .journey__cloud::after {
@@ -83,7 +93,6 @@
   position: absolute;
   inset: 0;
   background: var(--cloud-tint);
-  opacity: var(--cloud-tint-opacity, 0);
   -webkit-mask: var(--cloud-mask) center / 100% 100% no-repeat;
   mask: var(--cloud-mask) center / 100% 100% no-repeat;
   pointer-events: none;
@@ -93,13 +102,7 @@
   display: block;
   width: 100%;
   height: auto;
-  animation: cloud-drift 32s ease-in-out infinite alternate;
   user-select: none;
-}
-
-@keyframes cloud-drift {
-  from { transform: translate3d(var(--cloud-drift-from), 0, 0); }
-  to { transform: translate3d(var(--cloud-drift-to), var(--cloud-drift-y), 0); }
 }
 
 .journey__sky {
@@ -153,6 +156,7 @@
 .journey__tree-art #canopy {
   transform-box: view-box;
   transform-origin: 160px 250px;
+  will-change: transform;
   animation: canopy-sway 6s ease-in-out infinite alternate;
 }
 
@@ -211,10 +215,17 @@
   position: absolute;
   display: block;
   aspect-ratio: 11 / 6;
-  animation: bird-bob 3.8s ease-in-out infinite alternate;
 }
 
-@keyframes bird-bob { to { margin-top: 6px; } }
+.journey__stage[data-paused='true'] *,
+.journey__stage[data-quality-tier='3'] .journey__cloud img,
+.journey__stage[data-quality-tier='3'] .journey__tree-art #canopy,
+.journey__stage[data-quality-tier='3'] .journey__children-art *,
+.journey__stage[data-quality-tier='3'] .journey__bird {
+  animation-play-state: paused !important;
+}
+.journey__stage[data-quality-tier='2'] .journey__plane--clouds-far { visibility: hidden; }
+.journey__stage[data-quality-tier='2'] .journey__tree-art #canopy { animation-play-state: paused; }
 
 .journey__flower-sprite {
   position: absolute;
@@ -253,7 +264,6 @@
   bottom: 5%;
   width: clamp(168px, 17vw, 240px);
   aspect-ratio: 12 / 7;
-  will-change: transform, opacity;
 }
 
 .journey__bench-art,
@@ -262,14 +272,11 @@
   inset: 0;
 }
 
-.journey__people-art {
-  will-change: opacity;
-}
 
 .journey__orb {
   position: absolute;
   left: var(--orb-x);
-  top: var(--orb-y, 78%);
+  top: 0;
   width: var(--orb-d);
   aspect-ratio: 1;
   border-radius: 50%;
@@ -304,7 +311,7 @@
 .journey__orb-glow {
   position: absolute;
   left: var(--orb-x);
-  top: var(--orb-y, 78%);
+  top: 0;
   width: var(--orb-d);
   aspect-ratio: 1;
   border-radius: 50%;
@@ -371,7 +378,7 @@
   position: absolute;
   inset: -24px -32px;
   z-index: -1;
-  background: linear-gradient(90deg, rgb(5 10 30 / var(--beat-scrim, .38)), rgb(5 10 30 / 0) 78%);
+  background: linear-gradient(90deg, rgb(5 10 30 / .38), rgb(5 10 30 / 0) 78%);
   pointer-events: none;
 }
 

@@ -9,7 +9,6 @@
 
 .journey__nebula {
   mix-blend-mode: screen;
-  transition: opacity 180ms linear;
 }
 
 .journey__nebula-blob {
@@ -18,8 +17,6 @@
   width: clamp(340px, 48vw, 760px);
   height: clamp(260px, 42vh, 520px);
   border-radius: 50%;
-  filter: blur(62px);
-  will-change: transform;
   animation: nebula-drift 32s ease-in-out infinite alternate;
   animation-play-state: paused;
 }
@@ -53,7 +50,6 @@
   inset: 0;
   overflow: hidden;
   mix-blend-mode: screen;
-  transition: opacity 180ms linear;
 }
 
 .journey__aurora-art {
@@ -64,7 +60,6 @@
   width: 120%;
   height: 75%;
   overflow: visible;
-  filter: blur(18px);
   mix-blend-mode: screen;
 }
 
@@ -73,7 +68,6 @@
   transform-origin: center;
   animation: aurora-wave 12s ease-in-out infinite alternate;
   animation-play-state: paused;
-  will-change: transform;
 }
 
 .journey__aurora--active .journey__aurora-ribbon { animation-play-state: running; }
@@ -88,12 +82,10 @@
 .journey__stars {
   display: block;
   opacity: 0;
-  transition: opacity 180ms linear;
 }
 
 @media (max-width: 767px) {
-  .journey__nebula-blob { filter: blur(42px); }
-  .journey__aurora-art { top: 0; filter: blur(14px); height: 72%; }
+  .journey__aurora-art { top: 0; height: 72%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

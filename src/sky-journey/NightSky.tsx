@@ -9,13 +9,13 @@ function seededRandom(seed: number) {
   };
 }
 
-type Star = { x: number; y: number; radius: number; phase: number; speed: number; sparkle: boolean };
+type Star = { x: number; y: number; radius: number; phase: number; speed: number; sparkle: boolean; sprite: HTMLCanvasElement };
 
 export function NightSky({ progress, opacity, auroraOpacity }: { progress: number; opacity: number; auroraOpacity: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const progressRef = useRef(progress);
   const opacityRef = useRef(opacity);
-  const active = opacity > 0;
+  const active = true;
 
   useEffect(() => {
     progressRef.current = progress;
@@ -32,18 +32,30 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
     let height = 0;
     let pixelRatio = 1;
     let frameId = 0;
+    let mobileTimer = 0;
     let isIntersecting = false;
     let pageVisible = document.visibilityState === 'visible';
     let nextShotAt = 0;
     let shootingStar: { start: number; x: number; y: number; length: number; duration: number } | null = null;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reducedMotion = motionQuery.matches;
     let stars: Star[] = [];
+    const dot = document.createElement('canvas');
+    dot.width = dot.height = 8;
+    const dotContext = dot.getContext('2d')!;
+    dotContext.fillStyle = '#dceaff'; dotContext.beginPath(); dotContext.arc(4, 4, 2.5, 0, Math.PI * 2); dotContext.fill();
+    const sparkleSprite = document.createElement('canvas');
+    sparkleSprite.width = sparkleSprite.height = 16;
+    const sparkleContext = sparkleSprite.getContext('2d')!;
+    sparkleContext.fillStyle = '#fff8db'; sparkleContext.beginPath(); sparkleContext.arc(8, 8, 2.7, 0, Math.PI * 2); sparkleContext.fill();
+    sparkleContext.strokeStyle = '#fff8db'; sparkleContext.lineWidth = .7; sparkleContext.beginPath();
+    sparkleContext.moveTo(1, 8); sparkleContext.lineTo(15, 8); sparkleContext.moveTo(8, 1); sparkleContext.lineTo(8, 15); sparkleContext.stroke();
 
     const resize = () => {
       const bounds = canvas.getBoundingClientRect();
       width = bounds.width;
       height = bounds.height;
-      pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
@@ -55,6 +67,7 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
         phase: random() * Math.PI * 2,
         speed: .45 + random() * 1.3,
         sparkle: index < 12,
+        sprite: index < 12 ? sparkleSprite : dot,
       }));
     };
 
@@ -63,19 +76,25 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
     resize();
 
     const schedule = () => {
-      if (!reducedMotion && isIntersecting && pageVisible && opacityRef.current > 0 && frameId === 0) {
-        frameId = requestAnimationFrame(draw);
+      if (!reducedMotion && isIntersecting && pageVisible && Number(canvas.dataset.progress) > .55 && Number(canvas.style.opacity) > 0 && frameId === 0) {
+        if (width <= 767) {
+          if (mobileTimer === 0) mobileTimer = window.setTimeout(() => { mobileTimer = 0; frameId = requestAnimationFrame(draw); }, 33);
+        } else frameId = requestAnimationFrame(draw);
       }
     };
 
     const draw = (time: number) => {
       frameId = 0;
       context.clearRect(0, 0, width, height);
-      const progressNow = progressRef.current;
+      const progressNow = Number(canvas.dataset.progress || progressRef.current);
+      if (progressNow <= .55 || Number(canvas.style.opacity) <= 0 || !pageVisible || !isIntersecting) return;
+      const qualityTier = Number(canvas.dataset.qualityTier || 0);
+      const starCount = qualityTier === 1 ? Math.ceil(stars.length * .6) : stars.length;
       const rotation = (progressNow - .8) * .12;
       const cos = Math.cos(rotation);
       const sin = Math.sin(rotation);
-      for (const star of stars) {
+      for (let starIndex = 0; starIndex < starCount; starIndex += 1) {
+        const star = stars[starIndex]!;
         const dx = star.x - width / 2;
         const dy = star.y - height / 2;
         const x = width / 2 + dx * cos - dy * sin;
@@ -83,19 +102,7 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
         const twinkle = reducedMotion ? .78 : .42 + .58 * ((Math.sin(time * .001 * star.speed + star.phase) + 1) / 2);
         const radius = star.radius * (star.sparkle ? 1.16 : 1);
         context.globalAlpha = twinkle;
-        context.fillStyle = star.sparkle ? '#fff8db' : '#dceaff';
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2);
-        context.fill();
-        if (star.sparkle) {
-          context.globalAlpha = twinkle * .58;
-          context.strokeStyle = '#fff8db';
-          context.lineWidth = .7;
-          context.beginPath();
-          context.moveTo(x - radius * 3, y); context.lineTo(x + radius * 3, y);
-          context.moveTo(x, y - radius * 3); context.lineTo(x, y + radius * 3);
-          context.stroke();
-        }
+        context.drawImage(star.sprite, x - radius * 2, y - radius * 2, radius * 4, radius * 4);
       }
 
       if (!reducedMotion) {
@@ -109,11 +116,8 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
           const distance = elapsed / shootingStar.duration * shootingStar.length;
           const x = shootingStar.x + distance;
           const y = shootingStar.y + distance * .42;
-          const tail = context.createLinearGradient(x - shootingStar.length * .34, y - shootingStar.length * .14, x, y);
-          tail.addColorStop(0, 'rgb(213 232 255 / 0)');
-          tail.addColorStop(1, `rgb(235 245 255 / ${life})`);
           context.globalAlpha = life;
-          context.strokeStyle = tail;
+          context.strokeStyle = '#eaf4ff';
           context.lineWidth = 1.6;
           context.beginPath();
           context.moveTo(x - shootingStar.length * .34, y - shootingStar.length * .14);
@@ -133,7 +137,9 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
       isIntersecting = entry.isIntersecting;
       if (!isIntersecting) {
         cancelAnimationFrame(frameId);
+        window.clearTimeout(mobileTimer);
         frameId = 0;
+        mobileTimer = 0;
       } else if (reducedMotion) {
         draw(0);
       } else {
@@ -141,23 +147,38 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
       }
     });
     visibilityObserver.observe(canvas);
+    const onSkyProgress = () => schedule();
+    canvas.addEventListener('skyprogress', onSkyProgress);
     const handleVisibility = () => {
       pageVisible = document.visibilityState === 'visible';
       if (!pageVisible) {
         cancelAnimationFrame(frameId);
+        window.clearTimeout(mobileTimer);
         frameId = 0;
+        mobileTimer = 0;
       } else if (isIntersecting && reducedMotion) {
         draw(0);
       } else {
         schedule();
       }
     };
+    const handleMotion = () => {
+      reducedMotion = motionQuery.matches;
+      if (reducedMotion) {
+        cancelAnimationFrame(frameId); window.clearTimeout(mobileTimer); frameId = 0; mobileTimer = 0;
+        if (isIntersecting && pageVisible && Number(canvas.dataset.progress) > .55) draw(0);
+      } else schedule();
+    };
     document.addEventListener('visibilitychange', handleVisibility);
+    motionQuery.addEventListener('change', handleMotion);
     return () => {
       cancelAnimationFrame(frameId);
+      window.clearTimeout(mobileTimer);
       observer.disconnect();
       visibilityObserver.disconnect();
       document.removeEventListener('visibilitychange', handleVisibility);
+      motionQuery.removeEventListener('change', handleMotion);
+      canvas.removeEventListener('skyprogress', onSkyProgress);
     };
   }, [active]);
 
