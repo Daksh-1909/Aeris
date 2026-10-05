@@ -2,10 +2,12 @@ import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 
 const viewports = [[360, 740], [390, 844], [768, 1024], [1024, 768], [1440, 900], [1920, 1080], [1366, 640]];
+const baseUrl = new URL(process.env.AERIS_BASE_URL ?? 'http://127.0.0.1:5173/');
+baseUrl.searchParams.set('debug', 'layers');
 const expectedLayers = {
   sky: 0, stars: 1, nebula: 2, 'orb-glow': 3, orb: 4, 'clouds-far': 5, 'clouds-mid': 6, 'clouds-near': 7,
   birds: 8, 'ground-back': 10, children: 12, bench: 13, 'ground-front': 14, tree: 15, beats: 30,
-  rail: 45, 'rail-controls': 45, grain: 50,
+  rail: 45, grain: 50,
 };
 const failureShots = 'shots/qa-layers';
 await mkdir(failureShots, { recursive: true });
@@ -14,7 +16,7 @@ const failures = [];
 
 for (const [width, height] of viewports) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
-  await page.goto('http://127.0.0.1:5173/?debug=layers', { waitUntil: 'domcontentloaded' });
+  await page.goto(baseUrl.href, { waitUntil: 'domcontentloaded' });
   await page.locator('.journey__layer-debug').waitFor();
   const layerErrors = await page.evaluate((expected) => Object.entries(expected).flatMap(([layer, z]) => {
     const plane = document.querySelector(`[data-layer="${layer}"]`);

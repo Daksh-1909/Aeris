@@ -2,6 +2,8 @@ import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 
 const output = 'shots/qa-contrast';
+const baseUrl = new URL(process.env.AERIS_BASE_URL ?? 'http://127.0.0.1:5173/');
+baseUrl.searchParams.set('debug', 'layers');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const failures = [];
@@ -11,8 +13,9 @@ const beats = [0.05, 0.3, 0.55, 0.7, 0.86, 0.96];
 for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
   page.on('request', (request) => { if (/fonts\.(googleapis|gstatic)\.com/i.test(request.url())) remoteFontRequests.push(request.url()); });
-  await page.goto('http://127.0.0.1:5173/', { waitUntil: 'domcontentloaded' });
-  await page.locator('#journey-progress').waitFor();
+  await page.goto(baseUrl.href, { waitUntil: 'domcontentloaded' });
+  await page.locator('.journey__layer-debug').waitFor();
+  await page.locator('.journey__layer-debug').evaluate((overlay) => { overlay.style.display = 'none'; });
   await page.evaluate(() => document.fonts.ready);
   const fontsLoaded = await page.evaluate(async () => {
     const [bodyFont, displayFont] = await Promise.all([document.fonts.load('400 16px Inter'), document.fonts.load('300 32px "Cormorant Garamond"')]);
@@ -21,13 +24,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   if (!fontsLoaded.body || !fontsLoaded.display) failures.push({ viewport, error: 'One or both self-hosted typefaces failed to load.', fontsLoaded });
   for (let beatIndex = 0; beatIndex < beats.length; beatIndex += 1) {
     const progress = beats[beatIndex];
-    const slider = page.locator('#journey-progress');
-    await slider.evaluate((input, value) => {
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
-      setter.call(input, String(Math.round(value * 1000)));
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    }, progress);
-    await page.waitForFunction((target) => Math.abs(Number(document.querySelector('.journey__stage')?.dataset.progress) - target) < .002, progress);
+    await page.locator('.journey__stage').evaluate((stage, value) => stage.dispatchEvent(new CustomEvent('aeris:debug-progress', { detail: value })), progress);
+    await page.waitForFunction((target) => Math.abs(Number(document.querySelector('.journey__layer-debug')?.dataset.progress) - target) < .01, progress);
     const sampleInfo = await page.evaluate((index) => {
       const beat = document.querySelectorAll('.journey__beat')[index];
       const targets = [

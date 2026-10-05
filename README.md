@@ -37,21 +37,25 @@ Editorial photos and image URL helpers live in `src/data/` and `public/images/`.
 
 - Moon surface map: [NASA Scientific Visualization Studio, CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/). The site credit is in the footer.
 - Cloud sprites, sky-scene SVGs, and the 128 px grain tile: `public/3d/`.
-- Gallery photos: `public/images/`.
+- Cloud photo sources and gallery photo credits: [CREDITS.md](./CREDITS.md). Gallery photos remain demo copies; see [docs/photo-todo.md](./docs/photo-todo.md) for replacements needed before launch.
 - Fonts: self-hosted Cormorant Garamond and Inter webfonts, licensed under the SIL Open Font License in `public/fonts/`.
 
 ## Quality checks and screenshots
 
-The Phase 10 QA script tests all six brief widths (360, 390, 768, 1024, 1440, and 1920 px) in Chrome, Edge, and WebKit. It checks page errors, visible headline bounds, document overflow, the header’s position relative to the demo notice, reduced motion, keyboard skip-link access, and the moon credit. Screenshots go to the ignored `shots/` directory.
+The scene stack follows the values in `src/sky-journey/journey.css`: sky 0, stars 1, nebula 2, orb glow 3, orb 4, far/mid/near clouds 5/6/7, birds 8, back ground 10, children 12, bench 13, front ground 14, tree 15, beats 30, header 40, rail 45, grain 50. Scene plane bounds fill the sticky stage. The desktop beat zone starts at 6% × 13%, is 44% wide and at most 33% high; tablet is 7% × 11%, 86% × 30%; mobile is 6% × 10%, 88% × 30%. Orb anchors, ground horizon and foreground placement vary by those same desktop/tablet/mobile breakpoints.
+
+Run the automated suite against a local server or any deployed site. Set `AERIS_BASE_URL` to select the target. `qa:phase10` checks six widths in Chrome, Edge and WebKit, keyboard skip-link access, reduced motion and scene text fit. `qa:accessibility` checks the no-JavaScript fallback, reduced-motion story, keyboard access, photo alternatives, mobile targets and six core routes. `qa:layers` checks seven viewports (including the 1366 × 640 short laptop), layer order and text/scene collisions at 25 progress samples. `qa:contrast` measures text against captured pixels at desktop and mobile sizes. `qa:perf` builds and serves the production app, records a 10 second mobile scroll at 4× CPU slowdown and runs Lighthouse mobile.
 
 ```sh
 npm run qa:phase10
 ```
 
-Start the Vite dev server on `http://127.0.0.1:5173/` before running the script. Install Playwright browsers once if needed:
+Start the Vite dev server on `http://127.0.0.1:5173/` before running the visual scripts. Install Playwright browsers once if needed:
 
 ```sh
 npx playwright install chromium webkit
 ```
 
-For a quick production pass, run `npm run build`, then `npm run preview`. The phase QA commands are `npm run qa:layers`, `npm run qa:contrast`, and `npm run qa:perf`. Start the Vite development server on port 5173 before running the first two; they save screenshots under the ignored `shots/` directory. `qa:contrast` also checks that both local fonts load and that no Google Fonts request occurs.
+The frame-time budget is a 95th percentile at or below 24 ms with CPU slowdown set to 4×; Lighthouse mobile performance must be 90 or more, LCP at most 2.2 s and CLS at most 0.02. The budgets are asserted by `qa:perf` against the production build. The visual scripts save evidence under the ignored `shots/` directory. `qa:contrast` also checks that both local fonts load and that no Google Fonts request occurs.
+
+See [docs/release-qa.md](./docs/release-qa.md) for the M12 production-preview results and the live/device checks that still need a deployment and physical hardware.

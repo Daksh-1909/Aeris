@@ -3,7 +3,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, webkit } from 'playwright';
 
-const baseUrl = process.env.AERIS_BASE_URL ?? 'http://127.0.0.1:5173/';
+const baseUrl = new URL(process.env.AERIS_BASE_URL ?? 'http://127.0.0.1:5173/');
+baseUrl.searchParams.set('debug', 'layers');
 const widths = [360, 390, 768, 1024, 1440, 1920];
 const scenes = [
   { progress: .08, title: 'READ THE SKY' },
@@ -17,22 +18,20 @@ const outputDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'shots');
 await mkdir(outputDir, { recursive: true });
 
 async function setProgress(page, progress, context = '') {
-  await page.locator('.journey__debug input[type="range"]').evaluate((input, value) => {
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
-    setter.call(input, String(Math.round(value * 1000)));
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-  }, progress);
-  try {
-    await page.waitForFunction((value) => {
-      const stage = document.querySelector('.journey__stage');
-      const progressNow = Number.parseFloat(getComputedStyle(stage).getPropertyValue('--journey-progress'));
-      return Number.isFinite(progressNow) && Math.abs(progressNow - value) < .025;
-    }, progress, { timeout: 8000 });
-  } catch {
-    const actual = await page.locator('.journey__stage').evaluate((stage) => getComputedStyle(stage).getPropertyValue('--journey-progress'));
-    throw new Error(`${context ? `${context}: ` : ''}timeline did not reach ${progress} (current value: ${actual})`);
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await page.locator('.journey__stage').evaluate((stage, value) => {
+      stage.dispatchEvent(new CustomEvent('aeris:debug-progress', { detail: value }));
+    }, progress);
+    try {
+      await page.waitForFunction((value) => {
+        const progressNow = Number.parseFloat(document.querySelector('.journey__layer-debug')?.dataset.progress);
+        return Number.isFinite(progressNow) && Math.abs(progressNow - value) < .025;
+      }, progress, { timeout: 1200 });
+      return;
+    } catch { /* Safari can briefly deliver a scroll-trigger tick after the debug update. */ }
   }
+  const actual = await page.locator('.journey__layer-debug').getAttribute('data-progress');
+  throw new Error(`${context ? `${context}: ` : ''}timeline did not reach ${progress} (current value: ${actual})`);
 }
 
 for (const [browserName, browserType, launchOptions] of [
@@ -47,9 +46,9 @@ for (const [browserName, browserType, launchOptions] of [
       const height = width <= 390 ? 844 : 900;
       const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
       page.on('pageerror', (error) => errors.push(error.message));
-      await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+      await page.goto(baseUrl.href, { waitUntil: 'domcontentloaded' });
       await page.locator('.journey__stage').waitFor();
-      await page.locator('.journey__debug input[type="range"]').waitFor();
+      await page.locator('.journey__layer-debug-control input[type="range"]').waitFor();
 
       if (browserName === 'Chromium' && width === 360) {
         await page.keyboard.press('Tab');
@@ -62,7 +61,7 @@ for (const [browserName, browserType, launchOptions] of [
       for (const scene of scenes) {
         await setProgress(page, scene.progress, `${browserName} ${width}px`);
         const proof = await page.evaluate(() => {
-          const headings = [...document.querySelectorAll('.journey__scene[aria-hidden="false"] h1')];
+          const headings = [...document.querySelectorAll('.journey__beat[aria-hidden="false"] h1')];
           const visibleHeadings = headings.map((heading) => {
             const range = document.createRange();
             range.selectNodeContents(heading);
@@ -90,15 +89,17 @@ for (const [browserName, browserType, launchOptions] of [
     }
 
     const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
-    await reduced.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await reduced.goto(baseUrl.href, { waitUntil: 'domcontentloaded' });
     await reduced.locator('.journey__stage').waitFor();
     await setProgress(reduced, .95, `${browserName} reduced-motion`);
     const animationNames = await reduced.evaluate(() => [
-      getComputedStyle(document.querySelector('.journey__aurora-ribbon')).animationName,
-      getComputedStyle(document.querySelector('.journey__nebula-blob')).animationName,
+      getComputedStyle(document.querySelector('.journey__aurora-ribbon') ?? document.querySelector('.journey__aurora')).animationName,
+      getComputedStyle(document.querySelector('.journey__nebula-blob') ?? document.querySelector('.journey__nebula')).animationName,
       getComputedStyle(document.querySelector('.journey__cloud img')).animationName,
     ]);
     if (animationNames.some((name) => name !== 'none')) throw new Error(`${browserName} reduced-motion check failed: ${animationNames.join(', ')}`);
+    const reducedScene = await reduced.evaluate(() => ({ birds: getComputedStyle(document.querySelector('.journey__birds')).display, children: getComputedStyle(document.querySelector('.journey__children')).display }));
+    if (reducedScene.birds !== 'none' || reducedScene.children !== 'none') throw new Error(`${browserName} reduced-motion scene check failed: ${JSON.stringify(reducedScene)}`);
     await reduced.close();
     if (errors.length) throw new Error(`${browserName} page errors: ${errors.join(' | ')}`);
   } finally {
