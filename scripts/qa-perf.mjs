@@ -1,11 +1,14 @@
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { createServer } from 'node:net';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright';
+import lighthouse from 'lighthouse';
 
 const origin = 'http://127.0.0.1:4173';
 const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], { stdio: 'ignore' });
 let browser;
+let lighthouseBrowser;
 try {
   let ready = false;
   for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -46,11 +49,21 @@ try {
   });
   console.log(`4x CPU mobile RAF over 10 s: ${JSON.stringify(measurements)}`);
   await browser.close(); browser = undefined;
-  const installedChrome = `${process.env.PROGRAMFILES || 'C:/Program Files'}/Google/Chrome/Application/chrome.exe`;
-  const chromePath = existsSync(installedChrome) ? installedChrome : chromium.executablePath();
-  execFileSync(process.execPath, ['node_modules/@lhci/cli/src/cli.js', 'autorun'], { stdio: 'inherit', env: { ...process.env, CHROME_PATH: chromePath } });
+  const portServer = createServer();
+  await new Promise((resolve) => portServer.listen(0, '127.0.0.1', resolve));
+  const port = portServer.address().port;
+  await new Promise((resolve, reject) => portServer.close((error) => error ? reject(error) : resolve()));
+  lighthouseBrowser = await chromium.launch({ headless: true, args: [`--remote-debugging-port=${port}`] });
+  await mkdir('.lighthouseci', { recursive: true });
+  const lighthouseResult = await lighthouse(origin, { port, output: 'json', logLevel: 'warn', onlyCategories: ['performance'], formFactor: 'mobile', screenEmulation: { mobile: true, width: 390, height: 844, deviceScaleFactor: 1 } });
+  await writeFile('.lighthouseci/lhr.json', JSON.stringify(lighthouseResult.lhr));
+  const lhr = lighthouseResult.lhr;
+  console.log(`Lighthouse mobile: ${JSON.stringify({ performance: lhr.categories.performance.score, lcp: lhr.audits['largest-contentful-paint'].numericValue, cls: lhr.audits['cumulative-layout-shift'].numericValue, tbt: lhr.audits['total-blocking-time'].numericValue })}`);
+  await lighthouseBrowser.close(); lighthouseBrowser = undefined;
+  execFileSync(process.execPath, ['node_modules/@lhci/cli/src/cli.js', 'assert', '--lhr', '.lighthouseci/lhr.json'], { stdio: 'inherit' });
   if (measurements.p95 > 24) throw new Error(`Hero RAF p95 ${measurements.p95.toFixed(1)} ms exceeds the 24 ms budget.`);
 } finally {
   await browser?.close();
+  await lighthouseBrowser?.close();
   server.kill();
 }

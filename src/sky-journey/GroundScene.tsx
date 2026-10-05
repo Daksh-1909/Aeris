@@ -56,9 +56,9 @@ export function GroundScene({ progress }: { progress: number }) {
   return <>
     <div className="journey__plane journey__plane--ground-back" data-layer="ground-back" aria-hidden="true">
       <div className="journey__ground-art">
-        <img src="/3d/scene/ground.svg" alt="" style={{ opacity: dayOpacity }} />
-        <img src="/3d/scene/ground-sunset.svg" alt="" style={{ opacity: sunsetOpacity }} />
-        <img src="/3d/scene/ground-night.svg" alt="" style={{ opacity: nightOpacity }} />
+        <img src="/3d/scene/ground.svg" alt="" width="1920" height="520" fetchPriority="high" style={{ opacity: dayOpacity }} />
+        <img src="/3d/scene/ground-sunset.svg" alt="" width="1920" height="520" loading="lazy" decoding="async" style={{ opacity: sunsetOpacity }} />
+        <img src="/3d/scene/ground-night.svg" alt="" width="1920" height="520" loading="lazy" decoding="async" style={{ opacity: nightOpacity }} />
       </div>
     </div>
     <div className="journey__plane journey__plane--children" data-layer="children" aria-hidden="true">
