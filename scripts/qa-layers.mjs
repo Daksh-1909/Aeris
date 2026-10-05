@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 
 const viewports = [[360, 740], [390, 844], [768, 1024], [1024, 768], [1440, 900], [1920, 1080], [1366, 640]];
 const expectedLayers = {
-  sky: 0, stars: 1, nebula: 2, orb: 4, 'clouds-far': 5, 'clouds-mid': 6, 'clouds-near': 7,
+  sky: 0, stars: 1, nebula: 2, 'orb-glow': 3, orb: 4, 'clouds-far': 5, 'clouds-mid': 6, 'clouds-near': 7,
   birds: 8, 'ground-back': 10, children: 12, 'ground-front': 14, tree: 15, beats: 30,
   rail: 45, 'rail-controls': 45, grain: 50,
 };
@@ -26,7 +26,16 @@ for (const [width, height] of viewports) {
     if (style.zIndex === 'auto') return [];
     return element.classList.contains('journey__plane') ? [] : [`${element.dataset.layer} has z-index ${style.zIndex} outside a plane`];
   })), expectedLayers);
-  if (layerErrors.length) failures.push({ width, height, progress: null, errors: layerErrors });
+  const assetErrors = await page.evaluate(() => {
+    const sun = document.querySelector('.journey__sun-disc');
+    const moon = document.querySelector('.journey__moon');
+    if (!sun || !sun.complete || sun.naturalWidth !== 1024) return ['NASA sun disc did not load at 1024px'];
+    if (!moon || !document.querySelector('[data-layer="orb-glow"] .journey__orb-glow')) return ['missing orb or glow layer'];
+    const sunRect = sun.getBoundingClientRect(), moonRect = moon.getBoundingClientRect();
+    return Math.abs(sunRect.width - moonRect.width) < 1 && Math.abs(sunRect.height - moonRect.height) < 1
+      ? [] : ['sun and moon discs do not share the same diameter'];
+  });
+  if (layerErrors.length || assetErrors.length) failures.push({ width, height, progress: null, errors: [...layerErrors, ...assetErrors] });
 
   const slider = page.getByLabel('Layer debug progress');
   for (let step = 0; step <= 24; step += 1) {

@@ -54,12 +54,43 @@ function orbYForViewport(progress: number) {
   return from.y + (to.y - from.y) * amount;
 }
 
+function mixRgb(from: RGB, to: RGB, amount: number): RGB {
+  return [0, 1, 2].map((index) => Math.round(from[index] + (to[index] - from[index]) * amount)) as unknown as RGB;
+}
+
+function orbAppearance(progress: number) {
+  const p = clamp01(progress);
+  const dawnNoon = smoothstep(clamp01(p / .30));
+  const noonSunset = smoothstep(clamp01((p - .30) / .40));
+  const moon = smoothstep(clamp01((p - .78) / .10));
+  const sunColor = p < .30
+    ? mixRgb([255, 138, 61], [255, 241, 196], dawnNoon)
+    : mixRgb([255, 241, 196], [255, 90, 31], noonSunset);
+  const tintOpacity = (p < .30 ? .75 - .65 * dawnNoon : .10 + .75 * noonSunset) * (1 - moon);
+  const whiteOpacity = .8 * smoothstep(clamp01(p / .30)) * (1 - smoothstep(clamp01((p - .45) / .25)));
+  const glowColor = p < .30
+    ? mixRgb([255, 170, 110], [255, 244, 214], dawnNoon)
+    : mixRgb([255, 244, 214], [255, 96, 40], noonSunset);
+  const sunGlowOpacity = (p < .30 ? .55 - .10 * dawnNoon : .45 + .10 * noonSunset) * (1 - moon);
+  const dayScale = p < .30 ? 1 + .3 * dawnNoon : 1.3 - .1 * noonSunset;
+  return {
+    sunColor,
+    tintOpacity,
+    whiteOpacity,
+    glowColor: mixRgb(glowColor, [194, 211, 255], moon),
+    glowOpacity: sunGlowOpacity + .22 * moon,
+    glowScale: dayScale * (1 - moon) + moon,
+  };
+}
+
 export function SkyJourney() {
   const trackRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const sky = sample(progress);
   const moonTransition = clamp01((progress - .78) / .10);
+  const orb = orbAppearance(progress);
+  const sunOpacity = 1 - moonTransition;
   const nightOpacity = smoothstep(clamp01((progress - .78) / .12)) * sky.stars;
   const auroraOpacity = .68 * smoothstep(clamp01((progress - .86) / .14));
 
@@ -172,10 +203,17 @@ export function SkyJourney() {
         </figure>)}
       </div>)}
       <BirdFlock progress={progress} />
+      <div className="journey__plane journey__plane--orb-glow" data-layer="orb-glow" aria-hidden="true">
+        <div className="journey__orb-glow" style={{ opacity: orb.glowOpacity, '--orb-glow-rgb': orb.glowColor.join(' '), '--orb-glow-scale': orb.glowScale } as CSSProperties} />
+      </div>
       <div className="journey__plane journey__plane--orb" data-layer="orb" aria-hidden="true">
         <div className="journey__orb">
-          <div className="journey__sun" style={{ opacity: sky.sun.opacity * (1 - moonTransition), '--orb-color': rgb(sky.sun.color) } as CSSProperties} />
           <div className="journey__moon" style={{ opacity: moonTransition }} />
+          <div className="journey__sun" style={{ opacity: sunOpacity }}>
+            <img className="journey__sun-disc" src="/3d/sun_color_1k.webp" alt="" decoding="async" style={{ animationPlayState: sunOpacity > .01 ? 'running' : 'paused' }} />
+            <div className="journey__sun-tint" style={{ opacity: orb.tintOpacity, '--sun-tint': rgb(orb.sunColor) } as CSSProperties} />
+            <div className="journey__sun-white" style={{ opacity: orb.whiteOpacity }} />
+          </div>
         </div>
       </div>
       <GroundScene progress={progress} />
@@ -206,7 +244,7 @@ export function SkyJourney() {
 
 const debugLayers = [
   ['header', '.site-header'], ['beat zone', '.journey__plane--beats'],
-  ['orb disc', '.journey__orb'], ['cloud far', '.journey__cloud-layer--far'], ['cloud mid', '.journey__cloud-layer--mid'],
+  ['orb glow', '.journey__orb-glow'], ['orb disc', '.journey__orb'], ['cloud far', '.journey__cloud-layer--far'], ['cloud mid', '.journey__cloud-layer--mid'],
   ['cloud near', '.journey__cloud-layer--near'], ['ground back', '.journey__plane--ground-back'], ['ground front', '.journey__plane--ground-front'],
   ['tree', '.journey__tree-art'], ['children', '.journey__children'], ['birds', '.journey__birds'], ['time readout', '.journey__moment'],
 ] as const;

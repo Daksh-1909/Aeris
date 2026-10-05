@@ -33,6 +33,7 @@
   --beat-y: 13%;
   --beat-w: 44%;
   --beat-h: 33%;
+  --orb-d: clamp(112px, 12vw, 220px);
 }
 
 .journey__plane { position: absolute; inset: 0; pointer-events: none; }
@@ -40,6 +41,7 @@
 .journey__plane--stars { z-index: var(--z-stars); }
 .journey__plane--nebula,
 .journey__plane--aurora { z-index: var(--z-nebula); }
+.journey__plane--orb-glow { z-index: var(--z-orb-glow); }
 .journey__plane--orb { z-index: var(--z-orb); }
 .journey__plane--clouds-far { z-index: var(--z-clouds-far); }
 .journey__plane--clouds-mid { z-index: var(--z-clouds-mid); }
@@ -258,11 +260,11 @@
   position: absolute;
   left: var(--orb-x);
   top: var(--orb-y, 78%);
-  width: clamp(112px, 12vw, 220px);
+  width: var(--orb-d);
   aspect-ratio: 1;
   border-radius: 50%;
   pointer-events: none;
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, -50%, 0);
   transform-origin: center;
   will-change: transform;
 }
@@ -275,17 +277,34 @@
 }
 
 .journey__sun {
-  background: radial-gradient(circle at 38% 34%, #fffce7 0 8%, #fff2bb 19%, color-mix(in srgb, var(--orb-color) 74%, #fff3c4) 42%, var(--orb-color) 72%, #c95038 100%);
-  box-shadow: 0 0 28px 5px color-mix(in srgb, var(--orb-color) 62%, transparent), 0 0 95px 22px color-mix(in srgb, var(--orb-color) 28%, transparent);
+  overflow: hidden;
 }
 
-.journey__sun::before {
-  content: '';
+.journey__sun-disc,
+.journey__sun-tint,
+.journey__sun-white {
   position: absolute;
-  inset: -9%;
-  border: 1px solid color-mix(in srgb, var(--orb-color) 44%, transparent);
+  inset: 0;
   border-radius: 50%;
 }
+
+.journey__sun-disc { object-fit: cover; animation: sun-spin 240s linear infinite; }
+.journey__sun-tint { background: var(--sun-tint); mix-blend-mode: multiply; }
+.journey__sun-white { background: radial-gradient(circle, #fff 0%, rgb(255 255 255 / 0) 72%); }
+.journey__orb-glow {
+  position: absolute;
+  left: var(--orb-x);
+  top: var(--orb-y, 78%);
+  width: var(--orb-d);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--orb-glow-rgb, 255 220 170) / 1) 0%, rgb(var(--orb-glow-rgb, 255 220 170) / .58) 28%, rgb(var(--orb-glow-rgb, 255 220 170) / 0) 72%);
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(calc(var(--orb-glow-scale, 1) * 2.8));
+  transform-origin: center;
+}
+
+@keyframes sun-spin { to { transform: rotate(1turn); } }
 
 .journey__moon {
   background-image: radial-gradient(circle at 32% 28%, rgb(255 255 255 / .1), rgb(0 0 0 / .08) 55%, rgb(0 0 0 / .34) 100%), url('/3d/moon_color_2k.webp');
@@ -301,7 +320,7 @@
   inset: 0;
   border-radius: 50%;
   background: url('/3d/moon_bump_2k.webp') center / auto 100% no-repeat;
-  mix-blend-mode: soft-light;
+  mix-blend-mode: normal;
   opacity: .25;
   pointer-events: none;
 }
@@ -427,13 +446,11 @@
 .journey__layer-debug-control input { width: 100%; accent-color: #efd09c; }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .journey__stage { --orb-x: 50%; --horizon-y: 78%; --beat-x: 7%; --beat-y: 11%; --beat-w: 86%; --beat-h: 30%; }
-  .journey__orb { width: clamp(140px, 22vw, 200px); }
+  .journey__stage { --orb-x: 50%; --orb-d: clamp(140px, 22vw, 200px); --horizon-y: 78%; --beat-x: 7%; --beat-y: 11%; --beat-w: 86%; --beat-h: 30%; }
 }
 
 @media (max-width: 767px) {
-  .journey__stage { min-height: 0; --orb-x: 50%; --horizon-y: 76%; --beat-x: 6%; --beat-y: 10%; --beat-w: 88%; --beat-h: 30%; }
-  .journey__orb { width: clamp(96px, 28vw, 150px); }
+  .journey__stage { min-height: 0; --orb-x: 50%; --orb-d: clamp(96px, 28vw, 150px); --horizon-y: 76%; --beat-x: 6%; --beat-y: 10%; --beat-w: 88%; --beat-h: 30%; }
   .journey__tree-art { left: -8%; width: 36vw; }
   .journey__children { left: 42%; bottom: 12%; width: 34vw; }
   .journey__picnic { left: -1%; bottom: 8%; width: clamp(220px, 65vw, 300px); }
@@ -463,6 +480,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .journey__button { scroll-behavior: auto; }
+  .journey__sun-disc { animation-play-state: paused !important; }
   .journey__cloud img { animation: none; }
   .journey__flower svg { animation: none; }
   .journey__tree-art #canopy,
