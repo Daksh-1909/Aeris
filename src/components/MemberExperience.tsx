@@ -1,8 +1,9 @@
 ﻿import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { CSSProperties, FormEvent, ReactNode } from 'react';
 import { ArrowLeft, Bell, Heart, LogOut, Plus, Search, Trash2, UserRound } from 'lucide-react';
 import { photographs, imageUrl } from '../data/gallery';
 import { handleSkyImageFallback } from './imageFallback';
+import { EditorialReveal } from './EditorialReveal';
 import { galleryFacets } from '../data/galleryFacets';
 import { addCollection, addNotice, currentProfile, deleteCollection, findLocalProfileByUsername, findLocalProfiles, isFavorite, localFollowerCount, memberData, registerMember, replaceMemberData, signInMember, signOutMember, toggleFavorite, updateCollection, updateProfile, type MemberProfile } from '../services/memberStore';
 import { cachedSupabaseProfile, loadSupabaseMemberData, loadSupabaseProfile, requestSupabasePasswordReset, signInWithSupabase, signOutSupabase, signUpWithSupabase, updateSupabasePassword } from '../services/supabaseMemberService';
@@ -22,7 +23,7 @@ function Link({ to, children }: { to: string; children: ReactNode; }) { const ac
 function routeNow() { return `${location.pathname}${location.search}`; }
 function goAfterAuth() { const next=new URLSearchParams(location.search).get('next'); const allowed=['/favorites', '/dashboard', '/collections', '/search', '/notifications']; navigate(next&&(allowed.includes(next)||next.startsWith('/profile/')||next.startsWith('/admin/'))? next:'/dashboard'); }
 function Protected({ profile, ready, children }: { profile: MemberProfile|null; ready: boolean; children: ReactNode; }) { useEffect(() => { if (ready&&!profile) navigate(`/login?next=${encodeURIComponent(location.pathname.slice(1)||'dashboard')}`); }, [profile, ready]); return ready&&profile? <>{children}</>:<main id="main-content" className="member-content" role="status" aria-live="polite">Loading your AERIS journal…</main>; }
-function PhotoTile({ photo, action, query='' }: { photo: Photograph; action?: React.ReactNode; query?: string; }) { return <article className="member-photo"><img src={imageUrl(photo.image, 700)} width="1600" height="1200" loading="lazy" alt={photo.description??photo.title} onError={handleSkyImageFallback} /><div><small><Highlight text={`${photo.category} · ${photo.location}`} query={query} /></small><strong><Highlight text={photo.title} query={query} /></strong>{action}</div></article>; }
+function PhotoTile({ photo, action, query='' }: { photo: Photograph; action?: React.ReactNode; query?: string; }) { return <EditorialReveal><article className="member-photo" style={{ '--photo-tone': photo.tone } as CSSProperties}><img src={imageUrl(photo.image, 700)} width="1600" height="1200" loading="lazy" alt={photo.description??photo.title} onError={handleSkyImageFallback} /><div><small><Highlight text={`${photo.category} · ${photo.location}`} query={query} /></small><strong><Highlight text={photo.title} query={query} /></strong><small className="photo-credit">{photo.credit}</small>{action}</div></article></EditorialReveal>; }
 function Highlight({ text, query }: { text: string; query: string; }) { if (!query.trim()) return <>{text}</>; const parts=text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig')); return <>{parts.map((part, index) => part.toLowerCase()===query.toLowerCase()? <mark key={`${part}-${index}`}>{part}</mark>:part)}</>; }
 
 export function MemberExperience({ children }: { children: ReactNode; }) {

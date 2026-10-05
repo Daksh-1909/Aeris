@@ -15,6 +15,8 @@ export interface Photograph {
   aspect: 'wide' | 'tall' | 'square';
   cloudType: CloudType;
   credit: string;
+  /** Static editorial glow selected with the photo record at build time. */
+  tone: string;
 }
 
 export type OpenPhotograph = (photo: Photograph, photos: Photograph[]) => void;

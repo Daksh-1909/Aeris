@@ -197,8 +197,11 @@
 
 .member-photo {
   min-width: 0;
-  background: #1b201e;
+  background: var(--surface-2, #1b201e);
   border: 1px solid #ffffff12;
+  border-radius: 14px;
+  box-shadow: 0 22px 50px -34px var(--photo-tone, #91a9c4);
+  overflow: hidden;
 }
 
 .member-photo img {
@@ -207,6 +210,8 @@
   object-fit: cover;
   background: #272d2b;
 }
+
+.member-photo .photo-credit { color: var(--mist-400); font-size: 11px; line-height: 1.5; }
 
 .member-photo>div {
   padding: 16px;
@@ -396,12 +401,10 @@
   from {
     opacity: 0;
     transform: translateY(12px) scale(.985);
-    filter: blur(7px);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 

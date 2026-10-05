@@ -4,6 +4,7 @@ import { scrollToPosition } from '../../animations/scroll';
 import { journeyContent } from '../../content/journey';
 import { photographs, imageUrl } from '../../data/gallery';
 import { handleSkyImageFallback } from '../../components/imageFallback';
+import { EditorialReveal } from '../../components/EditorialReveal';
 import { loadCloudRig, type CloudRig, type CloudRigPath } from './cloudRig';
 import './cloudJourney.css';
 
@@ -137,10 +138,10 @@ function ReducedMotionJourney({ rig }: { rig: CloudRig }) {
           <h2>{group.heading}</h2>
           <p>{group.intro}</p>
           {copy.map((text) => <p className="cloud-journey__copy" key={text}>{text}</p>)}
-          {photos.length > 0 && <div className="cloud-journey__photos">{photos.map((photo) => <a className="cloud-journey__photo" href={`/photo/${photo.id}`} key={photo.id}>
+          {photos.length > 0 && <div className="cloud-journey__photos">{photos.map((photo) => <EditorialReveal key={photo.id}><a className="cloud-journey__photo" href={`/photo/${photo.id}`} style={{ '--photo-tone': photo.tone } as CSSProperties}>
             <img src={imageUrl(photo.image, 480)} alt={photo.description ?? photo.title} width="1600" height="1200" loading="lazy" onError={handleSkyImageFallback} />
-            <span>{photo.title}</span><small>{photo.location} · {photo.year}</small><small>{photo.metadata} · {photo.cloudType}</small>
-          </a>)}</div>}
+            <span>{photo.title}</span><small>{photo.location} · {photo.year}</small><small>{photo.metadata} · {photo.cloudType}</small><small>{photo.credit}</small>
+          </a></EditorialReveal>)}</div>}
           {facts.length > 0 && <dl className="cloud-journey__facts">{facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
           {links.length > 0 && <ul className="cloud-journey__links">{links.map((link) => <li key={link.href}><a href={link.href.startsWith('#') ? '#cloud-journey' : link.href}>{link.label}<span aria-hidden="true"> ↗</span></a></li>)}</ul>}
         </div>
@@ -394,10 +395,10 @@ export function CloudJourney() {
         <p>{displayGroup.intro}</p>
         {checkpointCopy.map((copy) => <p className="cloud-journey__copy" key={copy}>{copy}</p>)}
         {cardPhotos.length > 0 && <div className="cloud-journey__photos">
-          {cardPhotos.map(({ photo, alt }) => <a className="cloud-journey__photo" href={`/photo/${photo.id}`} key={photo.id} tabIndex={isCardActive ? 0 : -1}>
+          {cardPhotos.map(({ photo, alt }) => <EditorialReveal key={photo.id}><a className="cloud-journey__photo" href={`/photo/${photo.id}`} style={{ '--photo-tone': photo.tone } as CSSProperties} tabIndex={isCardActive ? 0 : -1}>
             <img src={imageUrl(photo.image, 480)} alt={alt ?? photo.description ?? photo.title} width="1600" height="1200" loading="lazy" onError={handleSkyImageFallback} />
-            <span>{photo.title}</span><small>{photo.location} · {photo.year}</small><small>{photo.metadata} · {photo.cloudType}</small>
-          </a>)}
+            <span>{photo.title}</span><small>{photo.location} · {photo.year}</small><small>{photo.metadata} · {photo.cloudType}</small><small>{photo.credit}</small>
+          </a></EditorialReveal>)}
         </div>}
         {facts.length > 0 && <dl className="cloud-journey__facts">{facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
         {cardLinks.length > 0 && <ul className="cloud-journey__links">{cardLinks.map((link) => <li key={link.href}><a tabIndex={isCardActive ? 0 : -1} href={link.href.startsWith('#') ? '#cloud-journey' : link.href}>{link.label}<span aria-hidden="true"> ↗</span></a></li>)}</ul>}

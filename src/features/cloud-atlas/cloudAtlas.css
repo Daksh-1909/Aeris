@@ -2,7 +2,9 @@
 .cloud-atlas>h1{font:300 clamp(58px,10vw,112px)/.9 'Cormorant Garamond',serif;letter-spacing:-.045em;margin:18px 0 24px}
 .cloud-atlas__lede{max-width:670px;color:var(--mist-400);font:17px/1.7 Inter,Arial,sans-serif}
 .cloud-atlas__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:54px 0 90px}
-.cloud-atlas__type{display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:25px;border:1px solid var(--sky-600);background:var(--sky-900);transition:background .2s,border-color .2s}
+.cloud-atlas__type{display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:25px;border:1px solid var(--sky-600);border-radius:14px;background:var(--surface-2,var(--sky-900));box-shadow:0 22px 50px -34px var(--photo-tone,#91a9c4);transition:background .2s,border-color .2s;overflow:hidden}
+.cloud-atlas__type img{width:calc(100% + 50px);max-width:none;height:190px;margin:-25px -25px 20px;object-fit:cover}
+.cloud-atlas__type small{font-size:11px;line-height:1.5;color:var(--mist-400);margin-bottom:14px}
 .cloud-atlas__type:hover{background:var(--sky-800);border-color:var(--mist-400)}
 .cloud-atlas__type>span,.cloud-atlas__type>b,.cloud-quiz__result>span{font-size: 12px;letter-spacing:.13em;text-transform:uppercase;color:var(--mist-400)}
 .cloud-atlas__type h2{font:400 34px 'Cormorant Garamond',serif;margin:14px 0 4px}
@@ -15,7 +17,7 @@
 .cloud-atlas__facts dd{font-size:14px;line-height:1.7;margin:12px 0 0}
 .cloud-atlas>h2,.cloud-quiz>h2{font:400 40px 'Cormorant Garamond',serif}
 .cloud-atlas__photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.cloud-atlas__photos article{background:var(--sky-900)}
+.cloud-atlas__photos article{background:var(--surface-2,var(--sky-900));border-radius:14px;box-shadow:0 22px 50px -34px var(--photo-tone,#91a9c4);overflow:hidden}
 .cloud-atlas__photos img{aspect-ratio:4/3;object-fit:cover}
 .cloud-atlas__photos article>div{display:grid;gap:7px;padding:15px}
 .cloud-atlas__photos span,.cloud-atlas__photos small{color:var(--mist-400);font-size: 12px}

@@ -432,3 +432,19 @@ html[data-reduce-effects='true'] .hero__scroll-cue svg { animation: none; }
     radial-gradient(1.2px 1.2px at 221px 169px, rgb(255 224 196 / .16) 70%, transparent 100%);
   background-size: 280px 230px;
 }
+.editorial-reveal[data-reveal-pending='true']:not([data-revealed='true']) {
+  clip-path: inset(0 0 100% 0);
+}
+.editorial-reveal[data-reveal-pending='true'] {
+  transition: clip-path 700ms cubic-bezier(.22,.72,.22,1);
+}
+.editorial-reveal[data-revealed='true'] { clip-path: inset(0); }
+
+@media (hover: hover) {
+  .member-photo img, .cloud-journey__photo img, .cloud-atlas__photos img, .cloud-atlas__type img {
+    transition: transform 600ms ease;
+  }
+  .member-photo:hover img, .cloud-journey__photo:hover img, .cloud-atlas__photos article:hover img, .cloud-atlas__type:hover img {
+    transform: scale(1.02);
+  }
+}
