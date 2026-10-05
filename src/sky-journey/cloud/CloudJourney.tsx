@@ -120,10 +120,10 @@ function ReducedMotionJourney({ rig }: { rig: CloudRig }) {
     {rig.checkpoints.map((checkpoint, index) => {
       const contentKey = checkpoint.content as JourneyContentKey;
       const group = journeyContent[contentKey];
-      const photos = group.featuredPhotos.flatMap((item) => {
+      const photos = Array.from(new Map(group.featuredPhotos.flatMap((item) => {
         const photo = photographs.find((entry) => entry.id === item.id);
         return photo ? [photo] : [];
-      }).slice(0, 3);
+      }).map((photo) => [photo.id, photo])).values()).slice(0, 3);
       const facts = contentKey === 'numbers' ? group.legacySections[0]?.numbers ?? [] : [];
       const copy = group.legacySections[0]?.text.filter((text) => text !== group.intro) ?? [];
       const originalLinks = group.legacySections.flatMap((section) => section.links).filter((link) => link.href.startsWith('/') || link.href.startsWith('mailto:'));
@@ -323,10 +323,10 @@ export function CloudJourney() {
   const photoSource = displayCp.content === 'sky' ? displayGroup.legacySections[1]?.images.slice(0, 3)
     : displayCp.content === 'contact' ? displayGroup.legacySections[0]?.images
       : displayGroup.featuredPhotos.map((photo) => ({ id: photo.id, alt: photo.description, caption: photo.title }));
-  const cardPhotos = displayCp.content === 'numbers' ? [] : (photoSource ?? []).flatMap((item) => {
+  const cardPhotos = displayCp.content === 'numbers' ? [] : Array.from(new Map((photoSource ?? []).flatMap((item) => {
     const photo = photographs.find((entry) => entry.id === item.id || entry.image === item.id);
     return photo ? [{ photo, alt: item.alt }] : [];
-  }).slice(0, 3);
+  }).map((item) => [item.photo.id, item])).values()).slice(0, 3);
   const checkpointExtraSources: Record<string, string[]> = {
     sky: ['Cloud studies'], nature: [], numbers: ['Gallery'], contact: ['Golden hour section', 'Closing experience', 'Daily Sky section'],
   };
