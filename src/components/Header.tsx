@@ -59,7 +59,7 @@ export function Header() {
   }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
-  return <header className={`site-header${scrolled ? ' site-header--scrolled' : ''}${menuOpen ? ' site-header--open' : ''}`}>
+  return <header className={`site-header${scrolled ? ' site-header--scrolled' : ''}${menuOpen ? ' site-header--open' : ''}`} data-layer="header">
     <div className="site-header__bar">
       <Brand />
       <nav className="desktop-nav" aria-label="Main navigation">

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { scrollToPosition } from '../animations/scroll';
@@ -9,6 +9,8 @@ import { BirdFlock } from './BirdFlock';
 import { GroundScene } from './GroundScene';
 import { NightSky } from './NightSky';
 import './journey.css';
+
+const layerDebug = import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === 'layers';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -128,9 +130,9 @@ export function SkyJourney() {
   };
 
   return <section className="journey" id="journey" ref={trackRef} aria-label="A journey through the sky">
-    <div className="journey__stage" ref={stageRef}>
+    <div className="journey__stage" ref={stageRef} data-layer="stage">
       <div className="journey__sky" aria-hidden="true" />
-      <div className="journey__horizon" aria-hidden="true" />
+      <div className="journey__horizon" data-layer="horizon" aria-hidden="true" />
       {cloudDepths.map((depth) => <div key={depth} className={`journey__cloud-layer journey__cloud-layer--${depth}`} aria-hidden="true">
         {cloudPlacements.filter((cloud) => cloud.depth === depth).map((cloud) => <figure key={cloud.id} className={`journey__cloud${cloud.mobileHidden ? ' journey__cloud--mobile-hidden' : ''}`} style={{
           left: `${cloud.left}%`,
@@ -158,12 +160,12 @@ export function SkyJourney() {
           <h1 data-title={beat.title}>{beat.title}</h1>
         </article>;
       })}
-      <div className="journey__orb" aria-hidden="true" style={{ '--orb-x': `${sky.sun.x}%`, '--orb-y': `${sky.sun.y}%`, transform: `translate(-50%, -50%) scale(${sky.sun.size})` } as CSSProperties}>
+      <div className="journey__orb" data-layer="orb" aria-hidden="true" style={{ '--orb-x': `${sky.sun.x}%`, '--orb-y': `${sky.sun.y}%`, transform: `translate(-50%, -50%) scale(${sky.sun.size})` } as CSSProperties}>
         <div className="journey__sun" style={{ opacity: sky.sun.opacity * (1 - moonTransition), '--orb-color': rgb(sky.sun.color) } as CSSProperties} />
         <div className="journey__moon" style={{ opacity: moonTransition }} />
       </div>
       <GroundScene progress={progress} />
-      <div className="journey__overlap-front" aria-hidden="true" style={{ ...beatStyle(progress, 2), '--orb-x': `${sky.sun.x}%`, '--orb-y': `${sky.sun.y}%` } as CSSProperties}>
+      <div className="journey__overlap-front" data-layer="overlap-title" aria-hidden="true" style={{ ...beatStyle(progress, 2), '--orb-x': `${sky.sun.x}%`, '--orb-y': `${sky.sun.y}%` } as CSSProperties}>
         <h1>{beats[2].title}</h1>
       </div>
       {beats.map((beat, index) => {
@@ -174,12 +176,49 @@ export function SkyJourney() {
           <a href="#collection" className="journey__button">Explore the gallery <span aria-hidden="true">↗</span></a>
         </aside>;
       })}
-      <output className="journey__moment" aria-label="Current sky moment" aria-live="off">{sky.moment}</output>
+      <output className="journey__moment" data-layer="time-readout" aria-label="Current sky moment" aria-live="off">{sky.moment}</output>
       {import.meta.env.DEV && <div className="journey__debug">
         <label htmlFor="journey-progress">Scrub sky</label>
         <input id="journey-progress" type="range" min="0" max="1000" step="1" value={Math.round(progress * 1000)} onChange={(event) => scrubTo(Number(event.currentTarget.value) / 1000)} />
         <output htmlFor="journey-progress">{sky.moment} · {progress.toFixed(2)}</output>
       </div>}
+      {layerDebug && <LayerDebug stageRef={stageRef} progress={progress} setProgress={setProgress} />}
     </div>
   </section>;
+}
+
+const debugLayers = [
+  ['header', '.site-header'], ['beat title 1', '.journey__scene:nth-of-type(1) h1'], ['beat titles', '.journey__scene h1'],
+  ['beat copy', '.journey__copy'], ['orb disc', '.journey__orb'], ['cloud far', '.journey__cloud-layer--far'],
+  ['cloud mid', '.journey__cloud-layer--mid'], ['cloud near', '.journey__cloud-layer--near'], ['ground', '.journey__ground-scene'],
+  ['tree', '.journey__tree'], ['children', '.journey__children'], ['bench', '.journey__bench-scene'],
+  ['birds', '.journey__birds'], ['time readout', '.journey__moment'],
+] as const;
+
+function LayerDebug({ stageRef, progress, setProgress }: { stageRef: RefObject<HTMLDivElement | null>; progress: number; setProgress: (value: number) => void }) {
+  const stage = stageRef.current;
+  const bounds = stage?.getBoundingClientRect();
+  const items = stage && bounds ? debugLayers.flatMap(([name, selector]) => [...document.querySelectorAll<HTMLElement>(selector)]
+    .filter((element) => element.getClientRects().length && Number(getComputedStyle(element).opacity) > 0.01)
+    .map((element) => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const z = style.zIndex;
+      const contexts: string[] = [];
+      let node: HTMLElement | null = element;
+      while (node && node !== stage.parentElement) {
+        const s = getComputedStyle(node);
+        const reasons = [s.transform !== 'none' && 'transform', s.filter !== 'none' && 'filter', Number(s.opacity) < 1 && 'opacity', s.isolation === 'isolate' && 'isolation', s.willChange !== 'auto' && `will-change:${s.willChange}`, s.mixBlendMode !== 'normal' && 'mix-blend-mode', (s.position !== 'static' && s.zIndex !== 'auto') && `z-index:${s.zIndex}`].filter(Boolean);
+        if (reasons.length) contexts.push(`${node.className || node.tagName}: ${reasons.join(', ')}`);
+        node = node.parentElement;
+      }
+      return { name, rect, z, contexts };
+    })) : [];
+  return <div className="journey__layer-debug" aria-label="Layer debug overlay" data-progress={progress.toFixed(2)}>
+    {items.map(({ name, rect, z, contexts }, index) => <div key={`${name}-${index}`} className="journey__layer-debug-box" style={{ left: rect.left - (bounds?.left ?? 0), top: rect.top - (bounds?.top ?? 0), width: rect.width, height: rect.height, '--debug-color': `hsl(${index * 47 % 360} 100% 65%)` } as CSSProperties}>
+      <span>{name} · z:{z}<br />{contexts.join(' ← ') || 'no local stacking context'}</span>
+    </div>)}
+    <div className="journey__layer-debug-horizon" style={{ top: '80%' }}><span>horizon reference · 80% stage height</span></div>
+    <label className="journey__layer-debug-control">debug progress {progress.toFixed(2)}<input aria-label="Layer debug progress" type="range" min="0" max="100" value={Math.round(progress * 100)} onChange={(event) => setProgress(Number(event.currentTarget.value) / 100)} /></label>
+  </div>;
 }
