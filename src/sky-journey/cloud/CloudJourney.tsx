@@ -36,6 +36,17 @@ function colorAtJourneyProgress(j: number, checkpointFractions: number[], colors
   return mixHex(colors[segment]!, colors[segment + 1]!, amount);
 }
 
+function tintWeights(j: number, checkpointFractions: number[]) {
+  const stops = [0, ...checkpointFractions.map((_, index) => getPreviewScroll(checkpointFractions, index))];
+  const progress = clamp01(j);
+  const foundSegment = stops.slice(1).findIndex((end) => progress <= end);
+  const segment = foundSegment < 0 ? stops.length - 1 : foundSegment;
+  const from = stops[segment]!;
+  const to = stops[segment + 1];
+  const amount = to === undefined ? 1 : clamp01((progress - from) / (to - from));
+  return Array.from({ length: 5 }, (_, index) => index === segment ? 1 - amount : index === segment + 1 ? amount : 0);
+}
+
 function easeInOutCubic(value: number) {
   const t = clamp01(value);
   return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -297,10 +308,15 @@ export function CloudJourney() {
   const cardOnRight = state.displayCheckpoint % 2 === 0;
   const cardBelowCloud = activePoint ? activePoint[1] / path.viewBox[1] < .55 : false;
   const skyTop = colorAtJourneyProgress(state.j, cpFractions, skyTopColors);
-  const skyBottom = colorAtJourneyProgress(state.j, cpFractions, skyBottomColors);
   const cloudTop = colorAtJourneyProgress(state.j, cpFractions, cloudTopColors);
   const cloudBottom = colorAtJourneyProgress(state.j, cpFractions, cloudBottomColors);
-  const stageStyle = { '--cloud-journey-sky-top': skyTop, '--cloud-journey-sky-bottom': skyBottom, '--cloud-journey-glow': skyTop } as CSSProperties;
+  const tintOpacity = tintWeights(state.j, cpFractions);
+  const tintStyle = skyTopColors.slice(0, 5).map((top, index) => ({
+    '--journey-tint-top': top,
+    '--journey-tint-bottom': skyBottomColors[index],
+    opacity: tintOpacity[index],
+  }) as CSSProperties);
+  const stageStyle = { '--cloud-journey-glow': skyTop } as CSSProperties;
   const cameraX = Math.max(-24, Math.min(24, (.5 - state.point.x / path.viewBox[0]) * 48));
   const cameraStyle = { transform: `translate3d(${cameraX}px, 0, 0)`, '--cloud-journey-star-drift': `${-cameraX / 2}px` } as CSSProperties;
   const photoSource = displayCp.content === 'sky' ? displayGroup.legacySections[1]?.images.slice(0, 3)
@@ -329,6 +345,7 @@ export function CloudJourney() {
 
   return <section ref={sectionRef} className={`cloud-journey${mobile ? ' cloud-journey--mobile' : ''}`} id="cloud-journey" aria-label="A cloud journey through the sky">
     <div ref={stageRef} className="cloud-journey__stage" style={stageStyle}>
+      <div className="cloud-journey__tints" aria-hidden="true">{tintStyle.map((style, index) => <div className="cloud-journey__tint" style={style} key={index} />)}</div>
       <div className="cloud-journey__camera" style={cameraStyle}>
       <div className="cloud-journey__stars" aria-hidden="true" />
       <div className="cloud-journey__glow" aria-hidden="true" />
