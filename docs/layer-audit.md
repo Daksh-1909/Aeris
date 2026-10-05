@@ -26,8 +26,8 @@ Each cell links to the screenshot at the requested progress. Counts are geometri
 ## Orb stacking context and z-index
 
 - .journey__orb computed style is position:absolute; z-index:6. Its progress transform is a matrix and will-change:transform is set. The orb creates its own stacking context.
-- Parent .journey__stage has isolation:isolate, so it establishes the containing isolated stacking context. It is sticky and clips overflow. The surrounding .page--ready wrapper is positioned with z-index:1 and creates another ancestor stacking context.
-- The orb's effective ordering is z-index 6 inside the isolated stage, itself inside .page--ready z-index 1. The header is separately positioned at z-index 50 within that wrapper and stacks above the stage. The orb is above mid/near clouds (z 4 desktop; near cloud z 4 mobile) and ground scene plane (z 3). Foreground tree z 4 is inside the z-3 ground-scene stacking context, so it cannot outrank the orb across parent contexts. Descendant z values alone do not determine the cross-context order.
+- Parent .journey__stage has isolation:isolate, so it establishes the containing isolated stacking context. It is sticky and clips overflow. Its ancestor #root is positioned relative with z-index:1 and creates the outer stacking context; .page--ready itself does not create one.
+- The orb's effective ordering is z-index 6 inside the isolated stage, itself inside #root z-index 1. The header is separately positioned at z-index 50 within #root and stacks above the stage. Desktop far/mid/near clouds have z-index 3/4/7, so the orb is above far and mid clouds and below near clouds. At mobile widths, near clouds are z-index 4, so the orb is above all three cloud planes. The ground scene is a sibling at z-index 3, and the tree is a sibling at z-index 4; the orb is in front of both at all measured widths. This differs from the intended orb-behind-ground ordering in the plan. Descendant z values alone do not determine cross-context order.
 
 ## Other stacking-context triggers found
 
