@@ -1,3 +1,5 @@
+@property --canopy-sway { syntax: '<angle>'; inherits: true; initial-value: 1.2deg; }
+
 :root {
   --z-sky: 0; --z-stars: 1; --z-nebula: 2; --z-orb-glow: 3; --z-orb: 4;
   --z-clouds-far: 5; --z-clouds-mid: 6; --z-clouds-near: 7; --z-birds: 8;
@@ -52,6 +54,7 @@
 .journey__plane--birds { z-index: var(--z-birds); }
 .journey__plane--ground-back { z-index: var(--z-ground-back); }
 .journey__plane--children { z-index: var(--z-children); }
+.journey__plane--bench { z-index: var(--z-bench); }
 .journey__plane--ground-front { z-index: var(--z-ground-front); }
 .journey__plane--tree { z-index: var(--z-tree); }
 .journey__plane--beats { z-index: var(--z-beats); }
@@ -158,6 +161,7 @@
   transform-origin: 160px 250px;
   will-change: transform;
   animation: canopy-sway 6s ease-in-out infinite alternate;
+  transition: --canopy-sway 1.5s ease-out;
 }
 
 @keyframes canopy-sway {
@@ -216,6 +220,30 @@
   display: block;
   aspect-ratio: 11 / 6;
 }
+.journey__bird-frame { opacity: 0; animation: bird-flap var(--flap-duration, 480ms) steps(1, end) infinite; }
+.journey__bird-frame--0 { animation-name: bird-wing-up; }
+.journey__bird-frame--1 { animation-name: bird-wing-mid; }
+.journey__bird-frame--2 { animation-name: bird-wing-down; }
+.journey__bird-frame--3 { animation-name: bird-wing-mid; }
+@keyframes bird-wing-up { 0%, 24.99% { opacity: 1; } 25%, 100% { opacity: 0; } }
+@keyframes bird-wing-mid { 0%, 24.99% { opacity: 0; } 25%, 49.99% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes bird-wing-down { 0%, 49.99% { opacity: 0; } 50%, 74.99% { opacity: 1; } 75%, 100% { opacity: 0; } }
+.journey__bird-frame--3 { animation-name: bird-wing-mid-last; }
+@keyframes bird-wing-mid-last { 0%, 74.99% { opacity: 0; } 75%, 99.99% { opacity: 1; } 100% { opacity: 0; } }
+.journey__birds[data-flapping='false'] .journey__bird-frame { animation-play-state: paused; }
+.journey__bird--static .journey__bird-frame { animation: none; opacity: 0; }
+.journey__bird--static .journey__bird-frame--1 { opacity: 1; }
+
+.journey__bench-scene {
+  position: absolute;
+  left: 64%;
+  bottom: 5%;
+  width: clamp(180px, 25vw, 360px);
+  aspect-ratio: 1.7;
+  transform: translateX(-50%);
+}
+.journey__bench-art, .journey__people-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.journey__people-art { transition: none; }
 
 .journey__stage[data-paused='true'] *,
 .journey__stage[data-quality-tier='3'] .journey__cloud img,
@@ -257,21 +285,6 @@
   from { transform: rotate(-3deg); }
   to { transform: rotate(3deg); }
 }
-
-.journey__bench-scene {
-  position: absolute;
-  left: 64%;
-  bottom: 5%;
-  width: clamp(168px, 17vw, 240px);
-  aspect-ratio: 12 / 7;
-}
-
-.journey__bench-art,
-.journey__people-art {
-  position: absolute;
-  inset: 0;
-}
-
 
 .journey__orb {
   position: absolute;
@@ -384,7 +397,7 @@
 
 .journey__eyebrow {
   margin: 0;
-  font: 500 .72rem/1.2 Inter, Arial, sans-serif;
+  font: 500 12px/1.2 Inter, Arial, sans-serif;
   letter-spacing: .28em;
 }
 .journey__eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; margin: 0 10px 3px 0; background: currentColor; }
@@ -411,15 +424,17 @@
   display: inline-flex;
   align-items: center;
   gap: 16px;
-  border: 1px solid currentColor;
+  border: 1px solid var(--champagne);
   border-radius: 999px;
-  background: rgb(12 30 39 / .22);
-  color: inherit;
-  font: 500 .72rem/1.3 Inter, Arial, sans-serif;
+  background: var(--surface-1);
+  color: var(--champagne);
+  font: 500 12px/1.3 Inter, Arial, sans-serif;
   letter-spacing: .11em;
   text-decoration: none;
   text-transform: uppercase;
+  transition: transform 180ms var(--ease-sky);
 }
+.journey__button:hover, .journey__button:focus-visible { transform: translateY(-2px); }
 
 .journey__debug {
   position: absolute;
@@ -437,7 +452,7 @@
   background: rgb(9 21 30 / .76);
   color: white;
   transform: translateX(-50%);
-  font: 10px/1.3 Inter, Arial, sans-serif;
+  font: 12px/1.3 Inter, Arial, sans-serif;
 }
 
 .journey__moment {
@@ -445,7 +460,7 @@
   right: clamp(24px, 7.5vw, 120px);
   bottom: clamp(32px, 8vh, 88px);
   color: var(--journey-text);
-  font: 500 .72rem/1.3 Inter, Arial, sans-serif;
+  font: 500 12px/1.3 Inter, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -454,7 +469,7 @@
 .journey__debug input { width: 100%; accent-color: #efd09c; }
 .journey__debug output { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.journey__layer-debug { pointer-events: none; overflow: hidden; font: 9px/1.3 Inter, Arial, sans-serif; }
+.journey__layer-debug { pointer-events: none; overflow: hidden; font: 12px/1.3 Inter, Arial, sans-serif; }
 .journey__layer-debug-box { position: absolute; box-sizing: border-box; border: 1px solid var(--debug-color); background: color-mix(in srgb, var(--debug-color) 9%, transparent); }
 .journey__layer-debug-box > span { position: absolute; top: 0; left: 0; max-width: min(340px, 50vw); padding: 3px 5px; color: #fff; background: color-mix(in srgb, var(--debug-color) 76%, #080b14); overflow-wrap: anywhere; }
 .journey__layer-debug-horizon { position: absolute; left: 0; right: 0; top: var(--horizon-y); height: 0; border-top: 1px dashed #fff; }
@@ -464,12 +479,16 @@
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .journey__stage { --orb-x: 50%; --orb-d: clamp(140px, 22vw, 200px); --horizon-y: 78%; --beat-x: 7%; --beat-y: 11%; --beat-w: 86%; --beat-h: 30%; }
+  .journey__tree-art { left: -6%; width: 34vw; }
+  .journey__children { left: 45%; width: 30vw; }
+  .journey__bench-scene { left: 74%; width: 36vw; }
 }
 
 @media (max-width: 767px) {
   .journey__stage { min-height: 0; --orb-x: 50%; --orb-d: clamp(96px, 28vw, 150px); --horizon-y: 76%; --beat-x: 6%; --beat-y: 10%; --beat-w: 88%; --beat-h: 30%; }
-  .journey__tree-art { left: -8%; width: 36vw; }
-  .journey__children { left: 42%; bottom: 12%; width: 34vw; }
+  .journey__tree-art { left: -11%; width: 36vw; }
+  .journey__children { left: 44.5%; bottom: 12%; width: 34vw; }
+  .journey__bench-scene { left: 81.5%; width: 40vw; }
   .journey__picnic { left: -1%; bottom: 8%; width: clamp(220px, 65vw, 300px); }
   .journey__bird:nth-child(5),
   .journey__bird:nth-child(6),

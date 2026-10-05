@@ -32,16 +32,16 @@ export function BirdFlock({ progress }: { progress: number }) {
   const leadSize = 'clamp(28px, 3vw, 52px)';
   const leadPixels = Math.max(28, Math.min(52, window.innerWidth * .03));
 
-  return <div className="journey__plane journey__plane--birds journey__birds" data-layer="birds" aria-hidden="true" style={{ opacity: active ? opacity : 0, '--bird': '#2a2438' } as CSSProperties}>
+  return <div className="journey__plane journey__plane--birds journey__birds" data-layer="birds" data-flapping={active && !reducedMotion} aria-hidden="true" style={{ opacity: active ? opacity : 0, '--bird': '#2a2438' } as CSSProperties}>
     {flock.map((bird, index) => {
       const birdTravel = bird.far ? travel * .7 : travel;
       const left = reducedMotion ? 20 : x + 120 * (bird.far ? birdTravel - travel : 0);
       const top = reducedMotion ? 36 : y;
-      const frame = reducedMotion ? 'bird-mid' : frames[frameOffsets[index]! % frames.length];
       const size = `calc(${leadSize} * ${bird.scale})`;
       const style = { left: `calc(${left}% + ${bird.x * leadPixels}px)`, top: `calc(${top}% + ${bird.y * leadPixels}px)`, width: size } as CSSProperties;
-      return <svg key={index} className="journey__bird" viewBox="0 0 44 24" style={style} focusable="false">
-        <use href={`/3d/scene/birds.svg#${frame}`} />
+      const flapStep = bird.far ? 240 : 120;
+      return <svg key={index} className={`journey__bird${reducedMotion ? ' journey__bird--static' : ''}`} viewBox="0 0 44 24" style={{ ...style, '--flap-duration': `${flapStep * 4}ms` } as CSSProperties} focusable="false">
+        {frames.map((frame, frameIndex) => <use key={frameIndex} className={`journey__bird-frame journey__bird-frame--${frameIndex}`} href={`/3d/scene/birds.svg#${reducedMotion ? 'bird-mid' : frame}`} style={{ animationDelay: `${-(frameOffsets[index]! * flapStep + frameIndex * flapStep)}ms` }} />)}
       </svg>;
     })}
   </div>;

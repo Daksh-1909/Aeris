@@ -45,6 +45,8 @@ export function GroundScene({ progress }: { progress: number }) {
   const childrenActive = progress >= .70 && progress <= .76;
   const duskT = smoothstep(clamp01((progress - .76) / .06));
   const picnicOpacity = smoothstep(clamp01((progress - .45) / .04)) * (1 - smoothstep(clamp01((progress - .61) / .02)));
+  const benchOpacity = .35 + .65 * smoothstep(clamp01((progress - .68) / .18));
+  const peopleOpacity = smoothstep(clamp01((progress - .82) / .08));
   const childrenStyle = {
     '--children-rise': `${(1 - smoothstep(clamp01((progress - .64) / .06))) * 12}px`,
     '--kids': mixHex('#2a1222', '#120a14', duskT),
@@ -64,6 +66,24 @@ export function GroundScene({ progress }: { progress: number }) {
     <div className="journey__plane journey__plane--children" data-layer="children" aria-hidden="true">
       <div className="journey__children" style={childrenStyle}>
         <div className={`journey__children-art${childrenActive ? ' journey__children--active' : ''}${childrenVisible ? '' : ' journey__children--hidden'}`} dangerouslySetInnerHTML={{ __html: childrenSvg }} />
+      </div>
+    </div>
+    <div className="journey__plane journey__plane--bench" data-layer="bench" aria-hidden="true">
+      <div className="journey__bench-scene">
+        <svg className="journey__bench-art" viewBox="0 0 340 200" role="presentation" style={{ opacity: benchOpacity }}>
+          <g fill="#302821" stroke="#211d1b" strokeWidth="8" strokeLinejoin="round">
+            <path d="M38 102h264v24H38zM50 72h240v24H50zM69 126l-13 64h20l22-64m139 0 22 64h20l-13-64" />
+            <path d="M76 96v9m58-9v9m58-9v9m58-9v9" fill="none" stroke="#b28158" strokeWidth="5" />
+          </g>
+          <g className="journey__people-art" data-layer="people" style={{ opacity: peopleOpacity }} stroke="#120f16" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="126" cy="46" r="19" fill="#6f4a3b" />
+            <path d="M105 73q21-17 42 0l15 40h-71z" fill="#485b69" />
+            <path d="m108 94-25 22m54-20 30 19m-54-1-17 50m34-49 27 49" fill="none" />
+            <circle cx="218" cy="42" r="19" fill="#9b6449" />
+            <path d="M197 68q21-17 42 0l15 41h-72z" fill="#8e644c" />
+            <path d="m200 89-30 21m54-20 25 25m-42-3-16 51m39-51 18 50" fill="none" />
+          </g>
+        </svg>
       </div>
     </div>
     <div className="journey__plane journey__plane--ground-front" data-layer="ground-front" aria-hidden="true">

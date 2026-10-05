@@ -126,6 +126,8 @@ export function SkyJourney() {
     let governorFrameTotal = 0;
     let governorFrames = 0;
     let qualityTier = 0;
+    let lastProgressAt = performance.now();
+    let canopyResetTimer: number | undefined;
     try {
       const storedTier = sessionStorage.getItem('aeris:quality-tier');
       const savedTier = Number(storedTier);
@@ -171,8 +173,17 @@ export function SkyJourney() {
     const renderProgress = (value: number) => {
       if (lastProgress >= 0 && Math.abs(value - lastProgress) < .0004) return;
       const frame = sample(value);
+      const now = performance.now();
+      if (lastProgress >= 0 && Math.abs(frame.progress - lastProgress) / Math.max(1, now - lastProgressAt) > .00015) {
+        stage.style.setProperty('--canopy-sway', '2.4deg');
+        window.clearTimeout(canopyResetTimer);
+        canopyResetTimer = window.setTimeout(() => stage.style.setProperty('--canopy-sway', '1.2deg'), 1500);
+      }
+      lastProgressAt = now;
       lastProgress = frame.progress;
       stage.dataset.progress = frame.progress.toFixed(4);
+      const scrimStrength = frame.progress <= .9 ? .38 - .26 * smoothstep(frame.progress / .9) : .12;
+      stage.style.setProperty('--scrim-strength', scrimStrength.toFixed(3));
       const sunrise = 1 - smoothstep(clamp01(frame.progress / .30));
       const sunset = smoothstep(clamp01((frame.progress - .48) / .20)) * (1 - smoothstep(clamp01((frame.progress - .73) / .12)));
       const nightFade = 1 - smoothstep(clamp01((frame.progress - .78) / .17));
@@ -268,6 +279,7 @@ export function SkyJourney() {
       motionQuery.removeEventListener('change', updatePaused);
       visibility.disconnect();
       if (governorAttached) gsap.ticker.remove(governorTick);
+      window.clearTimeout(canopyResetTimer);
       tween.scrollTrigger?.kill();
       tween.kill();
     };
@@ -358,7 +370,7 @@ export function SkyJourney() {
 const debugLayers = [
   ['header', '.site-header'], ['beat zone', '.journey__plane--beats'],
   ['orb glow', '.journey__orb-glow'], ['orb disc', '.journey__orb'], ['cloud far', '.journey__cloud-layer--far'], ['cloud mid', '.journey__cloud-layer--mid'],
-  ['cloud near', '.journey__cloud-layer--near'], ['ground back', '.journey__plane--ground-back'], ['ground front', '.journey__plane--ground-front'],
+  ['cloud near', '.journey__cloud-layer--near'], ['ground back', '.journey__plane--ground-back'], ['bench', '.journey__plane--bench'], ['people', '.journey__people-art'], ['ground front', '.journey__plane--ground-front'],
   ['tree', '.journey__tree-art'], ['children', '.journey__children'], ['birds', '.journey__birds'], ['time readout', '.journey__moment'],
 ] as const;
 
