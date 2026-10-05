@@ -133,8 +133,8 @@ export function SkyJourney() {
     <div className="journey__stage" ref={stageRef} data-layer="stage">
       <div className="journey__sky" aria-hidden="true" />
       <div className="journey__horizon" data-layer="horizon" aria-hidden="true" />
-      {cloudDepths.map((depth) => <div key={depth} className={`journey__cloud-layer journey__cloud-layer--${depth}`} aria-hidden="true">
-        {cloudPlacements.filter((cloud) => cloud.depth === depth).map((cloud) => <figure key={cloud.id} className={`journey__cloud${cloud.mobileHidden ? ' journey__cloud--mobile-hidden' : ''}`} style={{
+      {cloudDepths.map((depth) => <div key={depth} data-layer={`clouds-${depth}`} className={`journey__cloud-layer journey__cloud-layer--${depth}`} aria-hidden="true">
+        {cloudPlacements.filter((cloud) => cloud.depth === depth).map((cloud) => <figure key={cloud.id} data-layer={`cloud-${depth}-${cloud.id}`} className={`journey__cloud${cloud.mobileHidden ? ' journey__cloud--mobile-hidden' : ''}`} style={{
           left: `${cloud.left}%`,
           top: `${cloud.top}%`,
           width: `clamp(${cloud.minPx}px, ${cloud.sizeVw}vw, ${cloud.maxPx}px)`,
@@ -155,7 +155,7 @@ export function SkyJourney() {
       {beats.map((beat, index) => {
         const visibility = beatVisibility(progress, index);
         const hidden = visibility.opacity < .02;
-        return <article key={beat.title} className={`journey__scene journey__scene--${beat.position}${index === 2 ? ' journey__scene--behind' : ''}`} style={beatStyle(progress, index)} aria-hidden={hidden} inert={hidden}>
+        return <article key={beat.title} data-layer={`beat-title-${index + 1}`} className={`journey__scene journey__scene--${beat.position}${index === 2 ? ' journey__scene--behind' : ''}`} style={beatStyle(progress, index)} aria-hidden={hidden} inert={hidden}>
           <p className="journey__eyebrow">AERIS <span>·</span> {String(index + 1).padStart(2, '0')} / 06</p>
           <h1 data-title={beat.title}>{beat.title}</h1>
         </article>;
@@ -171,7 +171,7 @@ export function SkyJourney() {
       {beats.map((beat, index) => {
         const visibility = beatVisibility(progress, index);
         const hidden = visibility.opacity < .02;
-        return <aside key={beat.title} className={`journey__copy journey__copy--${beat.side} journey__copy--beat-${index + 1}`} style={beatStyle(progress, index)} aria-hidden={hidden} inert={hidden}>
+        return <aside key={beat.title} data-layer={`beat-copy-${index + 1}`} className={`journey__copy journey__copy--${beat.side} journey__copy--beat-${index + 1}`} style={beatStyle(progress, index)} aria-hidden={hidden} inert={hidden}>
           <p>{beat.copy}</p>
           <a href="#collection" className="journey__button">Explore the gallery <span aria-hidden="true">↗</span></a>
         </aside>;
@@ -212,11 +212,11 @@ function LayerDebug({ stageRef, progress, setProgress }: { stageRef: RefObject<H
         if (reasons.length) contexts.push(`${node.className || node.tagName}: ${reasons.join(', ')}`);
         node = node.parentElement;
       }
-      return { name, rect, z, contexts };
+      return { name, rect, z, contexts, layer: element.dataset.layer };
     })) : [];
   return <div className="journey__layer-debug" aria-label="Layer debug overlay" data-progress={progress.toFixed(2)}>
-    {items.map(({ name, rect, z, contexts }, index) => <div key={`${name}-${index}`} className="journey__layer-debug-box" style={{ left: rect.left - (bounds?.left ?? 0), top: rect.top - (bounds?.top ?? 0), width: rect.width, height: rect.height, '--debug-color': `hsl(${index * 47 % 360} 100% 65%)` } as CSSProperties}>
-      <span>{name} · z:{z}<br />{contexts.join(' ← ') || 'no local stacking context'}</span>
+    {items.map(({ name, rect, z, contexts, layer }, index) => <div key={`${name}-${index}`} className="journey__layer-debug-box" style={{ left: rect.left - (bounds?.left ?? 0), top: rect.top - (bounds?.top ?? 0), width: rect.width, height: rect.height, '--debug-color': `hsl(${index * 47 % 360} 100% 65%)` } as CSSProperties}>
+      <span>{name} · {layer || 'no data-layer'} · z:{z}<br />{contexts.join(' ← ') || 'no local stacking context'}</span>
     </div>)}
     <div className="journey__layer-debug-horizon" style={{ top: '80%' }}><span>horizon reference · 80% stage height</span></div>
     <label className="journey__layer-debug-control">debug progress {progress.toFixed(2)}<input aria-label="Layer debug progress" type="range" min="0" max="100" value={Math.round(progress * 100)} onChange={(event) => setProgress(Number(event.currentTarget.value) / 100)} /></label>

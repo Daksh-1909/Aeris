@@ -13,12 +13,10 @@ for (const [width, height] of widths) {
   await page.locator('.journey__layer-debug').waitFor({ timeout: 60000 });
   await page.evaluate(() => document.fonts.ready);
   for (const progress of progressValues) {
-    await page.getByLabel('Layer debug progress').evaluate((input, value) => {
-      const control = input;
-      control.value = String(Math.round(value * 100));
-      control.dispatchEvent(new Event('input', { bubbles: true }));
-      control.dispatchEvent(new Event('change', { bubbles: true }));
-    }, progress);
+    const slider = page.getByLabel('Layer debug progress');
+    await slider.focus();
+    await slider.press('Home');
+    for (let i = 0; i < Math.round(progress * 100); i++) await slider.press('ArrowRight');
     await page.waitForTimeout(180);
     const filename = `${width}x${height}-p${String(Math.round(progress * 100)).padStart(2, '0')}.png`;
     await page.screenshot({ path: `${output}/${filename}`, fullPage: false });
@@ -34,7 +32,7 @@ for (const [width, height] of widths) {
       };
       const intersects = (a, b) => a.x < b.right && a.right > b.x && a.y < b.bottom && a.bottom > b.y;
       const text = [...document.querySelectorAll('.journey__scene h1, .journey__copy p, .journey__copy .journey__button, .journey__overlap-front h1, .journey__moment')].filter(visible).map((el) => ({ label: el.textContent.trim().replace(/\s+/g, ' '), type: el.matches('h1') ? 'headline' : el.classList.contains('journey__button') ? 'pill' : 'copy', rect: rect(el), opacity: getComputedStyle(el.parentElement).opacity, z: getComputedStyle(el.parentElement).zIndex }));
-      const targets = [...document.querySelectorAll('.journey__orb,.site-header,.journey__tree,.journey__children,.journey__bench-scene,.journey__cloud-layer--near')].filter(visible).map((el) => ({ label: el.dataset.layer || el.className, rect: rect(el), z: getComputedStyle(el).zIndex }));
+      const targets = [...document.querySelectorAll('.journey__orb,.site-header,.journey__tree,.journey__children,.journey__bench-scene,.journey__cloud')].filter(visible).map((el) => ({ label: el.dataset.layer || el.className, rect: rect(el), z: getComputedStyle(el).zIndex }));
       const collisions = [];
       for (let i = 0; i < text.length; i++) for (let j = i + 1; j < text.length; j++) if (intersects(text[i].rect, text[j].rect)) collisions.push({ text: text[i].label, withText: text[j].label, kind: 'text-text' });
       for (const a of text) for (const b of targets) if (intersects(a.rect, b.rect)) collisions.push({ text: a.label, with: b.label, kind: 'text-layer' });
