@@ -202,8 +202,8 @@ function LayerDebug({ stageRef, progress, setProgress }: { stageRef: RefObject<H
     .filter((element) => element.getClientRects().length && Number(getComputedStyle(element).opacity) > 0.01)
     .map((element) => {
       const rect = element.getBoundingClientRect();
-      const style = getComputedStyle(element);
-      const z = style.zIndex;
+      const plane = element.dataset.layer ? element : element.closest<HTMLElement>('[data-layer]') ?? element;
+      const z = getComputedStyle(plane).zIndex;
       const contexts: string[] = [];
       let node: HTMLElement | null = element;
       while (node && node !== stage.parentElement) {
@@ -212,7 +212,7 @@ function LayerDebug({ stageRef, progress, setProgress }: { stageRef: RefObject<H
         if (reasons.length) contexts.push(`${node.className || node.tagName}: ${reasons.join(', ')}`);
         node = node.parentElement;
       }
-      return { name, rect, z, contexts, layer: element.dataset.layer };
+      return { name, rect, z, contexts, layer: plane.dataset.layer };
     })) : [];
   return <div className="journey__layer-debug" aria-label="Layer debug overlay" data-progress={progress.toFixed(2)}>
     {items.map(({ name, rect, z, contexts, layer }, index) => <div key={`${name}-${index}`} className="journey__layer-debug-box" style={{ left: rect.left - (bounds?.left ?? 0), top: rect.top - (bounds?.top ?? 0), width: rect.width, height: rect.height, '--debug-color': `hsl(${index * 47 % 360} 100% 65%)` } as CSSProperties}>
