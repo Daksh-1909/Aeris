@@ -10,6 +10,7 @@
     "check": "npm run lint && npm run build",
     "sky:shots": "node scripts/journey-shots.mjs",
     "qa:phase10": "node scripts/journey-shots.mjs",
+    "qa:layers": "node scripts/qa-layers.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

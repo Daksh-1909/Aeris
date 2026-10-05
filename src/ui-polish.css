@@ -374,7 +374,7 @@ body { background-color: transparent; }
 html[data-reduce-effects='true'] .hero__scroll-cue svg { animation: none; }
 
 /* Sky Journey V2 Phase 5: centered glass navigation and a continuous night-page backdrop. */
-.site-header { z-index: 50; background: transparent !important; transition: transform .42s var(--ease-sky), opacity .32s var(--ease-sky); }
+.site-header { z-index: var(--z-header, 50); background: transparent !important; transition: transform .42s var(--ease-sky), opacity .32s var(--ease-sky); }
 .site-header--hidden { transform: translateY(calc(-100% - 12px)); opacity: 0; pointer-events: none; }
 .site-header__bar { justify-content: center; }
 .site-header__bar > .brand { display: none; }

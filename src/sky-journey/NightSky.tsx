@@ -163,13 +163,16 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
 
   const nebulaOpacity = .7 * ((Math.max(0, Math.min(1, (progress - .8) / .2))) ** 2 * (3 - 2 * Math.max(0, Math.min(1, (progress - .8) / .2))));
 
-  return <div className="journey__night-sky" aria-hidden="true">
-    <div className={`journey__nebula${nebulaOpacity > 0 ? ' journey__nebula--active' : ''}`} style={{ opacity: nebulaOpacity }}>
+  return <>
+    <div className="journey__plane journey__plane--nebula" data-layer="nebula" aria-hidden="true">
+      <div className={`journey__nebula${nebulaOpacity > 0 ? ' journey__nebula--active' : ''}`} style={{ opacity: nebulaOpacity }}>
       <span className="journey__nebula-blob journey__nebula-blob--violet" />
       <span className="journey__nebula-blob journey__nebula-blob--blue" />
       <span className="journey__nebula-blob journey__nebula-blob--rose" />
+      </div>
     </div>
-    <div className={`journey__aurora${auroraOpacity > 0 ? ' journey__aurora--active' : ''}`} style={{ opacity: auroraOpacity }}>
+    <div className="journey__plane journey__plane--aurora" data-layer="aurora" aria-hidden="true">
+      <div className={`journey__aurora${auroraOpacity > 0 ? ' journey__aurora--active' : ''}`} style={{ opacity: auroraOpacity }}>
       <svg className="journey__aurora-art" viewBox="0 0 1440 520" preserveAspectRatio="none">
         <defs>
           <linearGradient id="aurora-green" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#54ffb3" stopOpacity="0" /><stop offset=".3" stopColor="#54ffb3" stopOpacity=".06" /><stop offset=".55" stopColor="#54ffb3" stopOpacity=".42" /><stop offset=".8" stopColor="#54ffb3" stopOpacity=".12" /><stop offset="1" stopColor="#54ffb3" stopOpacity="0" /></linearGradient>
@@ -180,7 +183,10 @@ export function NightSky({ progress, opacity, auroraOpacity }: { progress: numbe
         <g className="journey__aurora-ribbon journey__aurora-ribbon--teal"><path fill="url(#aurora-teal)" d="M0 165 C180 135 300 205 480 168 S780 130 960 168 S1260 136 1440 168 L1440 220 C1260 190 1150 255 970 224 S675 278 493 233 S180 273 0 238Z" /></g>
         <g className="journey__aurora-ribbon journey__aurora-ribbon--violet"><path fill="url(#aurora-violet)" d="M0 205 C180 175 300 245 480 208 S780 170 960 208 S1260 176 1440 208 L1440 260 C1260 230 1150 295 970 264 S675 318 493 273 S180 313 0 278Z" /></g>
       </svg>
+      </div>
     </div>
-    <canvas ref={canvasRef} className="journey__stars" style={{ opacity }} />
-  </div>;
+    <div className="journey__plane journey__plane--stars" data-layer="stars" aria-hidden="true">
+      <canvas ref={canvasRef} className="journey__stars" style={{ opacity }} />
+    </div>
+  </>;
 }

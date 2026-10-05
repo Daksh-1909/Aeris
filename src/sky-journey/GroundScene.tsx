@@ -54,12 +54,19 @@ export function GroundScene({ progress }: { progress: number }) {
   } as CSSProperties;
 
   return <>
-    <div className="journey__ground-scene" data-layer="ground" aria-hidden="true">
+    <div className="journey__plane journey__plane--ground-back" data-layer="ground-back" aria-hidden="true">
       <div className="journey__ground-art">
         <img src="/3d/scene/ground.svg" alt="" style={{ opacity: dayOpacity }} />
         <img src="/3d/scene/ground-sunset.svg" alt="" style={{ opacity: sunsetOpacity }} />
         <img src="/3d/scene/ground-night.svg" alt="" style={{ opacity: nightOpacity }} />
       </div>
+    </div>
+    <div className="journey__plane journey__plane--children" data-layer="children" aria-hidden="true">
+      <div className="journey__children" style={childrenStyle}>
+        <div className={`journey__children-art${childrenActive ? ' journey__children--active' : ''}${childrenVisible ? '' : ' journey__children--hidden'}`} dangerouslySetInnerHTML={{ __html: childrenSvg }} />
+      </div>
+    </div>
+    <div className="journey__plane journey__plane--ground-front" data-layer="ground-front" aria-hidden="true">
       <div className="journey__picnic" style={{ opacity: picnicOpacity, transform: `translateY(${(1 - picnicOpacity) * 8}px)` }}>
         <svg viewBox="0 0 340 150" role="presentation">
           <defs>
@@ -91,10 +98,9 @@ export function GroundScene({ progress }: { progress: number }) {
           <circle cx="142" cy="108" r="5" fill="#7a9c62" />
         </svg>
       </div>
-      <div className="journey__children" data-layer="children" style={childrenStyle}>
-        <div className={`journey__children-art${childrenActive ? ' journey__children--active' : ''}${childrenVisible ? '' : ' journey__children--hidden'}`} dangerouslySetInnerHTML={{ __html: childrenSvg }} />
-      </div>
     </div>
-    <div className="journey__tree" data-layer="tree" style={treeColors(progress)} aria-hidden="true" dangerouslySetInnerHTML={{ __html: treeSvg }} />
+    <div className="journey__plane journey__plane--tree" data-layer="tree" aria-hidden="true">
+      <div className="journey__tree-art" style={treeColors(progress)} dangerouslySetInnerHTML={{ __html: treeSvg }} />
+    </div>
   </>;
 }

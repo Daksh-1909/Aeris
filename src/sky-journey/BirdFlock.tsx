@@ -38,7 +38,7 @@ export function BirdFlock({ progress }: { progress: number }) {
   const leadSize = 'clamp(28px, 3vw, 52px)';
   const leadPixels = Math.max(28, Math.min(52, window.innerWidth * .03));
 
-  return <div className="journey__birds" aria-hidden="true" style={{ opacity: active ? opacity : 0, '--bird': '#2a2438' } as CSSProperties}>
+  return <div className="journey__plane journey__plane--birds journey__birds" data-layer="birds" aria-hidden="true" style={{ opacity: active ? opacity : 0, '--bird': '#2a2438' } as CSSProperties}>
     {flock.map((bird, index) => {
       const birdTravel = bird.far ? travel * .7 : travel;
       const left = reducedMotion ? 20 : x + 120 * (bird.far ? birdTravel - travel : 0);

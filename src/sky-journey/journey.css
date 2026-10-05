@@ -1,3 +1,11 @@
+:root {
+  --z-sky: 0; --z-stars: 1; --z-nebula: 2; --z-orb-glow: 3; --z-orb: 4;
+  --z-clouds-far: 5; --z-clouds-mid: 6; --z-clouds-near: 7; --z-birds: 8;
+  --z-hills: 9; --z-ground-back: 10; --z-flowers: 11; --z-children: 12;
+  --z-bench: 13; --z-ground-front: 14; --z-tree: 15; --z-mist: 16;
+  --z-beats: 30; --z-header: 40; --z-rail: 45; --z-grain: 50;
+}
+
 .journey {
   position: relative;
   height: 600vh;
@@ -14,29 +22,52 @@
   top: 0;
   height: 100svh;
   min-height: 620px;
-  overflow: hidden;
+  overflow: clip;
   isolation: isolate;
+  contain: layout paint style;
   color: var(--journey-text);
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-middle) 55%, var(--sky-horizon) 100%);
+  --orb-x: 68%;
+  --horizon-y: 74%;
+  --beat-x: 6%;
+  --beat-y: 13%;
+  --beat-w: 44%;
+  --beat-h: 33%;
 }
 
+.journey__plane { position: absolute; inset: 0; pointer-events: none; }
+.journey__plane--sky { z-index: var(--z-sky); }
+.journey__plane--stars { z-index: var(--z-stars); }
+.journey__plane--nebula,
+.journey__plane--aurora { z-index: var(--z-nebula); }
+.journey__plane--orb { z-index: var(--z-orb); }
+.journey__plane--clouds-far { z-index: var(--z-clouds-far); }
+.journey__plane--clouds-mid { z-index: var(--z-clouds-mid); }
+.journey__plane--clouds-near { z-index: var(--z-clouds-near); }
+.journey__plane--birds { z-index: var(--z-birds); }
+.journey__plane--ground-back { z-index: var(--z-ground-back); }
+.journey__plane--children { z-index: var(--z-children); }
+.journey__plane--ground-front { z-index: var(--z-ground-front); }
+.journey__plane--tree { z-index: var(--z-tree); }
+.journey__plane--beats { z-index: var(--z-beats); }
+.journey__plane--rail { z-index: var(--z-rail); }
+.journey__plane--grain { z-index: var(--z-grain); }
+
 .journey__sky,
-.journey__horizon,
-.journey__cloud-layer,
-.journey__ground-scene {
+.journey__horizon {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-.journey__cloud-layer {
+.journey__cloud-layer--far,
+.journey__cloud-layer--mid,
+.journey__cloud-layer--near {
+  position: absolute;
   overflow: hidden;
   opacity: var(--cloud-opacity, 1);
+  inset: 0;
 }
-
-.journey__cloud-layer--far { z-index: 3; }
-.journey__cloud-layer--mid { z-index: 4; }
-.journey__cloud-layer--near { z-index: 7; }
 
 .journey__cloud {
   position: absolute;
@@ -60,19 +91,14 @@
 }
 
 .journey__sky {
-  z-index: 0;
   background: radial-gradient(ellipse at 50% 82%, rgb(255 255 255 / .13), transparent 48%);
 }
 
 .journey__horizon {
-  z-index: 1;
-  inset: auto 0 20%;
+  inset: auto 0 auto;
+  top: calc(var(--horizon-y) - 15%);
   height: 15%;
   background: linear-gradient(180deg, transparent, rgb(238 195 145 / .42));
-}
-
-.journey__ground-scene {
-  z-index: 3;
 }
 
 .journey__ground-art {
@@ -91,21 +117,20 @@
   object-fit: fill;
 }
 
-.journey__tree,
+.journey__tree-art,
 .journey__children {
   position: absolute;
   pointer-events: none;
 }
 
-.journey__tree {
-  z-index: 4;
+.journey__tree-art {
   left: 4%;
   bottom: 3%;
   width: clamp(200px, 20vw, 340px);
   aspect-ratio: 2 / 3;
 }
 
-.journey__tree svg,
+.journey__tree-art svg,
 .journey__children svg {
   display: block;
   width: 100%;
@@ -113,7 +138,7 @@
   overflow: visible;
 }
 
-.journey__tree #canopy {
+.journey__tree-art #canopy {
   transform-box: view-box;
   transform-origin: 160px 250px;
   animation: canopy-sway 6s ease-in-out infinite alternate;
@@ -125,7 +150,6 @@
 }
 
 .journey__children {
-  z-index: 2;
   left: 38%;
   bottom: 10%;
   width: clamp(180px, 17vw, 260px);
@@ -136,7 +160,6 @@
 
 .journey__picnic {
   position: absolute;
-  z-index: 4;
   left: 5%;
   bottom: 6%;
   width: clamp(240px, 25vw, 340px);
@@ -168,7 +191,6 @@
 
 .journey__birds {
   position: absolute;
-  z-index: 2;
   inset: 0;
   pointer-events: none;
 }
@@ -234,13 +256,13 @@
 
 .journey__orb {
   position: absolute;
-  z-index: 6;
-  left: var(--orb-x, 62%);
-  top: var(--orb-y, 42%);
-  width: clamp(150px, 19vw, 280px);
+  left: var(--orb-x);
+  top: var(--orb-y, 78%);
+  width: clamp(112px, 12vw, 220px);
   aspect-ratio: 1;
   border-radius: 50%;
   pointer-events: none;
+  transform: translate(-50%, -50%);
   transform-origin: center;
   will-change: transform;
 }
@@ -292,101 +314,59 @@
   background: rgb(228 222 180 / .45);
 }
 
-.journey__content {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.journey__plane--beats {
+  left: var(--beat-x);
+  top: var(--beat-y);
+  width: var(--beat-w);
+  max-height: var(--beat-h);
+  display: grid;
 }
 
-.journey__scene {
-  position: absolute;
-  z-index: 5;
-  top: clamp(112px, 15vh, 170px);
-  left: clamp(24px, 7.5vw, 120px);
-  width: min(1000px, calc(100% - clamp(48px, 15vw, 240px)));
-  color: var(--journey-text);
-  text-shadow: 0 2px 24px rgb(10 30 43 / .26);
-  pointer-events: none;
-}
-
-.journey__scene--center { left: 50%; translate: -50% 0; text-align: center; }
-.journey__scene--right { right: clamp(24px, 7.5vw, 120px); left: auto; text-align: right; }
-.journey__scene--behind { z-index: 5; }
-
-.journey__eyebrow {
-  margin: 0 0 clamp(18px, 3vh, 32px);
-  font: 500 10px/1.4 Inter, Arial, sans-serif;
-  letter-spacing: .22em;
-}
-
-.journey__eyebrow span { padding-inline: 6px; opacity: .65; }
-
-.journey__scene h1 {
-  width: 100%;
-  max-width: 12ch;
-  margin: 0;
-  font: 400 clamp(3rem, 9.6vw, 9rem)/.9 'Cormorant Garamond', Georgia, serif;
-  letter-spacing: -.045em;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-}
-
-.journey__scene--center h1 { margin-inline: auto; }
-.journey__scene--right h1 { max-width: min(1000px, 65vw); margin-left: auto; }
-
-.journey__overlap-front {
-  position: absolute;
-  z-index: 8;
-  inset: 0;
-  pointer-events: none;
-  -webkit-mask-image: radial-gradient(circle clamp(75px, 12.5vw, 180px) at var(--orb-x, 62%) var(--orb-y, 42%), #000 0 72%, transparent 94%);
-  mask-image: radial-gradient(circle clamp(75px, 12.5vw, 180px) at var(--orb-x, 62%) var(--orb-y, 42%), #000 0 72%, transparent 94%);
-}
-
-.journey__overlap-front h1 {
-  position: absolute;
-  top: clamp(112px, 15vh, 170px);
-  left: 50%;
-  translate: -50% 0;
-  width: min(1000px, calc(100% - clamp(48px, 15vw, 240px)));
-  max-width: 12ch;
-  margin: 0;
-  color: var(--journey-text);
-  font: 400 clamp(3rem, 9.6vw, 9rem)/.9 'Cormorant Garamond', Georgia, serif;
-  letter-spacing: -.045em;
-  text-align: center;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-  text-shadow: 0 2px 24px rgb(10 30 43 / .26);
-}
-
-.journey__copy {
-  position: absolute;
-  z-index: 9;
-  left: clamp(24px, 7.5vw, 120px);
-  bottom: clamp(32px, 8vh, 88px);
+.journey__beat {
+  position: relative;
+  grid-area: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 14px;
-  width: min(330px, 35vw);
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  pointer-events: none;
   color: var(--journey-text);
   text-shadow: 0 1px 14px rgb(7 18 20 / .35);
 }
 
-.journey__copy--left { left: clamp(24px, 7.5vw, 120px); }
-.journey__copy--right { right: clamp(24px, 7.5vw, 120px); left: auto; align-items: flex-end; text-align: right; }
-.journey__copy--beat-1,
-.journey__copy--beat-3,
-.journey__copy--beat-6 { top: 30%; bottom: auto; }
-.journey__copy--beat-4 { top: 58%; right: clamp(24px, 7.5vw, 120px); bottom: auto; left: auto; align-items: flex-end; text-align: right; }
-.journey__copy--beat-2,
-.journey__copy--beat-5 { right: 0; left: auto; width: min(330px, 22vw); align-items: flex-end; text-align: right; }
+.journey__beat[data-active='true'] { pointer-events: auto; }
+.journey__beat::before {
+  content: '';
+  position: absolute;
+  inset: -24px -32px;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(5 10 30 / var(--beat-scrim, .38)), rgb(5 10 30 / 0) 78%);
+  pointer-events: none;
+}
 
-.journey__copy p {
-  max-width: 34ch;
+.journey__eyebrow {
   margin: 0;
-  font: 400 clamp(13px, 1.2vw, 16px)/1.6 Inter, Arial, sans-serif;
+  font: 500 .72rem/1.2 Inter, Arial, sans-serif;
+  letter-spacing: .28em;
+}
+.journey__eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; margin: 0 10px 3px 0; background: currentColor; }
+.journey__eyebrow span { padding-inline: 6px; opacity: .65; }
+
+.journey__beat h1 {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  font: 300 clamp(2.4rem, 4.6vw + .2rem, 5rem)/1 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+}
+
+.journey__beat > p:not(.journey__eyebrow) {
+  max-width: 46ch;
+  margin: 0;
+  font: 400 clamp(.95rem, .9rem + .25vw, 1.1rem)/1.65 Inter, Arial, sans-serif;
 }
 
 .journey__button {
@@ -399,7 +379,7 @@
   border-radius: 999px;
   background: rgb(12 30 39 / .22);
   color: inherit;
-  font: 500 10px/1 Inter, Arial, sans-serif;
+  font: 500 .72rem/1.3 Inter, Arial, sans-serif;
   letter-spacing: .11em;
   text-decoration: none;
   text-transform: uppercase;
@@ -407,7 +387,7 @@
 
 .journey__debug {
   position: absolute;
-  z-index: 10;
+  pointer-events: auto;
   left: 50%;
   bottom: 12px;
   width: min(500px, calc(100% - 32px));
@@ -426,12 +406,11 @@
 
 .journey__moment {
   position: absolute;
-  z-index: 9;
   right: clamp(24px, 7.5vw, 120px);
   bottom: clamp(32px, 8vh, 88px);
   color: var(--journey-text);
-  font: 500 9px/1 Inter, Arial, sans-serif;
-  letter-spacing: .16em;
+  font: 500 .72rem/1.3 Inter, Arial, sans-serif;
+  letter-spacing: .08em;
   text-transform: uppercase;
 }
 
@@ -439,63 +418,54 @@
 .journey__debug input { width: 100%; accent-color: #efd09c; }
 .journey__debug output { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.journey__layer-debug { position: absolute; inset: 0; z-index: 100; pointer-events: none; overflow: hidden; font: 9px/1.3 Inter, Arial, sans-serif; }
+.journey__layer-debug { pointer-events: none; overflow: hidden; font: 9px/1.3 Inter, Arial, sans-serif; }
 .journey__layer-debug-box { position: absolute; box-sizing: border-box; border: 1px solid var(--debug-color); background: color-mix(in srgb, var(--debug-color) 9%, transparent); }
 .journey__layer-debug-box > span { position: absolute; top: 0; left: 0; max-width: min(340px, 50vw); padding: 3px 5px; color: #fff; background: color-mix(in srgb, var(--debug-color) 76%, #080b14); overflow-wrap: anywhere; }
-.journey__layer-debug-horizon { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed #fff; }
+.journey__layer-debug-horizon { position: absolute; left: 0; right: 0; top: var(--horizon-y); height: 0; border-top: 1px dashed #fff; }
 .journey__layer-debug-horizon span { position: absolute; right: 4px; bottom: 2px; padding: 2px 4px; color: #fff; background: #080b14cc; }
 .journey__layer-debug-control { position: absolute; left: 50%; bottom: 14px; width: min(520px, calc(100% - 32px)); transform: translateX(-50%); display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; padding: 8px 12px; border: 1px solid #ffffff55; border-radius: 6px; color: #fff; background: #080b14e8; pointer-events: auto; }
 .journey__layer-debug-control input { width: 100%; accent-color: #efd09c; }
 
+@media (min-width: 768px) and (max-width: 1023px) {
+  .journey__stage { --orb-x: 50%; --horizon-y: 78%; --beat-x: 7%; --beat-y: 11%; --beat-w: 86%; --beat-h: 30%; }
+  .journey__orb { width: clamp(140px, 22vw, 200px); }
+}
+
 @media (max-width: 767px) {
-  .journey__stage { min-height: 0; }
-  .journey__orb { left: 50%; width: clamp(118px, 38vw, 185px); }
-  .journey__tree { left: -6%; width: clamp(150px, 42vw, 220px); }
-  .journey__children { left: 44%; bottom: 12%; width: clamp(150px, 46vw, 220px); }
+  .journey__stage { min-height: 0; --orb-x: 50%; --horizon-y: 76%; --beat-x: 6%; --beat-y: 10%; --beat-w: 88%; --beat-h: 30%; }
+  .journey__orb { width: clamp(96px, 28vw, 150px); }
+  .journey__tree-art { left: -8%; width: 36vw; }
+  .journey__children { left: 42%; bottom: 12%; width: 34vw; }
   .journey__picnic { left: -1%; bottom: 8%; width: clamp(220px, 65vw, 300px); }
   .journey__bird:nth-child(5),
   .journey__bird:nth-child(6),
   .journey__bird:nth-child(7),
   .journey__bird:nth-child(10) { display: none; }
-  .journey__cloud-layer--far { z-index: 3; }
-  .journey__scene { top: 112px; right: 20px; left: 20px; width: auto; text-align: center; }
-  .journey__scene--behind { z-index: 5; }
-  .journey__cloud-layer--near { z-index: 4; }
-  .journey__cloud--mobile-hidden { display: none; }
+  .journey__cloud--mobile-hidden,
   .journey__flower--mobile-hidden { display: none; }
-  .journey__bench-scene { left: calc(100% - clamp(122px, 36vw, 138px)); bottom: 0; width: clamp(122px, 36vw, 138px); }
-  .journey__scene--center,
-  .journey__scene--right { right: 20px; left: 20px; translate: 0 0; text-align: center; }
-  .journey__scene h1,
-  .journey__scene--right h1 { max-width: 11ch; margin-inline: auto; font-size: clamp(2.8rem, 12vw, 5rem); }
-  .journey__overlap-front { display: none; }
-  .journey__copy,
-  .journey__copy--left,
-  .journey__copy--right {
-    right: 20px;
-    bottom: 82px;
-    left: 20px;
-    width: auto;
-    align-items: center;
-    text-align: center;
-  }
-  .journey__copy--beat-1,
-  .journey__copy--beat-3,
-  .journey__copy--beat-6 { top: 30%; bottom: auto; }
-  .journey__copy--beat-4 { top: auto; right: 20px; bottom: 82px; left: 20px; align-items: center; text-align: center; }
-  .journey__copy--beat-2,
-  .journey__copy--beat-5 { right: 20px; left: 20px; min-width: 0; }
-  .journey__copy p { max-width: 34ch; }
+  .journey__beat { gap: 8px; }
+  .journey__beat h1 { font-size: clamp(2rem, 9vw, 2.75rem); line-height: 1.02; letter-spacing: -.01em; }
+  .journey__beat::before { inset: -12px -12px; }
   .journey__moment { display: none; }
   .journey__debug { grid-template-columns: auto minmax(54px, 1fr); gap: 8px; bottom: 10px; }
   .journey__debug output { grid-column: 1 / -1; justify-self: center; max-width: 100%; }
+}
+
+@media (max-height: 699px) {
+  .journey__beat > p:not(.journey__eyebrow),
+  .journey__beat .journey__button { display: none; }
+  .journey__tree-art { height: 30vh; width: auto; }
+}
+
+@media (max-height: 559px) {
+  .journey__eyebrow { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .journey__button { scroll-behavior: auto; }
   .journey__cloud img { animation: none; }
   .journey__flower svg { animation: none; }
-  .journey__tree #canopy,
+  .journey__tree-art #canopy,
   .journey__children * { animation: none !important; }
   .journey__bird { animation: none; }
 }
