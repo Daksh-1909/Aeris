@@ -22,10 +22,14 @@ export default function App() {
         <a className="wordmark" href="#" aria-label="AERIS home">AERIS<span>®</span></a>
         <p className="header-note">A field guide to the sky<br />and the things beneath it.</p>
         <nav className={menuOpen ? 'site-nav is-open' : 'site-nav'} aria-label="Main navigation">
-          <a href="#field-notes" onClick={closeMenu}>Field notes <span>01</span></a>
-          <a href="#about" onClick={closeMenu}>About <span>02</span></a>
+          <a href="#field-notes" onClick={closeMenu}>Gallery</a>
+          <a href="/atlas" onClick={closeMenu}>Cloud Atlas</a>
+          <a href="/planner" onClick={closeMenu}>Planner</a>
+          <a href="/collections" onClick={closeMenu}>Collections</a>
+          <a href="#about" onClick={closeMenu}>About</a>
+          <a href="/login" onClick={closeMenu}>Sign in <ArrowUpRight size={13} aria-hidden="true" /></a>
         </nav>
-        <a className="header-cta" href="#field-notes">Explore the archive <ArrowUpRight size={15} aria-hidden="true" /></a>
+        <a className="header-cta" href="#field-notes">Explore <ArrowUpRight size={15} aria-hidden="true" /></a>
         <button
           className="menu-toggle"
           type="button"
