@@ -281,3 +281,75 @@ body {
   .hero-image-frame figcaption { right: 10px; bottom: 15px; left: 10px; }
   .about-band { margin-inline: 0; border-radius: 26px; }
 }
+
+/* Claymorphic direction: colorful, rounded surfaces with soft inflated depth. */
+:root {
+  --paper: #fff4df;
+  --surface: #ffe8c7;
+  --ink: #3b3150;
+  --muted: #806d80;
+  --line: rgba(59, 49, 80, .1);
+  --accent: #8adfd1;
+  --accent-deep: #167d79;
+  --warm: #ffb7a8;
+  --clay-pink: #ff9e9b;
+  --clay-purple: #b8a2ee;
+  --clay-yellow: #ffd56f;
+  --clay-blue: #8cccf2;
+  --clay-shadow: 10px 14px 22px rgba(187, 119, 109, .25), -8px -8px 18px rgba(255, 255, 255, .82);
+  --clay-shadow-small: 5px 7px 12px rgba(187, 119, 109, .22), -4px -4px 10px rgba(255, 255, 255, .8);
+  --clay-pressed: inset 4px 5px 9px rgba(187, 119, 109, .2), inset -4px -4px 9px rgba(255, 255, 255, .72);
+}
+
+body {
+  background:
+    radial-gradient(circle at 10% 8%, rgba(255, 213, 111, .56), transparent 27%),
+    radial-gradient(circle at 91% 19%, rgba(184, 162, 238, .48), transparent 29%),
+    radial-gradient(circle at 48% 92%, rgba(138, 223, 209, .46), transparent 34%),
+    var(--paper);
+  background-attachment: fixed;
+}
+.site-header { border: 0; border-radius: 0 0 30px 30px; background: rgba(255, 244, 223, .84); box-shadow: 0 10px 20px rgba(187, 119, 109, .12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.wordmark { color: #ef6e70; }
+.wordmark span { color: var(--muted); }
+.header-cta, .menu-toggle { border: 0; background: var(--clay-yellow); box-shadow: var(--clay-shadow-small); }
+.header-cta:hover { border: 0; color: var(--ink); background: #ffca58; box-shadow: var(--clay-pressed); }
+.menu-toggle:active { box-shadow: var(--clay-pressed); }
+
+.hero { border: 0; }
+.eyebrow { color: var(--muted); }
+.status-dot { background: #ef6e70; box-shadow: 0 2px 5px rgba(239, 110, 112, .35); }
+.hero h1 { color: var(--ink); }
+.hero-period, .section-heading h2 span { color: #ef6e70; }
+.hero-link { border: 0; background: var(--clay-pink); color: #522e45; box-shadow: var(--clay-shadow-small); }
+.hero-link:hover { color: #522e45; background: #ffaaa5; box-shadow: var(--clay-pressed); }
+.hero-stamp { border: 0; background: var(--clay-blue); color: #31556c; box-shadow: var(--clay-shadow-small); }
+.stamp-star { color: #ef6e70; }
+.hero-image-frame { padding: 13px 13px 52px; border: 0; border-radius: 30px; background: var(--clay-purple); box-shadow: var(--clay-shadow); }
+.hero-image-frame img { border-radius: 19px; }
+.image-index { border: 0; background: var(--clay-yellow); box-shadow: var(--clay-shadow-small); }
+
+.ticker { border: 0; background: var(--accent); color: #195d62; box-shadow: var(--clay-shadow-small); }
+.ticker-track i { color: #ef6e70; }
+.archive-bar { border: 0; background: var(--surface); box-shadow: var(--clay-shadow-small); }
+.filter-button:hover { border: 0; background: var(--clay-yellow); color: var(--ink); box-shadow: var(--clay-shadow-small); }
+.filter-button.is-active { border: 0; background: var(--clay-pink); color: #522e45; box-shadow: var(--clay-pressed); }
+.photo-image { border: 0; background: var(--clay-blue); box-shadow: var(--clay-shadow); }
+.photo-image img { border-radius: 20px; }
+.photo-arrow { border: 0; background: var(--clay-yellow); box-shadow: var(--clay-shadow-small); }
+.photo-card:hover .photo-arrow { background: #ffca58; box-shadow: var(--clay-pressed); }
+
+.about-band { margin-inline: 5vw; padding-inline: 6.5vw; border: 0; border-radius: 34px; background: linear-gradient(115deg, var(--clay-pink), var(--clay-purple)); box-shadow: var(--clay-shadow); }
+.about-mark { color: rgba(255, 255, 255, .34); }
+.about-copy .eyebrow, .about-footnote { color: rgba(82, 46, 69, .7); }
+.site-footer { margin-top: 54px; border: 0; border-radius: 32px 32px 0 0; background: #b8a2ee; box-shadow: 0 -10px 20px rgba(187, 119, 109, .14); }
+.site-footer .wordmark { color: #fff4df; }
+.site-footer p, .site-footer .back-to-top, .site-footer .footer-copy { color: rgba(59, 49, 80, .7); }
+
+@media (max-width: 900px) { .about-band { margin-inline: 3vw; padding-right: 8vw; padding-left: 8vw; } }
+@media (max-width: 620px) {
+  .site-nav { top: 69px; border: 0; border-radius: 0 0 26px 26px; background: rgba(255, 244, 223, .96); box-shadow: 0 10px 20px rgba(187, 119, 109, .15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .hero-image-frame { padding: 10px 10px 48px; border-radius: 25px; }
+  .hero-image-frame figcaption { right: 10px; bottom: 15px; left: 10px; }
+  .about-band { margin-inline: 0; border-radius: 28px; }
+}
